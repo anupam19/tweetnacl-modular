@@ -1,3 +1,9 @@
+# File Name : Makefile
+# Location : tweetnacl-modular/app/
+# Author : Anupam Datta
+# Mail : adbd04@gmail.com
+# Description : compiles example code and creates executable app
+
 CFLAGS:=-Wextra -Wformat-security -Winline -Wmissing-declarations -Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wshadow -Wstrict-prototypes -Wswitch-default -Wswitch-enum -Wunused -Wunused-result -Wlogical-op -g -O0 -DWITH_POSIX -fPIC
 
 INCLUDE:=-I../includes
