@@ -1,3 +1,10 @@
+# File Name : Makefile
+# Location : [@top root directory] tweetnacl-modular/
+# Author : Anupam Datta
+# Mail : adbd04@gmail.com
+# Description : compiles tweetnacl library and produces shared library libtweetnacl.so inside [.libs] directory (tweetnacl-modular/.libs/)
+# [-cont.] compile your project with '-ltweetnacl'
+
 CC:=$(CC)
 
 CFLAGS:=-Wextra -Wformat-security -Winline -Wmissing-declarations -Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wshadow -Wstrict-prototypes -Wswitch-default -Wswitch-enum -Wunused -Wunused-result -Wlogical-op -g -O0 -DWITH_POSIX -fPIC
