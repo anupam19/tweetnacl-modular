@@ -21,14 +21,16 @@ SHARED:=libtweetnacl.so
 
 MKDIR_P:=mkdir -p
 
-.PHONY:	.libs
+.PHONY:	.libs app
 
 LIB:=.libs
+
+APP:=app
 
 $(LIB):
 	$(MKDIR_P) $(LIB)
 
-all:	$(LIB) $(OBJ) $(SHARED)
+all:	$(LIB) $(OBJ) $(SHARED) $(APP)
 
 randombytes.o:	$(SRC)randombytes.c
 	$(CC) -c $(CFLAGS) $(INCLUDE) $<
@@ -41,6 +43,10 @@ $(SHARED): $(OBJ)
 	@rm -f $(PROGRAMS) $(OBJ) *~
 	@mv $(SHARED) $(LIB)
 
+$(APP):
+	$(MAKE) -C $(APP)
+
 clean:
 	@rm -rf $(LIB)
 	@rm -f $(PROGRAMS) $(OBJ) *~ *.so
+	$(MAKE) -C $(APP) clean
