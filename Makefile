@@ -11,32 +11,28 @@ CFLAGS:=-Wextra -Wformat-security -Winline -Wmissing-declarations -Wmissing-prot
 
 LDFLAGS:=-shared
 
-SRC:=src/
+.PHONY:	.libs app install uninstall
 
-INCLUDE:=-Iincludes
-
+PREFIX:=/usr/local
+SRC:=src
+INCLUDE:=includes
+APP:=app
 OBJ:=tweetnacl.o randombytes.o
-
 SHARED:=libtweetnacl.so
 
-MKDIR_P:=mkdir -p
-
-.PHONY:	.libs app
-
+MKDIR:=mkdir -p
 LIB:=.libs
 
-APP:=app
+all: $(LIB) $(OBJ) $(SHARED) $(APP)
+
+randombytes.o:	$(SRC)/randombytes.c
+	$(CC) -c $(CFLAGS) -I$(INCLUDE) $<
+
+tweetnacl.o:	$(SRC)/tweetnacl.c
+	$(CC) -c $(CFLAGS) -I$(INCLUDE) $<
 
 $(LIB):
-	$(MKDIR_P) $(LIB)
-
-all:	$(LIB) $(OBJ) $(SHARED) $(APP)
-
-randombytes.o:	$(SRC)randombytes.c
-	$(CC) -c $(CFLAGS) $(INCLUDE) $<
-
-tweetnacl.o:	$(SRC)tweetnacl.c
-	$(CC) -c $(CFLAGS) $(INCLUDE) $<
+	$(MKDIR) $(LIB)
 
 $(SHARED): $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(SHARED) $(OBJ)
@@ -50,3 +46,12 @@ clean:
 	@rm -rf $(LIB)
 	@rm -f $(PROGRAMS) $(OBJ) *~ *.so
 	$(MAKE) -C $(APP) clean
+
+install:
+	cp $(LIB)/$(SHARED) $(DESTDIR)$(PREFIX)/lib/$(SHARED)
+	$(MKDIR) $(DESTDIR)$(PREFIX)/include/tweetnacl
+	cp -a includes/* $(DESTDIR)$(PREFIX)/include/tweetnacl/
+
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/lib/$(SHARED)
+	rm -rf $(DESTDIR)$(PREFIX)/include/tweetnacl/
