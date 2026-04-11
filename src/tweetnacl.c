@@ -1,13 +1,21 @@
-#include "tweetnacl.h"
-#define FOR(i,n) for (i = 0;i < n;++i)
-#define sv static void
+/*
+ * TweetNaCl Cryptographic Library - CERT C Compliant Version
+ * Refactored for security with hardened memory operations
+ * 
+ * CERT C Rules Applied:
+ * - MEM35-C: Allocate sufficient memory for an object
+ * - ARR30-C: Do not form or use out-of-bounds pointers
+ * - INT30-C: Ensure that unsigned integer operations do not wrap
+ * - INT32-C: Ensure that operations on signed integers do not result in overflow
+ */
 
-typedef unsigned char u8;
-typedef unsigned long u32;
-typedef unsigned long long u64;
-typedef long long i64;
-typedef i64 gf[16];
-extern void randombytes(u8 *,u64);
+#include "tweetnacl.h"
+#include "secure_mem.h"
+#include "secure_utils.h"
+#include <string.h>
+
+#define FOR(i,n) for (i = 0; i < (n); ++i)
+#define sv static void
 
 static const u8
   _0[16],
