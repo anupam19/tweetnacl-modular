@@ -8,7 +8,7 @@
 # Refactored with:
 # - Multi-architecture support (x86, ARM, RISC-V)
 # - Post-Quantum Cryptography (PQC) support
-# - Comprehensive unit tests
+# - Comprehensive unit tests (CUnit + GTest)
 
 CC:=$(CC)
 ARCH ?= native
@@ -47,7 +47,7 @@ CFLAGS:=$(BASE_CFLAGS) $(ARCH_CFLAGS)
 
 LDFLAGS:=-shared
 
-.PHONY: all .libs app tests clean install uninstall test help
+.PHONY: all .libs app tests clean install uninstall test test-all test-cunit test-gtest test-valgrind test-coverage help
 
 PREFIX:=/usr/local
 SRC:=src
@@ -97,18 +97,57 @@ $(TESTS): $(LIB) $(OBJ) $(PQC_OBJ)
 test: $(TESTS)
 	./$(TESTS)/test_all
 
+# Run CUnit tests
+test-cunit:
+	@echo "Building and running CUnit tests..."
+	$(MAKE) -C tests/cunit
+	./tests/cunit/test_runner
+
+# Run GTest tests  
+test-gtest:
+	@echo "Building and running GTest tests..."
+	$(MAKE) -C tests/gtest
+	./tests/gtest/test_tweetnacl
+
+# Run all tests (original + CUnit + GTest)
+test-all: test test-cunit test-gtest
+
+# Run tests with Valgrind memory checking
+test-valgrind: $(TESTS)
+	@echo "Running Valgrind memory check on original tests..."
+	valgrind --tool=memcheck --leak-check=full --error-exitcode=1 ./$(TESTS)/test_all
+	@echo "Running Valgrind on CUnit tests..."
+	$(MAKE) -C tests/cunit
+	valgrind --tool=memcheck --leak-check=full --error-exitcode=1 ./tests/cunit/test_runner
+
+# Generate code coverage report
+test-coverage: clean
+	@echo "Building with coverage instrumentation..."
+	CFLAGS="$(CFLAGS) --coverage -fprofile-arcs -ftest-coverage" $(MAKE) all
+	$(MAKE) test
+	@echo "Generating coverage report..."
+	gcov src/*.c
+	lcov --capture --directory . --output-file coverage.info 2>/dev/null || true
+	genhtml coverage.info --output-directory coverage_html 2>/dev/null || echo "Install lcov for HTML coverage reports"
+	@echo "Coverage report generated. Open coverage_html/index.html in a browser."
+
 # Help target
 help:
 	@echo "TweetNaCl Modular Build System"
 	@echo "=============================="
 	@echo ""
 	@echo "Targets:"
-	@echo "  all      - Build library, app, and tests (default)"
-	@echo "  test     - Build and run all unit tests"
-	@echo "  clean    - Remove build artifacts"
-	@echo "  install  - Install to system (PREFIX=$(PREFIX))"
-	@echo "  uninstall- Remove from system"
-	@echo "  help     - Show this help message"
+	@echo "  all        - Build library, app, and tests (default)"
+	@echo "  test       - Build and run original unit tests"
+	@echo "  test-cunit - Build and run CUnit test suite"
+	@echo "  test-gtest - Build and run GTest test suite"
+	@echo "  test-all   - Run all tests (original + CUnit + GTest)"
+	@echo "  test-valgrind - Run tests with Valgrind memory checking"
+	@echo "  test-coverage - Generate code coverage report"
+	@echo "  clean      - Remove build artifacts"
+	@echo "  install    - Install to system (PREFIX=$(PREFIX))"
+	@echo "  uninstall  - Remove from system"
+	@echo "  help       - Show this help message"
 	@echo ""
 	@echo "Architecture Options (ARCH=):"
 	@echo "  native   - Native architecture (default)"
@@ -123,6 +162,8 @@ help:
 	@echo "  make                    # Build with native settings"
 	@echo "  make ARCH=arm64         # Build for ARM64"
 	@echo "  make ARCH=riscv64 test  # Build for RISC-V64 and run tests"
+	@echo "  make test-cunit         # Run CUnit test suite"
+	@echo "  make test-coverage      # Generate coverage report"
 	@echo ""
 
 clean:
