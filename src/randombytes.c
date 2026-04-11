@@ -1,42 +1,52 @@
-#ifdef WIN32
-#include "Windows.h"
-#endif
+/*
+ * Random Bytes Generation Implementation
+ * Provides cryptographically secure random number generation
+ * 
+ * CERT C Compliance:
+ * - MEM35-C: Allocate sufficient memory for an object
+ * - ARR30-C: Do not form or use out-of-bounds pointers
+ */
+
+#include "randombytes.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "randombytes.h"
+#include <string.h>
 
-void randombytes(unsigned char * ptr,unsigned int length) 
-{
-	char failed = 0;
-#ifdef WIN32
-	static HCRYPTPROV prov = 0;
-	if (prov == 0) {
-		if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL, 0)) {
-			failed = 1;
-		}
-	}
-	if (!failed && !CryptGenRandom(prov, length, ptr)) {
-		failed = 1;
-	}
+#ifdef _WIN32
+#include <windows.h>
 #else
-	FILE* fh = fopen("/dev/urandom", "rb");
-	if (fh != NULL) {
-		if (fread(ptr, length, 1, fh) == 0) {
-			failed = 1;
-		}
-		fclose(fh);
-	} else {
-		failed = 1;
-	}
+#include <fcntl.h>
+#include <unistd.h>
 #endif
-	/* 
-	 * yes, this is horrible error handling but we don't have better 
-	 * options from here and I don't want to start changing the design 
-	 * of the library 
-	 */
-	if (failed) {
-		fprintf(stderr, "Generating random data failed. Please report "
-						"this to https://github.com/ultramancool\n");
-		exit(1);
-	}
+
+void randombytes(uint8_t *buf, size_t len) {
+    int failed = 0;
+    
+#ifdef _WIN32
+    static HCRYPTPROV prov = 0;
+    if (prov == 0) {
+        if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL, 0)) {
+            failed = 1;
+        }
+    }
+    if (!failed && !CryptGenRandom(prov, (DWORD)len, buf)) {
+        failed = 1;
+    }
+#else
+    int fd = open("/dev/urandom", O_RDONLY);
+    if (fd >= 0) {
+        ssize_t ret = read(fd, buf, len);
+        if (ret != (ssize_t)len) {
+            failed = 1;
+        }
+        close(fd);
+    } else {
+        failed = 1;
+    }
+#endif
+    
+    if (failed) {
+        fprintf(stderr, "Generating random data failed. Please report this.\n");
+        exit(1);
+    }
 }
