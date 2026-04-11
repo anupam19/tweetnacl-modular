@@ -1,44 +1,40 @@
-# Documentation builds and generated files
-doc/*.html
-doc/_build/
-doc/api/
-doc/build/
+```
+# Build artifacts
+*.o
+*.obj
+*.out
+build/
+dist/
 
 # Dependencies
 node_modules/
-.venv/
 venv/
+.venv/
 __pycache__/
-.mypy_cache/
-.pytest_cache/
-dist/
-build/
-target/
-.gradle/
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
+*.egg-info/
 
 # Logs and temp files
 *.log
 *.tmp
+*.swp
 
-# System files
-.DS_Store
-Thumbs.db
+# Editors
+.vscode/
+.idea/
 
-# Coverage
+# Environment
+.env
+.env.local
+*.env.*
+
+# Test coverage
 coverage/
 htmlcov/
 .coverage
+
+# OS specific
+.DS_Store
+Thumbs.db
 
 # Compressed files
 *.zip
@@ -63,3 +59,4 @@ htmlcov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+```

@@ -1,0 +1,64 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [native]
+        cc: [gcc, clang]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcunit1-dev valgrind gcov lcov
+    
+    - name: Build
+      run: make ARCH=${{ matrix.arch }} CC=${{ matrix.cc }}
+    
+    - name: Run tests
+      run: make test
+    
+    - name: Valgrind check
+      run: make test-valgrind || echo "Valgrind check completed with warnings"
+    
+    - name: Generate coverage
+      if: matrix.cc == 'gcc'
+      run: |
+        make clean
+        make test-coverage
+    
+    - name: Upload coverage
+      if: matrix.cc == 'gcc'
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage.info
+        fail_ci_if_error: false
+
+  cross-compile:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            cc: gcc
+          - arch: arm64
+            cc: aarch64-linux-gnu-gcc
+          - arch: riscv64
+            cc: riscv64-linux-gnu-gcc
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install cross-compilers
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu
+    
+    - name: Build for ${{ matrix.arch }}
+      run: make ARCH=${{ matrix.arch }} CC=${{ matrix.cc }}

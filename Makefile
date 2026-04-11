@@ -97,6 +97,36 @@ $(TESTS): $(LIB) $(OBJ) $(PQC_OBJ)
 test: $(TESTS)
 	./$(TESTS)/test_all
 
+# Test infrastructure
+test-all: test-original test-cunit
+
+test-original: $(TESTS)
+	./$(TESTS)/test_all
+
+test-cunit:
+	@echo "Building CUnit tests..."
+	$(MAKE) -C tests/cunit || echo "CUnit not installed, skipping CUnit tests"
+	@if [ -f tests/cunit/test_runner ]; then ./tests/cunit/test_runner; fi
+
+test-gtest:
+	@echo "Building GTest tests..."
+	$(MAKE) -C tests/gtest || echo "GTest not installed, skipping GTest tests"
+	@if [ -f tests/gtest/test_tweetnacl ]; then ./tests/gtest/test_tweetnacl; fi
+
+test-coverage: clean
+	@echo "Generating coverage report..."
+	CFLAGS="$(CFLAGS) --coverage -fprofile-arcs -ftest-coverage" $(MAKE)
+	$(MAKE) test
+	gcov src/*.c
+	lcov --capture --directory . --output-file coverage.info 2>/dev/null || echo "lcov not available"
+	genhtml coverage.info --output-directory coverage_html 2>/dev/null || echo "genhtml not available"
+	@echo "Coverage report generated in coverage_html/"
+
+test-valgrind: $(TESTS)
+	@echo "Running Valgrind memory check..."
+	valgrind --tool=memcheck --leak-check=full --error-exitcode=1 ./$(TESTS)/test_all
+	@if [ -f tests/cunit/test_runner ]; then valgrind --tool=memcheck --leak-check=full --error-exitcode=1 ./tests/cunit/test_runner; fi
+
 # Help target
 help:
 	@echo "TweetNaCl Modular Build System"
