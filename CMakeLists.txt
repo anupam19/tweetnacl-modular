@@ -21,6 +21,10 @@ option(ENABLE_PQC        "Enable Post-Quantum Cryptography" ON)
 option(ENABLE_COVERAGE   "Enable code coverage (gcov/lcov)" OFF)
 option(ENABLE_SANITIZERS "Enable AddressSanitizer + UBSan" OFF)
 option(ENABLE_LTO        "Enable Link Time Optimization" OFF)
+option(BUILD_CUNIT       "Build CUnit test suite (requires libcunit1-dev)" OFF)
+option(BUILD_GTEST       "Build GTest suite (requires libgtest-dev)" OFF)
+option(BUILD_BENCHMARK   "Build benchmark suite" OFF)
+option(BUILD_FUZZ        "Build fuzz target (requires clang + -fsanitize=fuzzer)" OFF)
 
 # ─── Compiler Requirements ──────────────────────────────────────────────────
 set(CMAKE_C_STANDARD 11)
@@ -271,6 +275,90 @@ if(NOT TARGET uninstall)
     )
 endif()
 
+# ─── CUnit Test Suite ─────────────────────────────────────────────────────
+if(BUILD_CUNIT)
+    find_package(PkgConfig QUIET)
+    pkg_check_modules(CUNIT cunit)
+    if(CUNIT_FOUND OR CUNIT_FOUND)
+        enable_testing()
+        add_executable(test_cunit
+            tests/cunit/test_runner.c
+            tests/cunit/test_tweetnacl_core.c
+            tests/cunit/test_tweetnacl_box.c
+            tests/cunit/test_tweetnacl_sign.c
+            tests/cunit/test_tweetnacl_secretbox.c
+            tests/cunit/test_tweetnacl_pqc.c
+            tests/cunit/test_secure_mem.c
+            tests/cunit/test_arch_detection.c
+            tests/cunit/test_constant_time.c
+        )
+        target_include_directories(test_cunit PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/includes
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch
+            ${CMAKE_CURRENT_SOURCE_DIR}/pqc
+            ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+        target_link_libraries(test_cunit PRIVATE tweetnacl_static ${CUNIT_LIBRARIES} cunit)
+        add_test(NAME CUnitTests COMMAND test_cunit)
+        message(STATUS "CUnit tests: ENABLED")
+    else()
+        message(STATUS "CUnit tests: DISABLED (libcunit1-dev not found)")
+    endif()
+endif()
+
+# ─── GTest Suite ──────────────────────────────────────────────────────────
+if(BUILD_GTEST)
+    find_package(GTest QUIET)
+    if(GTEST_FOUND)
+        enable_language(CXX)
+        add_executable(test_gtest tests/gtest/test_tweetnacl.cpp)
+        target_include_directories(test_gtest PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/includes
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch
+            ${CMAKE_CURRENT_SOURCE_DIR}/pqc
+            ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+        target_link_libraries(test_gtest PRIVATE tweetnacl_static GTest::gtest GTest::gtest_main)
+        add_test(NAME GTestTests COMMAND test_gtest)
+        message(STATUS "GTest tests: ENABLED")
+    else()
+        message(STATUS "GTest tests: DISABLED (libgtest-dev not found)")
+    endif()
+endif()
+
+# ─── Benchmark Suite ──────────────────────────────────────────────────────
+if(BUILD_BENCHMARK)
+    add_executable(bench tests/bench/bench.c)
+    target_include_directories(bench PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/includes
+        ${CMAKE_CURRENT_SOURCE_DIR}/arch
+        ${CMAKE_CURRENT_SOURCE_DIR}/pqc
+    )
+    target_link_libraries(bench PRIVATE tweetnacl_static)
+    add_custom_target(run_bench COMMAND bench DEPENDS bench
+        COMMENT "Running benchmarks..."
+    )
+    message(STATUS "Benchmark suite: ENABLED")
+endif()
+
+# ─── Fuzz Target ──────────────────────────────────────────────────────────
+if(BUILD_FUZZ)
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+        add_executable(fuzz_tweetnacl tests/fuzz/fuzz_target.c)
+        target_include_directories(fuzz_tweetnacl PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/includes
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch
+            ${CMAKE_CURRENT_SOURCE_DIR}/pqc
+        )
+        target_link_libraries(fuzz_tweetnacl PRIVATE tweetnacl_static)
+        target_compile_options(fuzz_tweetnacl PRIVATE -fsanitize=fuzzer)
+        target_link_options(fuzz_tweetnacl PRIVATE -fsanitize=fuzzer)
+        message(STATUS "Fuzz target: ENABLED")
+    else()
+        message(STATUS "Fuzz target: DISABLED (requires Clang)")
+    endif()
+endif()
+
 # ─── Subdirectories ─────────────────────────────────────────────────────────
 if(BUILD_TESTS)
     enable_testing()
@@ -294,4 +382,8 @@ message(STATUS "  PQC:               ${ENABLE_PQC}")
 message(STATUS "  Coverage:          ${ENABLE_COVERAGE}")
 message(STATUS "  Sanitizers:        ${ENABLE_SANITIZERS}")
 message(STATUS "  LTO:               ${ENABLE_LTO}")
+message(STATUS "  CUnit:             ${BUILD_CUNIT}")
+message(STATUS "  GTest:             ${BUILD_GTEST}")
+message(STATUS "  Benchmark:         ${BUILD_BENCHMARK}")
+message(STATUS "  Fuzz:              ${BUILD_FUZZ}")
 message(STATUS "")
