@@ -1,10 +1,10 @@
 # TweetNaCl-Modular 🔐
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Build Status](https://img.shields.io/github/actions/workflow/status/anupam19/tweetnacl-modular/cmake.yml?branch=master)](https://github.com/anupam19/tweetnacl-modular/actions/workflows/cmake.yml)
 [![Security Audit](https://img.shields.io/badge/security-audited-blue)](doc/SECURITY.md)
-[![CERT C](https://img.shields.io/badge/CERT_C-compliant-green.svg)]()
-[![Platform](https://img.shields.io/badge/platform-x86%20%7C%20ARM%20%7C%20RISC--V-lightgrey.svg)]()
+[![CERT C](https://img.shields.io/badge/CERT_C-compliant-green.svg)](doc/SECURITY.md)
+[![Platform](https://img.shields.io/badge/platform-x86%20%7C%20ARM%20%7C%20RISC--V-lightgrey.svg)](doc/BUILD.md)
 
 **Production-grade, modular TweetNaCl with Post-Quantum Cryptography**
 
