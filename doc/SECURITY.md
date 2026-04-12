@@ -16,6 +16,7 @@
 6. [Post-Quantum Security](#6-post-quantum-security)
 7. [Vulnerability Disclosure Policy](#7-vulnerability-disclosure-policy)
 8. [Security Audit Checklist](#8-security-audit-checklist)
+9. [NIST SP 800-193 Compliance](#9-nist-sp-800-193-compliance)
 
 ---
 
@@ -900,6 +901,77 @@ int crypto_verify_16(const unsigned char *x, const unsigned char *y);
 - [ ] Full verification of Poly1305
 - [ ] Partial verification of Curve25519
 - [ ] Integration into CI pipeline
+
+---
+
+## 9. NIST SP 800-193 Compliance
+
+This library implements applicable requirements from **NIST SP 800-193**
+*"Platform Firmware Resiliency Guidelines"* for cryptographic modules.
+
+### 9.1 Cryptographic Algorithm Validation (Section 3.2)
+
+All cryptographic primitives are verified against Known Answer Tests (KATs)
+derived from NIST CAVP (Cryptographic Algorithm Validation Program) vectors:
+
+| Primitive | Test Vector Source | Implementation |
+|-----------|-------------------|----------------|
+| SHA-512 | NIST CAVP SHA-512 | `nacl_selftest_sha512()` |
+| Poly1305 | NaCl reference vectors | `nacl_selftest_poly1305()` |
+| Curve25519 | RFC 7748 Section 5.2/6.1 | `nacl_selftest_curve25519()` |
+| Ed25519 | RFC 8032 Section 7.1 | `nacl_selftest_ed25519()` |
+| XSalsa20-Poly1305 | NaCl test vectors | `nacl_selftest_secretbox()` |
+| X25519 | RFC 7748 shared secret | `nacl_selftest_box()` |
+
+Run all KATs:
+```c
+if (nacl_selftest_all() != 0) {
+    /* Critical: cryptographic primitives are incorrect */
+    abort();
+}
+```
+
+### 9.2 Integrity Verification (Section 3.3)
+
+Library integrity checking verifies that the code has not been tampered with:
+
+```c
+if (nacl_integrity_check() != 0) {
+    /* Critical: library code may have been modified */
+    abort();
+}
+```
+
+The integrity check embeds a SHA-512 hash of the library's .text section
+at build time and verifies it at runtime. On unsupported platforms,
+returns 0 (success) gracefully.
+
+### 9.3 Continuous Self-Testing for RNG (NIST 800-90B)
+
+The random number generator performs a health check every 1000 calls:
+
+- Generates a 16-byte sample
+- Verifies it is not all zeros
+- Verifies bytes are not all identical
+- Falls back to software RNG if hardware DRNG fails
+
+### 9.4 Key Generation Validation
+
+Keys can be validated after generation to detect RNG failures:
+
+```c
+uint8_t pk[32], sk[64];
+if (nacl_keypair_generate_validated(pk, sk) != 0) {
+    /* Key generation failed — possible RNG issue */
+    abort();
+}
+```
+
+### 9.5 Scope Limitations
+
+Full NIST 800-193 firmware framework requirements (secure boot signing,
+TPM integration, measured boot, firmware recovery) are intentionally NOT
+implemented as they exceed the scope of a cryptographic library.
 
 ---
 

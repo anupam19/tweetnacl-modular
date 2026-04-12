@@ -108,6 +108,8 @@ set(NACL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/randombytes.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/secure_mem.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/secure_utils.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/integrity.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/keygen_validate.c
 )
 
 if(ENABLE_DRNG)
@@ -359,12 +361,26 @@ if(BUILD_FUZZ)
     endif()
 endif()
 
-# ─── Subdirectories ─────────────────────────────────────────────────────────
+# ─── Known Answer Tests (KATs) ───────────────────────────────────────────
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
+
+    # KAT self-test executable
+    add_executable(test_kat tests/kat/kat_runner.c)
+    target_include_directories(test_kat PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/includes
+        ${CMAKE_CURRENT_SOURCE_DIR}/arch
+        ${CMAKE_CURRENT_SOURCE_DIR}/pqc
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/kat
+    )
+    target_link_libraries(test_kat PRIVATE tweetnacl_static)
+    target_compile_definitions(test_kat PRIVATE KAT_STANDALONE)
+    add_test(NAME kat_selftest COMMAND test_kat)
+    message(STATUS "KAT self-tests: ENABLED")
 endif()
 
+# ─── App Subdirectory ─────────────────────────────────────────────────────
 if(BUILD_APP)
     add_subdirectory(app)
 endif()

@@ -30,8 +30,32 @@ jobs:
       - name: Build
         run: cmake --build build --parallel 4
 
-      - name: Run CTest
+      - name: Run CTest (including KATs)
         run: cd build && ctest --output-on-failure
+
+  binary-check:
+    name: No Binary Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for committed binaries
+        run: |
+          # Fail if any binary artifacts are found
+          found=0
+          for pattern in "*.exe" "*.out" "*.so" "*.a" "*.o" "app/app" "tests/test_all"; do
+            files=$(find . -name "$pattern" -not -path "./.git/*" -not -path "./build/*" 2>/dev/null)
+            if [ -n "$files" ]; then
+              echo "FOUND binary: $files"
+              found=1
+            fi
+          done
+          if [ "$found" -eq 1 ]; then
+            echo "ERROR: Binary artifacts found in repository!"
+            exit 1
+          fi
+          echo "No binary artifacts found - PASS"
 
   build-native-valgrind:
     name: Valgrind Memory Check

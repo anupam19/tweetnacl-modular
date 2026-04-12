@@ -142,6 +142,40 @@ int crypto_hash(u8 *out, const u8 *m, u64 n);
  */
 int crypto_hashblocks(u8 *x, const u8 *m, u64 n);
 
+/* ============================================================
+ * SELF-TEST AND INTEGRITY (NIST SP 800-193)
+ * ============================================================ */
+
+/**
+ * Run all Known Answer Tests (KATs) for cryptographic primitives
+ * Tests SHA-512, Poly1305, Curve25519, Ed25519, SecretBox, Box
+ * @return 0 if all tests pass, -1 if any test fails
+ */
+int nacl_selftest_all(void);
+
+/**
+ * Verify library integrity (checks code section hash)
+ * May be a no-op on unsupported platforms
+ * @return 0 if integrity verified, -1 if tampering detected
+ */
+int nacl_integrity_check(void);
+
+/**
+ * Validate an Ed25519 keypair by recomputing public key
+ * @param pk Public key (32 bytes)
+ * @param sk Secret key (64 bytes)
+ * @return 0 if valid, -1 if invalid
+ */
+int nacl_keypair_validate(const uint8_t *pk, const uint8_t *sk);
+
+/**
+ * Generate a validated Ed25519 keypair with retry logic
+ * @param pk Output public key (32 bytes)
+ * @param sk Output secret key (64 bytes)
+ * @return 0 on success, -1 if validation fails after retries
+ */
+int nacl_keypair_generate_validated(uint8_t *pk, uint8_t *sk);
+
 #ifdef __cplusplus
 }
 #endif
