@@ -512,9 +512,19 @@ if(BUILD_TESTS)
     endif()
 endif()
 
-# ─── App Subdirectory ─────────────────────────────────────────────────────
+# ─── Example Application ──────────────────────────────────────────────────
 if(BUILD_APP)
-    add_subdirectory(app)
+    add_executable(tweetnacl_app samples/main.c)
+    target_include_directories(tweetnacl_app PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/samples
+    )
+    target_link_libraries(tweetnacl_app PRIVATE tweetnacl_static)
+    target_compile_options(tweetnacl_app PRIVATE
+        -Wextra -Wformat-security -Wmissing-declarations -Wmissing-prototypes
+        -Wnested-externs -Wpointer-arith -Wshadow -Wstrict-prototypes
+        -g -O0
+    )
 endif()
 
 # ─── Summary ────────────────────────────────────────────────────────────────
