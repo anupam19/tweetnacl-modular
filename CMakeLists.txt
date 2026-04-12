@@ -130,12 +130,19 @@ add_compile_options(
     -Wunused
     -Wunused-result
     -fstack-protector-strong
+    -fstack-clash-protection
+    -D_FORTIFY_SOURCE=2
     -fPIC
 )
 
 # GCC-only warnings
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-Wlogical-op)
+endif()
+
+# Linker security flags
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_link_options(-Wl,-z,relro,-z,now)
 endif()
 
 # ─── Optional Features ──────────────────────────────────────────────────────

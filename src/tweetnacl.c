@@ -14,6 +14,7 @@
 #include "api/secure_utils.h"
 #include "api/randombytes.h"
 #include "core/types.h"
+#include "internal/safety.h"
 #include <string.h>
 
 #define FOR(i,n) for (i = 0; i < (n); ++i)
@@ -259,6 +260,8 @@ int crypto_onetimeauth_verify(const u8 *h,const u8 *m,u64 n,const u8 *k)
 int crypto_secretbox(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *k)
 {
   int i;
+  /* V002: Validate pointer parameters */
+  if (c == NULL || m == NULL || n == NULL || k == NULL) return -1;
   if (d < 32) return -1;
   crypto_stream_xor(c,m,d,n,k);
   crypto_onetimeauth(c + 16,c + 32,d - 32,c);
@@ -270,6 +273,8 @@ int crypto_secretbox_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k)
 {
   int i;
   u8 x[32];
+  /* V002: Validate pointer parameters */
+  if (m == NULL || c == NULL || n == NULL || k == NULL) return -1;
   if (d < 32) return -1;
   crypto_stream(x,32,n,k);
   if (crypto_onetimeauth_verify(c + 16,c + 32,d - 32,x) != 0) return -1;
@@ -410,6 +415,8 @@ int crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
   u8 z[32];
   i64 x[80],r,i;
   gf a,b,c,d,e,f;
+  /* V002: Validate pointer parameters */
+  if (q == NULL || n == NULL || p == NULL) return -1;
   FOR(i,31) z[i]=n[i];
   z[31]=(n[31]&127)|64;
   z[0]&=248;
@@ -457,12 +464,16 @@ int crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
 }
 
 int crypto_scalarmult_base(u8 *q,const u8 *n)
-{ 
+{
+  /* V002: Validate pointer parameters */
+  if (q == NULL || n == NULL) return -1;
   return crypto_scalarmult(q,n,_9);
 }
 
 int crypto_box_keypair(u8 *y,u8 *x)
 {
+  /* V002: Validate pointer parameters */
+  if (y == NULL || x == NULL) return -1;
   randombytes(x,32);
   return crypto_scalarmult_base(y,x);
 }
@@ -470,6 +481,8 @@ int crypto_box_keypair(u8 *y,u8 *x)
 int crypto_box_beforenm(u8 *k,const u8 *y,const u8 *x)
 {
   u8 s[32];
+  /* V002: Validate pointer parameters */
+  if (k == NULL || y == NULL || x == NULL) return -1;
   crypto_scalarmult(s,x,y);
   return crypto_core_hsalsa20(k,_0,s,sigma);
 }
@@ -487,6 +500,8 @@ int crypto_box_open_afternm(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k)
 int crypto_box(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *y,const u8 *x)
 {
   u8 k[32];
+  /* V002: Validate pointer parameters */
+  if (c == NULL || m == NULL || n == NULL || y == NULL || x == NULL) return -1;
   crypto_box_beforenm(k,y,x);
   return crypto_box_afternm(c,m,d,n,k);
 }
@@ -494,6 +509,8 @@ int crypto_box(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *y,const u8 *x)
 int crypto_box_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *y,const u8 *x)
 {
   u8 k[32];
+  /* V002: Validate pointer parameters */
+  if (m == NULL || c == NULL || n == NULL || y == NULL || x == NULL) return -1;
   crypto_box_beforenm(k,y,x);
   return crypto_box_open_afternm(m,c,d,n,k);
 }
@@ -577,6 +594,9 @@ int crypto_hash(u8 *out,const u8 *m,u64 n)
 {
   u8 h[64],x[256];
   u64 i,b = n;
+
+  /* V002: Validate pointer parameters */
+  if (out == NULL) return -1;
 
   FOR(i,64) h[i] = iv[i];
 
@@ -673,6 +693,9 @@ int crypto_sign_keypair(u8 *pk, u8 *sk)
   gf p[4];
   int i;
 
+  /* V002: Validate pointer parameters */
+  if (pk == NULL || sk == NULL) return -1;
+
   randombytes(sk, 32);
   crypto_hash(d, sk, 32);
   d[0] &= 248;
@@ -727,6 +750,15 @@ int crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk)
   u8 d[64],h[64],r[64];
   u64 i,j,x[64];
   gf p[4];
+
+  /* V002: Validate pointer parameters */
+  if (sm == NULL || smlen == NULL || m == NULL || sk == NULL) return -1;
+
+  /* V001: Check for integer overflow */
+  if (n > UINT64_MAX - 64) {
+    *smlen = 0;
+    return -1;
+  }
 
   crypto_hash(d, sk, 32);
   d[0] &= 248;
@@ -795,6 +827,9 @@ int crypto_sign_open(u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
   unsigned int i;
   u8 t[32],h[64];
   gf p[4],q[4];
+
+  /* V002: Validate pointer parameters */
+  if (m == NULL || mlen == NULL || sm == NULL || pk == NULL) return -1;
 
   *mlen = -1;
   if (n < 64) return -1;
