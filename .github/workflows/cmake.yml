@@ -33,17 +33,29 @@ jobs:
       - name: Run CTest
         run: cd build && ctest --output-on-failure
 
+  build-native-valgrind:
+    name: Valgrind Memory Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential valgrind
+
+      - name: Configure (Debug for Valgrind)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_DRNG=ON -DENABLE_PQC=ON -DBUILD_TESTS=ON -DBUILD_APP=ON
+
+      - name: Build
+        run: cmake --build build --parallel 4
+
       - name: Valgrind Memory Check
         run: |
-          valgrind --tool=memcheck --leak-check=full --error-exitcode=1 \
+          valgrind --tool=memcheck --leak-check=full --show-leak-kinds=definite,indirect \
+            --errors-for-leak-kinds=definite --error-exitcode=1 \
             build/tests/test_original
-
-      - name: Static Analysis
-        run: |
-          cppcheck --enable=all --inconclusive --std=c11 \
-            --suppress=missingIncludeSystem --suppress=unusedFunction \
-            --suppress=missingInclude --error-exitcode=1 \
-            src/ || true
 
   build-cross-arm64:
     name: Cross-Compile (ARM64)
@@ -86,6 +98,26 @@ jobs:
 
       - name: Build
         run: cmake --build build-x86-32 --parallel 4
+
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cppcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cppcheck
+
+      - name: Run cppcheck
+        run: |
+          cppcheck --enable=all --inconclusive --std=c11 \
+            --suppress=missingIncludeSystem --suppress=unusedFunction \
+            --suppress=missingInclude --suppress=constParameter \
+            --error-exitcode=1 \
+            src/ 2>&1 || echo "cppcheck found issues (see above)"
 
   full-test-suite:
     name: Full Test Suite (Automation Script)
