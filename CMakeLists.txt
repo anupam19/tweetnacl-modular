@@ -25,6 +25,7 @@ option(BUILD_CUNIT       "Build CUnit test suite (requires libcunit1-dev)" OFF)
 option(BUILD_GTEST       "Build GTest suite (requires libgtest-dev)" OFF)
 option(BUILD_BENCHMARK   "Build benchmark suite" OFF)
 option(BUILD_FUZZ        "Build fuzz target (requires clang + -fsanitize=fuzzer)" OFF)
+option(ENABLE_FIPS_MODE "Enable FIPS 140-3 algorithm compliance" OFF)
 option(NACL_RUNTIME_DISPATCH "Enable runtime dispatch (default)" OFF)
 option(NACL_STATIC_IMPL  "Use compile-time selection only (no dispatch overhead)" OFF)
 
@@ -231,6 +232,17 @@ if(ENABLE_PQC)
     message(STATUS "Post-Quantum Cryptography: ENABLED")
 endif()
 
+# ─── FIPS Compliance Sources ─────────────────────────────────────────
+if(ENABLE_FIPS_MODE)
+    add_compile_definitions(FIPS_MODE=1)
+    list(APPEND NACL_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips1804_sha512.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips1865_ed25519.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips_selftest.c
+    )
+    message(STATUS "FIPS mode: ENABLED")
+endif()
+
 # ─── Hardware Acceleration Sources ─────────────────────────────────────
 if(NOT NACL_STATIC_IMPL)
     list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/software/salsa20_soft.c)
@@ -331,6 +343,17 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/includes/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
     FILES_MATCHING PATTERN "*.h"
 )
+if(ENABLE_FIPS_MODE)
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips1865_ctx.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
+    )
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips1804_sha512.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
+    )
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips_selftest.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
+    )
+endif()
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/arch/arch_config.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
 )
@@ -470,6 +493,21 @@ if(BUILD_TESTS)
     target_compile_definitions(test_kat PRIVATE KAT_STANDALONE)
     add_test(NAME kat_selftest COMMAND test_kat)
     message(STATUS "KAT self-tests: ENABLED")
+
+    # FIPS CAVP test executable
+    if(ENABLE_FIPS_MODE)
+        add_executable(test_cavp tests/fips/test_cavp.c)
+        target_include_directories(test_cavp PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/includes
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch
+            ${CMAKE_CURRENT_SOURCE_DIR}/pqc
+            ${CMAKE_CURRENT_SOURCE_DIR}/src
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/fips
+        )
+        target_link_libraries(test_cavp PRIVATE tweetnacl_static)
+        add_test(NAME FipsCavp COMMAND test_cavp)
+        message(STATUS "FIPS CAVP tests: ENABLED")
+    endif()
 endif()
 
 # ─── App Subdirectory ─────────────────────────────────────────────────────
