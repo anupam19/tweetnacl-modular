@@ -25,11 +25,69 @@ option(BUILD_CUNIT       "Build CUnit test suite (requires libcunit1-dev)" OFF)
 option(BUILD_GTEST       "Build GTest suite (requires libgtest-dev)" OFF)
 option(BUILD_BENCHMARK   "Build benchmark suite" OFF)
 option(BUILD_FUZZ        "Build fuzz target (requires clang + -fsanitize=fuzzer)" OFF)
+option(NACL_RUNTIME_DISPATCH "Enable runtime dispatch (default)" OFF)
+option(NACL_STATIC_IMPL  "Use compile-time selection only (no dispatch overhead)" OFF)
 
 # ─── Compiler Requirements ──────────────────────────────────────────────────
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
+
+# ─── Hardware Extension Detection ──────────────────────────────────────────
+include(CheckCSourceCompiles)
+
+# Check x86 SSE2
+if(ARCH_X86_64 OR ARCH_X86_32)
+    check_c_source_compiles("
+        #include <emmintrin.h>
+        int main(void) { __m128i a = _mm_setzero_si128(); return 0; }
+    " HAVE_SSE2)
+    if(HAVE_SSE2)
+        message(STATUS "SSE2: detected")
+    endif()
+
+    # Check x86 AVX2
+    check_c_source_compiles("
+        #include <immintrin.h>
+        int main(void) { __m256i a = _mm256_setzero_si256(); return 0; }
+    " HAVE_AVX2)
+    if(HAVE_AVX2)
+        message(STATUS "AVX2: detected")
+    endif()
+
+    # Check SHA-NI
+    check_c_source_compiles("
+        #include <immintrin.h>
+        int main(void) {
+            __m128i a = _mm_setzero_si128();
+            (void)_mm_sha256rnds2_epu32(a, a, a);
+            return 0;
+        }
+    " HAVE_SHANI)
+    if(HAVE_SHANI)
+        message(STATUS "SHA-NI: detected")
+    endif()
+endif()
+
+# Check ARM NEON
+if(ARCH_ARM64)
+    check_c_source_compiles("
+        #include <arm_neon.h>
+        int main(void) { uint32x4_t a = vdupq_n_u32(0); return 0; }
+    " HAVE_NEON)
+    if(HAVE_NEON)
+        message(STATUS "NEON: detected")
+    endif()
+endif()
+
+if(NACL_STATIC_IMPL)
+    add_compile_definitions(NACL_STATIC_IMPL)
+    message(STATUS "Implementation selection: COMPILE-TIME (static)")
+elseif(NACL_RUNTIME_DISPATCH)
+    message(STATUS "Implementation selection: RUNTIME dispatch")
+else()
+    message(STATUS "Implementation selection: SOFTWARE ONLY")
+endif()
 
 # ─── Architecture Detection ─────────────────────────────────────────────────
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|amd64")
@@ -173,12 +231,45 @@ if(ENABLE_PQC)
     message(STATUS "Post-Quantum Cryptography: ENABLED")
 endif()
 
+# ─── Hardware Acceleration Sources ─────────────────────────────────────
+if(NOT NACL_STATIC_IMPL)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/software/salsa20_soft.c)
+endif()
+
+if(HAVE_SSE2 AND NOT NACL_STATIC_IMPL)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/x86_64/salsa20_sse2.c)
+    add_compile_definitions(HAVE_SSE2_IMPL)
+    message(STATUS "SSE2 implementations: ENABLED")
+endif()
+
+if(HAVE_AVX2 AND NOT NACL_STATIC_IMPL)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/x86_64/salsa20_avx2.c)
+    add_compile_definitions(HAVE_AVX2_IMPL)
+    message(STATUS "AVX2 implementations: ENABLED")
+endif()
+
+if(HAVE_NEON AND NOT NACL_STATIC_IMPL)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arm64/salsa20_neon.c)
+    add_compile_definitions(HAVE_NEON_IMPL)
+    message(STATUS "NEON implementations: ENABLED")
+endif()
+
+if(NACL_RUNTIME_DISPATCH AND NOT NACL_STATIC_IMPL)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/dispatch/impl_dispatch.c)
+    if(ARCH_X86_64 OR ARCH_X86_32)
+        list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/x86_64/x86_detect.c)
+    elseif(ARCH_ARM64)
+        list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arm64/arm_detect.c)
+    endif()
+endif()
+
 # ─── Library Targets ────────────────────────────────────────────────────────
 # Shared library
 if(BUILD_SHARED_LIBS)
     add_library(tweetnacl SHARED ${NACL_SOURCES})
     target_include_directories(tweetnacl PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/includes>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/includes/internal>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/arch>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/pqc>
         $<INSTALL_INTERFACE:include/tweetnacl>
@@ -197,6 +288,7 @@ if(BUILD_STATIC_LIBS)
     add_library(tweetnacl_static STATIC ${NACL_SOURCES})
     target_include_directories(tweetnacl_static PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/includes>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/includes/internal>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/arch>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/pqc>
         $<INSTALL_INTERFACE:include/tweetnacl>
