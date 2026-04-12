@@ -216,7 +216,10 @@ void test_crypto_sign(void) {
     uint8_t pk[32], sk[64];
     uint8_t message[50];
     uint8_t signed_msg[50 + 64];
-    uint8_t verified_msg[50];
+    /* crypto_sign_open uses output buffer for intermediate computation:
+     * it copies n bytes from signed message then appends 32 bytes of pk,
+     * so buffer must be at least sizeof(message) + 64 bytes */
+    uint8_t verified_msg[50 + 64];
     u64 signed_len;
 
     /* Generate signing key pair */
