@@ -19,14 +19,14 @@
 /* Import internal module headers */
 #include "core/types.h"
 #include "drivers/crypto/verify.h"
-#include "drivers/crypto/salsa20_internal.h"
-#include "drivers/crypto/poly1305_internal.h"
-#include "drivers/crypto/sha512_internal.h"
-#include "drivers/crypto/curve25519_internal.h"
+#include "drivers/crypto/salsa20/salsa20_impl.h"
+#include "drivers/crypto/poly1305/poly1305_impl.h"
+#include "drivers/crypto/sha512/sha512_impl.h"
+#include "drivers/crypto/curve25519/curve25519_impl.h"
 #include "drivers/crypto/ed25519.h"
 #include "drivers/crypto/hmacsha512256.h"
-#include "drivers/crypto/secretbox.h"
-#include "drivers/crypto/box.h"
+#include "secretbox/secretbox.h"
+#include "box/box.h"
 
 #ifdef __cplusplus
 extern "C" {

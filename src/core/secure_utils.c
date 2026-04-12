@@ -8,7 +8,7 @@
  * - INT35-C: Use correct expressions for object sizes in pointer comparisons
  */
 
-#include "api/secure_utils.h"
+#include "core/utils.h"
 #include <errno.h>
 #include <sys/types.h>
 

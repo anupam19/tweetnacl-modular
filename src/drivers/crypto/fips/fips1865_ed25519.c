@@ -10,7 +10,7 @@
  */
 
 #include "drivers/crypto/fips/fips1865_ctx.h"
-#include "api/tweetnacl.h"
+#include "tweetnacl/tweetnacl.h"
 #include <string.h>
 
 int crypto_sign_ed25519ctx(uint8_t *sm, uint64_t *smlen,

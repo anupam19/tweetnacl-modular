@@ -5,9 +5,9 @@
  * Catches faulty RNG or implementation bugs during key generation.
  */
 
-#include "api/tweetnacl.h"
-#include "api/secure_mem.h"
-#include "api/scalarmult.h"
+#include "tweetnacl/tweetnacl.h"
+#include "core/secure_mem.h"
+#include "scalarmult/scalarmult.h"
 
 /**
  * Validate an Ed25519 keypair

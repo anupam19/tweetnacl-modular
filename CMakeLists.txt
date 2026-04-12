@@ -175,16 +175,17 @@ endif()
 # ─── Source Files ───────────────────────────────────────────────────────────
 set(NACL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tweetnacl.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/randombytes.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/secure_mem.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/rng/randombytes.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/utils.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/secure_utils.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/integrity.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/keygen_validate.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keygen_validate.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/pqc.c
 )
 
 if(ENABLE_DRNG)
     # Check DRNG support
-    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/randombytes_drng.c)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/rng/drng.c)
     add_compile_definitions(WITH_DRNG)
 
     # Check for x86 RDRAND/RDSEED
@@ -238,7 +239,7 @@ if(ENABLE_DRNG)
 endif()
 
 if(ENABLE_PQC)
-    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/api/pqc.c)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/pqc.c)
     add_compile_definitions(WITH_PQC)
     message(STATUS "Post-Quantum Cryptography: ENABLED")
 endif()

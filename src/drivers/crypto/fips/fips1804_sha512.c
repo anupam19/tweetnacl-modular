@@ -4,7 +4,7 @@
  */
 
 #include "drivers/crypto/fips/fips1804_sha512.h"
-#include "api/tweetnacl.h"
+#include "tweetnacl/tweetnacl.h"
 
 #define FOR(i,n) for (i = 0; i < (n); ++i)
 
