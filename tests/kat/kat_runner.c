@@ -5,15 +5,16 @@
  * Verifies every cryptographic primitive against known test vectors.
  */
 
+#include <stdio.h>
+#include <string.h>
 #include "kat_runner.h"
 #include "kat_sha512.h"
 #include "kat_ed25519.h"
 #include "kat_x25519.h"
-#include "tweetnacl.h"
-#include "secure_mem.h"
-#include "randombytes.h"
-#include <string.h>
-#include <stdio.h>
+#include "api/tweetnacl.h"
+#include "api/secure_mem.h"
+#include "api/randombytes.h"
+#include "api/scalarmult.h"
 
 /* ─── Helper: compare buffers ──────────────────────────────────────────── */
 static int check_equal(const uint8_t *actual, const uint8_t *expected, size_t len) {

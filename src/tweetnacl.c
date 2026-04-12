@@ -9,10 +9,11 @@
  * - INT32-C: Ensure that operations on signed integers do not result in overflow
  */
 
-#include "tweetnacl.h"
-#include "secure_mem.h"
-#include "secure_utils.h"
-#include "randombytes.h"
+#include "api/tweetnacl.h"
+#include "api/secure_mem.h"
+#include "api/secure_utils.h"
+#include "api/randombytes.h"
+#include "core/types.h"
 #include <string.h>
 
 #define FOR(i,n) for (i = 0; i < (n); ++i)

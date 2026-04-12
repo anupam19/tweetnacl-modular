@@ -18,9 +18,8 @@ add_executable(test_original
     test_secure_mem.c
 )
 target_include_directories(test_original PRIVATE
-    ${CMAKE_SOURCE_DIR}/includes
-    ${CMAKE_SOURCE_DIR}/arch
-    ${CMAKE_SOURCE_DIR}/pqc
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/src
 )
 target_link_libraries(test_original PRIVATE ${TWEETNACL_LIB})
 target_compile_options(test_original PRIVATE
