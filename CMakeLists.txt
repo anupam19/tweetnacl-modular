@@ -159,21 +159,21 @@ if(ENABLE_COVERAGE)
 endif()
 
 # ─── Include Directories ────────────────────────────────────────────────────
-# Use PROJECT_SOURCE_DIR to avoid path doubling on some generators
+# Use include/ as the root for all header lookups
 
 # ─── Source Files ───────────────────────────────────────────────────────────
 set(NACL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tweetnacl.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/randombytes.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/secure_mem.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/secure_utils.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/integrity.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/keygen_validate.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/randombytes.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/secure_mem.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/secure_utils.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/integrity.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/keygen_validate.c
 )
 
 if(ENABLE_DRNG)
     # Check DRNG support
-    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/randombytes_drng.c)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/randombytes_drng.c)
     add_compile_definitions(WITH_DRNG)
 
     # Check for x86 RDRAND/RDSEED
@@ -227,7 +227,7 @@ if(ENABLE_DRNG)
 endif()
 
 if(ENABLE_PQC)
-    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/pqc/pqc.c)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/api/pqc.c)
     add_compile_definitions(WITH_PQC)
     message(STATUS "Post-Quantum Cryptography: ENABLED")
 endif()
@@ -236,42 +236,42 @@ endif()
 if(ENABLE_FIPS_MODE)
     add_compile_definitions(FIPS_MODE=1)
     list(APPEND NACL_SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips1804_sha512.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips1865_ed25519.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips_selftest.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips1804_sha512.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips1865_ed25519.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips_selftest.c
     )
     message(STATUS "FIPS mode: ENABLED")
 endif()
 
 # ─── Hardware Acceleration Sources ─────────────────────────────────────
 if(NOT NACL_STATIC_IMPL)
-    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/software/salsa20_soft.c)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/generic/lib/software_impl.c)
 endif()
 
 if(HAVE_SSE2 AND NOT NACL_STATIC_IMPL)
-    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/x86_64/salsa20_sse2.c)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/x86_64/lib/salsa20_sse2.c)
     add_compile_definitions(HAVE_SSE2_IMPL)
     message(STATUS "SSE2 implementations: ENABLED")
 endif()
 
 if(HAVE_AVX2 AND NOT NACL_STATIC_IMPL)
-    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/x86_64/salsa20_avx2.c)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/x86_64/lib/salsa20_avx2.c)
     add_compile_definitions(HAVE_AVX2_IMPL)
     message(STATUS "AVX2 implementations: ENABLED")
 endif()
 
 if(HAVE_NEON AND NOT NACL_STATIC_IMPL)
-    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arm64/salsa20_neon.c)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/arm64/lib/salsa20_neon.c)
     add_compile_definitions(HAVE_NEON_IMPL)
     message(STATUS "NEON implementations: ENABLED")
 endif()
 
 if(NACL_RUNTIME_DISPATCH AND NOT NACL_STATIC_IMPL)
-    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/dispatch/impl_dispatch.c)
+    list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/core/dispatch.c)
     if(ARCH_X86_64 OR ARCH_X86_32)
-        list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/x86_64/x86_detect.c)
+        list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/x86_64/lib/cpu_detect.c)
     elseif(ARCH_ARM64)
-        list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arm64/arm_detect.c)
+        list(APPEND NACL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/arm64/lib/cpu_detect.c)
     endif()
 endif()
 
@@ -280,10 +280,7 @@ endif()
 if(BUILD_SHARED_LIBS)
     add_library(tweetnacl SHARED ${NACL_SOURCES})
     target_include_directories(tweetnacl PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/includes>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/includes/internal>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/arch>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/pqc>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include/tweetnacl>
     )
     target_compile_definitions(tweetnacl PRIVATE TWEETNACL_BUILDING)
@@ -299,10 +296,7 @@ endif()
 if(BUILD_STATIC_LIBS)
     add_library(tweetnacl_static STATIC ${NACL_SOURCES})
     target_include_directories(tweetnacl_static PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/includes>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/includes/internal>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/arch>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/pqc>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include/tweetnacl>
     )
     set_target_properties(tweetnacl_static PROPERTIES
@@ -339,28 +333,27 @@ if(BUILD_STATIC_LIBS)
 endif()
 
 # Public headers
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/includes/
+# Install headers from new structure
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
     FILES_MATCHING PATTERN "*.h"
 )
 if(ENABLE_FIPS_MODE)
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips1865_ctx.h
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips1865_ctx.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
     )
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips1804_sha512.h
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips1804_sha512.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
     )
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/fips/fips_selftest.h
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips_selftest.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
     )
 endif()
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/arch/arch_config.h
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/arch/generic/fallback.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
 )
 if(ENABLE_PQC)
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/pqc/pqc.h
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
-    )
+    # pqc.h already installed via include/ directory install
 endif()
 
 # Export targets
@@ -484,9 +477,8 @@ if(BUILD_TESTS)
     # KAT self-test executable
     add_executable(test_kat tests/kat/kat_runner.c)
     target_include_directories(test_kat PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/includes
-        ${CMAKE_CURRENT_SOURCE_DIR}/arch
-        ${CMAKE_CURRENT_SOURCE_DIR}/pqc
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/kat
     )
     target_link_libraries(test_kat PRIVATE tweetnacl_static)
@@ -498,9 +490,7 @@ if(BUILD_TESTS)
     if(ENABLE_FIPS_MODE)
         add_executable(test_cavp tests/fips/test_cavp.c)
         target_include_directories(test_cavp PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/includes
-            ${CMAKE_CURRENT_SOURCE_DIR}/arch
-            ${CMAKE_CURRENT_SOURCE_DIR}/pqc
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
             ${CMAKE_CURRENT_SOURCE_DIR}/src
             ${CMAKE_CURRENT_SOURCE_DIR}/tests/fips
         )

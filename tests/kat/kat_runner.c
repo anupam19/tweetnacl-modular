@@ -9,10 +9,9 @@
 #include "kat_sha512.h"
 #include "kat_ed25519.h"
 #include "kat_x25519.h"
-#include "tweetnacl.h"
-#include "secure_mem.h"
-#include "randombytes.h"
-#include <string.h>
+#include "api/tweetnacl.h"
+#include "api/secure_mem.h"
+#include "api/randombytes.h"
 #include <stdio.h>
 
 /* ─── Helper: compare buffers ──────────────────────────────────────────── */
