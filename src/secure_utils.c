@@ -1,7 +1,7 @@
 /*
  * Secure Coding Utilities Implementation
  * Provides CERT C compliant utility functions
- * 
+ *
  * CERT C Rules Applied:
  * - INT30-C: Ensure that unsigned integer operations do not wrap
  * - INT32-C: Ensure that operations on signed integers do not result in overflow
@@ -10,6 +10,7 @@
 
 #include "secure_utils.h"
 #include <errno.h>
+#include <sys/types.h>
 
 int safe_add_int(int a, int b, int* result) {
     if (result == NULL) {

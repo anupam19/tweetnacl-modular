@@ -308,12 +308,14 @@ pqc_result_t pqc_hybrid_encapsulate(const uint8_t* hybrid_public_key, size_t hyb
     /* Hybrid ciphertext format: [Curve25519 ephemeral (32 bytes)] [PQC Ciphertext] */
     size_t curve25519_ct_size = 32;
     size_t pqc_ct_size = hybrid_public_key_len - 32; /* Simplified assumption */
-    
-    *hybrid_ciphertext_len = curve25519_ct_size + pqc_ct_size;
-    
-    if (hybrid_ciphertext_len < *hybrid_ciphertext_len) {
+    size_t required_ct_size = curve25519_ct_size + pqc_ct_size;
+
+    /* Check caller's buffer is large enough */
+    if (*hybrid_ciphertext_len < required_ct_size) {
+        *hybrid_ciphertext_len = required_ct_size;
         return PQC_ERROR_BUFFER_TOO_SMALL;
     }
+    *hybrid_ciphertext_len = required_ct_size;
     
     /* Hybrid shared secret: SHA256(Curve25519_shared || PQC_shared) */
     size_t hybrid_ss_size = 32; /* SHA256 output */

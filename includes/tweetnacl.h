@@ -120,6 +120,28 @@ extern "C" {
 #define crypto_sign_IMPLEMENTATION "crypto_sign/ed25519/tweet"
 #define crypto_sign_VERSION "-"
 
+/* ============================================================
+ * PUBLIC FUNCTION DECLARATIONS
+ * ============================================================ */
+
+/**
+ * SHA-512 cryptographic hash function
+ * @param out Output buffer (64 bytes)
+ * @param m Input message
+ * @param n Message length
+ * @return 0 on success
+ */
+int crypto_hash(u8 *out, const u8 *m, u64 n);
+
+/**
+ * SHA-512 hash blocks compression function (internal, exposed for advanced use)
+ * @param x State buffer (64 bytes)
+ * @param m Message blocks
+ * @param n Number of bytes to process
+ * @return Remaining bytes not processed
+ */
+int crypto_hashblocks(u8 *x, const u8 *m, u64 n);
+
 #ifdef __cplusplus
 }
 #endif

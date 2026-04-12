@@ -63,3 +63,12 @@ htmlcov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+# C build artifacts
+*.o
+*.so
+*.a
+*.dylib
+*.lib
+*.dll
+*.exe
+.libs/

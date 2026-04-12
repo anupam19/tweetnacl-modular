@@ -90,12 +90,12 @@ $(APP):
 	$(MAKE) -C $(APP)
 
 # Build tests
-$(TESTS): $(LIB) $(OBJ) $(PQC_OBJ)
+$(TESTS): $(LIB) $(OBJ) $(PQC_OBJ) $(SHARED)
 	$(MAKE) -C $(TESTS) CFLAGS="$(CFLAGS)" LDFLAGS="-L./.libs -ltweetnacl"
 
 # Run tests
 test: $(TESTS)
-	./$(TESTS)/test_all
+	LD_LIBRARY_PATH=./.libs ./$(TESTS)/test_all
 
 # Help target
 help:

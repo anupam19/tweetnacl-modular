@@ -217,24 +217,24 @@ void test_crypto_sign(void) {
     uint8_t message[50];
     uint8_t signed_msg[50 + 64];
     uint8_t verified_msg[50];
-    unsigned long long signed_len;
-    
+    u64 signed_len;
+
     /* Generate signing key pair */
     crypto_sign_keypair(pk, sk);
     randombytes(message, sizeof(message));
-    
+
     /* Sign message */
     int sign_result = crypto_sign(signed_msg, &signed_len, message, sizeof(message), sk);
     TEST_ASSERT("Signing succeeds", sign_result == 0);
     TEST_ASSERT("Signature length correct", signed_len == sizeof(message) + 64);
-    
+
     /* Verify signature */
-    unsigned long long verified_len;
+    u64 verified_len;
     int verify_result = crypto_sign_open(verified_msg, &verified_len, signed_msg, signed_len, pk);
     TEST_ASSERT("Verification succeeds", verify_result == 0);
     TEST_ASSERT("Verified message length correct", verified_len == sizeof(message));
     TEST_ASSERT("Verified message matches", memcmp(message, verified_msg, sizeof(message)) == 0);
-    
+
     /* Tamper with signature */
     signed_msg[10] ^= 0xFF;
     int tampered_verify = crypto_sign_open(verified_msg, &verified_len, signed_msg, signed_len, pk);

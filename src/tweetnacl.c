@@ -12,10 +12,15 @@
 #include "tweetnacl.h"
 #include "secure_mem.h"
 #include "secure_utils.h"
+#include "randombytes.h"
 #include <string.h>
 
 #define FOR(i,n) for (i = 0; i < (n); ++i)
 #define sv static void
+
+/* Forward declarations for internal hash functions */
+int crypto_hashblocks(u8 *x, const u8 *m, u64 n);
+int crypto_hash(u8 *out, const u8 *m, u64 n);
 
 static const u8
   _0[16],

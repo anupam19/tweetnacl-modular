@@ -8,14 +8,14 @@ INCLUDES := -I../includes -I../arch -I../pqc
 LIBS := -L../.libs -ltweetnacl
 
 TEST_TARGET := test_all
-TEST_SRC := test_all.c
+TEST_SRC := test_all.c test_secure_mem.c
 PQC_SRC := ../pqc/pqc.c
-TEST_OBJ := test_all.o
+TEST_OBJ := test_all.o test_secure_mem.o
 PQC_OBJ := pqc.o
 
 all: $(TEST_TARGET)
 
-$(TEST_OBJ): $(TEST_SRC)
+%.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(PQC_OBJ): $(PQC_SRC)
