@@ -173,13 +173,16 @@ endif()
 # Use include/ as the root for all header lookups
 
 # ─── Source Files ───────────────────────────────────────────────────────────
+# TweetNaCl philosophy: single compilation unit with all internal helpers.
+# Module directories in src/ mirror include/ for organization.
 set(NACL_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/tweetnacl.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/rng/randombytes.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tweetnacl/tweetnacl.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/utils.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/secure_utils.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/integrity.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keygen_validate.c
+    # Drivers
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/rng/randombytes.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/pqc.c
 )
 
