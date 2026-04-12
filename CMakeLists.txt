@@ -129,10 +129,14 @@ add_compile_options(
     -Wswitch-enum
     -Wunused
     -Wunused-result
-    -Wlogical-op
     -fstack-protector-strong
     -fPIC
 )
+
+# GCC-only warnings
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wlogical-op)
+endif()
 
 # ─── Optional Features ──────────────────────────────────────────────────────
 if(ENABLE_LTO)

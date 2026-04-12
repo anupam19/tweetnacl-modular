@@ -7,6 +7,7 @@
 
 #include "api/tweetnacl.h"
 #include "api/secure_mem.h"
+#include "api/scalarmult.h"
 
 /**
  * Validate an Ed25519 keypair
