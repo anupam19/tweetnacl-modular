@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "../include/api/secure_mem.h"
-#include "../include/api/secure_utils.h"
+#include "api/secure_mem.h"
+#include "api/secure_utils.h"
 
 /* Forward declarations for test helper functions */
 void run_secure_tests(void);
