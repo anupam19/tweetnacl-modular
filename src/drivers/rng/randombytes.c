@@ -14,7 +14,7 @@
  * - ARR30-C: Do not form or use out-of-bounds pointers
  */
 
-#include "api/randombytes.h"
+#include "drivers/rng/randombytes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

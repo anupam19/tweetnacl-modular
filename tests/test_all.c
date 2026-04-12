@@ -8,10 +8,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
-#include "api/tweetnacl.h"
-#include "api/randombytes.h"
+#include "tweetnacl/tweetnacl.h"
+#include "drivers/rng/randombytes.h"
 #include "arch/generic/fallback.h"
-#include "api/pqc.h"
+#include "drivers/crypto/pqc.h"
 
 /* Forward declarations to avoid -Wmissing-prototypes warnings */
 void test_architecture_detection(void);

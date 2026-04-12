@@ -5,7 +5,7 @@
  * with liboqs (Open Quantum Safe) or similar libraries.
  */
 
-#include "api/pqc.h"
+#include "drivers/crypto/pqc.h"
 #include <string.h>
 #include <stdlib.h>
 

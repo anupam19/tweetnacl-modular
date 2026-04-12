@@ -9,10 +9,10 @@
  * - INT32-C: Ensure that operations on signed integers do not result in overflow
  */
 
-#include "api/tweetnacl.h"
-#include "api/secure_mem.h"
-#include "api/secure_utils.h"
-#include "api/randombytes.h"
+#include "tweetnacl/tweetnacl.h"
+#include "core/secure_mem.h"
+#include "core/utils.h"
+#include "drivers/rng/randombytes.h"
 #include "core/types.h"
 #include "internal/safety.h"
 #include <string.h>

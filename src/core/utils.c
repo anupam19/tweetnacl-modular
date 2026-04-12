@@ -8,7 +8,7 @@
  * - SEC30-C: Ensure that pointer data is not used after being freed
  */
 
-#include "api/secure_mem.h"
+#include "core/secure_mem.h"
 #include <string.h>
 #include <errno.h>
 

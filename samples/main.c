@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "api/tweetnacl.h"
-#include "api/randombytes.h"
+#include "tweetnacl/tweetnacl.h"
+#include "drivers/rng/randombytes.h"
 #include "app.h"
 
 typedef unsigned char u8;

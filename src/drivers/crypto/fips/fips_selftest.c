@@ -4,9 +4,9 @@
  */
 
 #include "drivers/crypto/fips/fips_selftest.h"
-#include "api/tweetnacl.h"
-#include "api/secure_mem.h"
-#include "api/randombytes.h"
+#include "tweetnacl/tweetnacl.h"
+#include "core/secure_mem.h"
+#include "drivers/rng/randombytes.h"
 #include <stdint.h>
 #include <string.h>
 

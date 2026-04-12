@@ -7,11 +7,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include "cavp_sha512.h"
-#include "../includes/tweetnacl.h"
-#include "../includes/secure_mem.h"
-#include "../src/fips/fips1865_ctx.h"
-#include "../src/fips/fips1804_sha512.h"
-#include "../src/fips/fips_selftest.h"
+#include "tweetnacl/tweetnacl.h"
+#include "core/secure_mem.h"
+#include "drivers/crypto/fips/fips1865_ctx.h"
+#include "drivers/crypto/fips/fips1804_sha512.h"
+#include "drivers/crypto/fips/fips_selftest.h"
 
 static int pass = 0, fail = 0;
 

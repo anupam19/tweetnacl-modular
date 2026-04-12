@@ -5,7 +5,7 @@
  * Constant-time: all operations are data-independent
  */
 
-#include "api/tweetnacl.h"
+#include "tweetnacl/tweetnacl.h"
 #include "drivers/crypto/salsa20.h"
 
 #define FOR(i,n) for (i = 0; i < (n); ++i)
