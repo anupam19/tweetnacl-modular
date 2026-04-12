@@ -12,10 +12,10 @@ else()
 endif()
 
 # ─── Original Test Suite (backward compatibility) ───────────────────────────
+# Note: Do NOT include pqc/pqc.c here — it's already part of tweetnacl_static
 add_executable(test_original
     test_all.c
     test_secure_mem.c
-    ${CMAKE_SOURCE_DIR}/pqc/pqc.c
 )
 target_include_directories(test_original PRIVATE
     ${CMAKE_SOURCE_DIR}/includes

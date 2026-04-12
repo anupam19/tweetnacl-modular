@@ -17,7 +17,7 @@
 #   8. Installation test
 #   9. Compile test against installed library
 # =============================================================================
-set -euo pipefail
+# Note: Do NOT use set -e — we handle errors per-step to generate full report
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="${SCRIPT_DIR}/build"
