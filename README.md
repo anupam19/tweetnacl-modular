@@ -12,6 +12,74 @@ A security-critical C library that refactors the original [TweetNaCl](https://tw
 
 ---
 
+## 🚀 Quick Start
+
+### One-Liner Build & Test
+```bash
+git clone https://github.com/anupam19/tweetnacl-modular.git && \
+cd tweetnacl-modular && cmake -B build && cmake --build build --parallel && \
+cd build && ctest --output-on-failure
+```
+
+### Step-by-Step
+```bash
+# 1. Clone
+git clone https://github.com/anupam19/tweetnacl-modular.git
+cd tweetnacl-modular
+
+# 2. Configure
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_DRNG=ON -DENABLE_PQC=ON -DBUILD_TESTS=ON
+
+# 3. Build
+cmake --build build --parallel $(nproc)
+
+# 4. Test
+cd build && ctest --output-on-failure
+
+# 5. Install (optional)
+sudo cmake --install build
+
+# 6. Run example app
+./build/app/tweetnacl_app
+```
+
+### Full Test Suite with Report
+```bash
+./run_full_test_suite.sh
+# Generates: test_reports/report_YYYYMMDD_HHMMSS.txt
+```
+
+### Cross-Compilation
+```bash
+# ARM64
+cmake -B build-arm64 -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm64.cmake
+cmake --build build-arm64 --parallel
+
+# RISC-V 64
+cmake -B build-riscv64 -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/riscv64.cmake
+cmake --build build-riscv64 --parallel
+```
+
+### CMake Options
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-DENABLE_DRNG=ON` | ON | Hardware RNG (RDRAND/RDSEED/ARM RNDR) |
+| `-DENABLE_PQC=ON` | ON | Post-Quantum Cryptography |
+| `-DBUILD_TESTS=ON` | ON | Build test suite |
+| `-DBUILD_APP=ON` | ON | Build example app |
+| `-DENABLE_COVERAGE=OFF` | OFF | gcov/lcov coverage |
+| `-DENABLE_SANITIZERS=OFF` | OFF | ASan + UBSan |
+| `-DENABLE_LTO=OFF` | OFF | Link Time Optimization |
+
+### Legacy Makefile (backward compatible)
+```bash
+make              # Wraps CMake automatically
+make test         # Runs ctest
+make clean        # Removes build/ directory
+```
+
+---
+
 ## Table of Contents
 
 - [Features](#features)

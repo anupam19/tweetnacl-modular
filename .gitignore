@@ -63,6 +63,19 @@ htmlcov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+
+# CMake build artifacts
+build/
+build-*/
+Testing/
+CMakeCache.txt
+CMakeFiles/
+CTestTestfile.cmake
+cmake_install.cmake
+*.pc
+
+# Test reports
+test_reports/
 # C build artifacts
 *.o
 *.so

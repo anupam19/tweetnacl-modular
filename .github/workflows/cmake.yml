@@ -1,0 +1,110 @@
+name: CMake Build and Test
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build-native:
+    name: Build & Test (Native)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential valgrind cppcheck
+
+      - name: Configure (Release)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_DRNG=ON -DENABLE_PQC=ON -DBUILD_TESTS=ON -DBUILD_APP=ON
+        env:
+          CC: ${{ matrix.compiler }}
+
+      - name: Build
+        run: cmake --build build --parallel 4
+
+      - name: Run CTest
+        run: cd build && ctest --output-on-failure
+
+      - name: Valgrind Memory Check
+        run: |
+          valgrind --tool=memcheck --leak-check=full --error-exitcode=1 \
+            build/tests/test_original
+
+      - name: Static Analysis
+        run: |
+          cppcheck --enable=all --inconclusive --std=c11 \
+            --suppress=missingIncludeSystem --suppress=unusedFunction \
+            --suppress=missingInclude --error-exitcode=1 \
+            src/ || true
+
+  build-cross-arm64:
+    name: Cross-Compile (ARM64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cross-compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc-aarch64-linux-gnu
+
+      - name: Configure (ARM64)
+        run: |
+          cmake -B build-arm64 \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm64.cmake \
+            -DENABLE_DRNG=OFF -DENABLE_PQC=ON -DBUILD_TESTS=OFF -DBUILD_APP=OFF
+
+      - name: Build
+        run: cmake --build build-arm64 --parallel 4
+
+  build-cross-x86-32:
+    name: Cross-Compile (x86 32-bit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install multilib
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc-multilib g++-multilib
+
+      - name: Configure (x86 32)
+        run: |
+          cmake -B build-x86-32 \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/x86_32.cmake \
+            -DENABLE_DRNG=OFF -DENABLE_PQC=ON -DBUILD_TESTS=OFF -DBUILD_APP=OFF
+
+      - name: Build
+        run: cmake --build build-x86-32 --parallel 4
+
+  full-test-suite:
+    name: Full Test Suite (Automation Script)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential valgrind cppcheck
+
+      - name: Run full test suite
+        run: ./run_full_test_suite.sh
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test_reports/
