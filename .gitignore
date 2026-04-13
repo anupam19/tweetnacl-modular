@@ -1,25 +1,31 @@
-# Documentation builds and generated files
-doc/*.html
-doc/_build/
-doc/api/
-doc/build/
+```
+# Build artifacts
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.exe
+*.out
+
+# CMake build directory
+build/
 
 # Dependencies
-node_modules/
-.venv/
-venv/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-dist/
-build/
-target/
-.gradle/
+vendor/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
 
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
 # Editors
 .vscode/
@@ -27,11 +33,7 @@ target/
 *.swp
 *.swo
 
-# Logs and temp files
-*.log
-*.tmp
-
-# System files
+# OS files
 .DS_Store
 Thumbs.db
 
@@ -40,48 +42,10 @@ coverage/
 htmlcov/
 .coverage
 
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
-
-# CMake build artifacts
-build/
-build-*/
-Testing/
-CMakeCache.txt
-CMakeFiles/
-CTestTestfile.cmake
-cmake_install.cmake
-*.pc
-
-# Test reports
-test_reports/
-# C build artifacts
-*.o
-*.so
-*.a
-*.dylib
-*.lib
-*.dll
-*.exe
-.libs/
+# Python cache (if any Python files exist)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+```
