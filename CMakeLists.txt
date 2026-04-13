@@ -182,7 +182,6 @@ set(NACL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/integrity.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keygen_validate.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/error.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/fips_selftest.c
     # Drivers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/rng/randombytes.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/pqc.c
@@ -256,6 +255,7 @@ if(ENABLE_FIPS_MODE)
         ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips1804_sha512.c
         ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips1865_ed25519.c
         ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips_selftest.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/core/fips_selftest.c
     )
     message(STATUS "FIPS mode: ENABLED")
 endif()
@@ -365,7 +365,13 @@ if(ENABLE_FIPS_MODE)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/fips/fips_selftest.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
     )
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/core/fips_selftest.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
+    )
 endif()
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/core/error.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
+)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/arch/generic/fallback.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tweetnacl
 )

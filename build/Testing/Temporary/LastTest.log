@@ -1,10 +1,10 @@
-Start testing: Apr 13 19:16 UTC
+Start testing: Apr 13 19:22 UTC
 ----------------------------------------------------------
-1/2 Testing: kat_selftest
-1/2 Test: kat_selftest
+1/3 Testing: kat_selftest
+1/3 Test: kat_selftest
 Command: "/workspace/build/test_kat"
 Directory: /workspace/build
-"kat_selftest" start time: Apr 13 19:16 UTC
+"kat_selftest" start time: Apr 13 19:22 UTC
 Output:
 ----------------------------------------------------------
 Running Known Answer Tests...
@@ -20,15 +20,57 @@ KAT Results: 6/6 passed
 Test time =   0.06 sec
 ----------------------------------------------------------
 Test Passed.
-"kat_selftest" end time: Apr 13 19:16 UTC
+"kat_selftest" end time: Apr 13 19:22 UTC
 "kat_selftest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-2/2 Testing: OriginalTests
-2/2 Test: OriginalTests
+2/3 Testing: FipsCavp
+2/3 Test: FipsCavp
+Command: "/workspace/build/test_cavp"
+Directory: /workspace/build
+"FipsCavp" start time: Apr 13 19:22 UTC
+Output:
+----------------------------------------------------------
+=== FIPS CAVP Tests ===
+
+--- SHA-512 ---
+[PASS] SHA-512("abc")
+[PASS] SHA-512("")
+[PASS] SHA-512(long msg)
+
+--- SHA-512/256, SHA-512/224 ---
+[PASS] SHA-512/256("abc") runs
+[PASS] SHA-512/224("abc") runs
+
+--- Ed25519ctx ---
+[PASS] Ed25519ctx sign
+[PASS] Ed25519ctx verify
+[PASS] Ed25519ctx message match
+
+--- Ed25519ph ---
+[PASS] Ed25519ph sign
+[PASS] Ed25519ph verify
+[PASS] Ed25519ph returns 64-byte prehash
+
+--- FIPS Self-Test ---
+[PASS] Power-on selftest
+[PASS] FIPS mode query
+[PASS] FIPS version string
+
+=== FIPS CAVP Results: 14/14 passed ===
+<end of output>
+Test time =   0.30 sec
+----------------------------------------------------------
+Test Passed.
+"FipsCavp" end time: Apr 13 19:22 UTC
+"FipsCavp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/3 Testing: OriginalTests
+3/3 Test: OriginalTests
 Command: "/workspace/build/tests/test_original"
 Directory: /workspace/build/tests
-"OriginalTests" start time: Apr 13 19:16 UTC
+"OriginalTests" start time: Apr 13 19:22 UTC
 Output:
 ----------------------------------------------------------
 ========================================
@@ -46,7 +88,7 @@ Detected architecture: x86_64
 === Testing Random Bytes Generation ===
 [PASS] Random bytes generated (non-zero)
 [PASS] Random bytes have variation
-Random sample 1: 1d234d59c2990101ac06a80a9a03b84d332ec4e776fdd8afc43f231712d25820
+Random sample 1: ebe2a73389fdd882bce63b50b400d1fd59d878b8dda557989fb2e4613c891ac8
 
 === Testing SHA512 Hash ===
 [PASS] Hash is deterministic
@@ -63,8 +105,8 @@ SHA512 hash: 3dc65483e28aa0205ea795b501445dbff31438e137cce5f9e3f05b8b63e96630...
 [PASS] Box encryption succeeds
 [PASS] Box decryption succeeds
 [PASS] Decrypted message matches
-Public Key 1: 8fb256d4a013e5b6c1dcec7939ed0529f6aba3a88f44ed69134af2aa2c83f25b
-Public Key 2: da21a669869c6be2c241b6228ccf62aa3bc5f017eb5fa5fbcfe874a03cccec0a
+Public Key 1: 312c8236a116c0a02c9e0c7c79344260abdbb2f723a992ba271e958d5a00b534
+Public Key 2: e63e3e38798fc44e895090c310c59519ac377a7464ab0ae465fee861a1f1724f
 
 === Testing Digital Signatures ===
 [PASS] Signing succeeds
@@ -73,12 +115,12 @@ Public Key 2: da21a669869c6be2c241b6228ccf62aa3bc5f017eb5fa5fbcfe874a03cccec0a
 [PASS] Verified message length correct
 [PASS] Verified message matches
 [PASS] Tampered signature detection
-Signing Public Key: 5213647c4b04ca189f71682f77bfc56ebb93f3421dc27eff776c6e1b45f21fd9
+Signing Public Key: 1129df4e1cbc56aa05a7e9365b90c76e44a555d0c327237aa836da528401c14c
 
 === Testing Scalar Multiplication ===
 [PASS] Scalar mult base succeeds
 [PASS] Scalar mult base deterministic
-Scalar mult result: 0f52f693459ad3ff45502b06531ed3f202f671509de406285a46b07907b23f38
+Scalar mult result: bc9053af4a611f0464ce473eeea2d5c3ab7b74ed98a3adf979e4b4956981bd07
 
 === Testing PQC Interface ===
 [PASS] PQC get params succeeds
@@ -111,7 +153,7 @@ Hybrid secret key size: 2432
 [PASS] Error string for invalid param
 
 === Testing Basic Performance ===
-100 SHA512 hashes of 1KB: 0.0067 seconds
+100 SHA512 hashes of 1KB: 0.0046 seconds
 [PASS] Hash performance reasonable
 
 === Testing Secure Memory Operations ===
@@ -139,11 +181,11 @@ Passed: 56
 Failed: 0
 ========================================
 <end of output>
-Test time =   0.15 sec
+Test time =   0.16 sec
 ----------------------------------------------------------
 Test Passed.
-"OriginalTests" end time: Apr 13 19:16 UTC
+"OriginalTests" end time: Apr 13 19:22 UTC
 "OriginalTests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Apr 13 19:16 UTC
+End testing: Apr 13 19:22 UTC

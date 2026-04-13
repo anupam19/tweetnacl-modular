@@ -155,7 +155,7 @@ static int fips_pct_keygen_ed25519(void) {
     secure_zero(msg, sizeof(msg));
 
     /* Generate random message */
-    if (randombytes(msg, sizeof(msg)) != 0) goto cleanup;
+    if (randombytes_safe(msg, sizeof(msg)) != 0) goto cleanup;
     
     if (crypto_sign_keypair(pk, sk) != 0) goto cleanup;
     if (crypto_sign(sig, &smlen, msg, sizeof(msg), sk) != 0) goto cleanup;
@@ -225,7 +225,7 @@ static int fips_crngt(void) {
 
     secure_zero(current, sizeof(current));
 
-    if (randombytes(current, 16) != 0) {
+    if (randombytes_safe(current, 16) != 0) {
         fips_zeroize(current, sizeof(current));
         return -1;
     }

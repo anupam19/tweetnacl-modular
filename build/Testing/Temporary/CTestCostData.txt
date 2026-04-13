@@ -1,3 +1,4 @@
-kat_selftest 2 0.0289855
-OriginalTests 2 0.0772557
+kat_selftest 1 0.0625473
+FipsCavp 1 0.295253
+OriginalTests 1 0.156479
 ---

@@ -113,6 +113,7 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/tweetnacl_static.dir/DependInfo.cmake"
   "CMakeFiles/uninstall.dir/DependInfo.cmake"
   "CMakeFiles/test_kat.dir/DependInfo.cmake"
+  "CMakeFiles/test_cavp.dir/DependInfo.cmake"
   "CMakeFiles/tweetnacl_app.dir/DependInfo.cmake"
   "tests/CMakeFiles/test_original.dir/DependInfo.cmake"
   )

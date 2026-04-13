@@ -133,14 +133,26 @@ static int fips_selftest_ed25519(void) {
         return NACL_ERROR_SELF_TEST_FAILED;
     }
     
+    /* Sign the test message */
     unsigned long long sig_len;
-    if (crypto_sign_signature(sig, &sig_len, msg, sizeof(msg), sk) != 0) {
+    uint8_t signed_msg[sizeof(msg) + 64];
+    unsigned long long signed_len;
+    
+    if (crypto_sign(signed_msg, &signed_len, msg, sizeof(msg), sk) != 0) {
         secure_zeroize(pk, sizeof(pk));
         secure_zeroize(sk, sizeof(sk));
         return NACL_ERROR_SELF_TEST_FAILED;
     }
     
-    if (crypto_sign_verify(sig, sig_len, msg, sizeof(msg), pk) != 0) {
+    /* Extract signature from signed message */
+    memcpy(sig, signed_msg, 64);
+    sig_len = 64;
+    
+    /* Verify using open (returns original message) */
+    uint8_t verified_msg[sizeof(msg)];
+    unsigned long long verified_len;
+    
+    if (crypto_sign_open(verified_msg, &verified_len, signed_msg, signed_len, pk) != 0) {
         secure_zeroize(pk, sizeof(pk));
         secure_zeroize(sk, sizeof(sk));
         return NACL_ERROR_SELF_TEST_FAILED;
@@ -263,15 +275,27 @@ int fips_conditional_selftest_keygen(void) {
         return NACL_ERROR_SELF_TEST_FAILED;
     }
     
+    /* Sign the test message */
     unsigned long long sig_len;
-    if (crypto_sign_signature(sig, &sig_len, msg, sizeof(msg), sk) != 0) {
+    uint8_t signed_msg[sizeof(msg) + 64];
+    unsigned long long signed_len;
+    
+    if (crypto_sign(signed_msg, &signed_len, msg, sizeof(msg), sk) != 0) {
         secure_zeroize(pk, sizeof(pk));
         secure_zeroize(sk, sizeof(sk));
         fips_state.last_test_result = NACL_ERROR_SELF_TEST_FAILED;
         return NACL_ERROR_SELF_TEST_FAILED;
     }
     
-    if (crypto_sign_verify(sig, sig_len, msg, sizeof(msg), pk) != 0) {
+    /* Extract signature from signed message */
+    memcpy(sig, signed_msg, 64);
+    sig_len = 64;
+    
+    /* Verify using open (returns original message) */
+    uint8_t verified_msg[sizeof(msg)];
+    unsigned long long verified_len;
+    
+    if (crypto_sign_open(verified_msg, &verified_len, signed_msg, signed_len, pk) != 0) {
         secure_zeroize(pk, sizeof(pk));
         secure_zeroize(sk, sizeof(sk));
         fips_state.last_test_result = NACL_ERROR_SELF_TEST_FAILED;

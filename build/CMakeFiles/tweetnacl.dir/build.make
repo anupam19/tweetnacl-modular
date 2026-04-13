@@ -153,24 +153,10 @@ CMakeFiles/tweetnacl.dir/src/core/error.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tweetnacl.dir/src/core/error.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /workspace/src/core/error.c -o CMakeFiles/tweetnacl.dir/src/core/error.c.s
 
-CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o: CMakeFiles/tweetnacl.dir/flags.make
-CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o: /workspace/src/core/fips_selftest.c
-CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o: CMakeFiles/tweetnacl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o -MF CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o.d -o CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o -c /workspace/src/core/fips_selftest.c
-
-CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /workspace/src/core/fips_selftest.c > CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.i
-
-CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /workspace/src/core/fips_selftest.c -o CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.s
-
 CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o: CMakeFiles/tweetnacl.dir/flags.make
 CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o: /workspace/src/drivers/rng/randombytes.c
 CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o: CMakeFiles/tweetnacl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o -MF CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o.d -o CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o -c /workspace/src/drivers/rng/randombytes.c
 
 CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.i: cmake_force
@@ -184,7 +170,7 @@ CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.s: cmake_force
 CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o: CMakeFiles/tweetnacl.dir/flags.make
 CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o: /workspace/src/drivers/crypto/pqc.c
 CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o: CMakeFiles/tweetnacl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o -MF CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o.d -o CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o -c /workspace/src/drivers/crypto/pqc.c
 
 CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.i: cmake_force
@@ -198,7 +184,7 @@ CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.s: cmake_force
 CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o: CMakeFiles/tweetnacl.dir/flags.make
 CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o: /workspace/src/drivers/rng/drng.c
 CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o: CMakeFiles/tweetnacl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o -MF CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o.d -o CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o -c /workspace/src/drivers/rng/drng.c
 
 CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.i: cmake_force
@@ -209,10 +195,66 @@ CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /workspace/src/drivers/rng/drng.c -o CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.s
 
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o: CMakeFiles/tweetnacl.dir/flags.make
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o: /workspace/src/drivers/crypto/fips/fips1804_sha512.c
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o: CMakeFiles/tweetnacl.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o -MF CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o.d -o CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o -c /workspace/src/drivers/crypto/fips/fips1804_sha512.c
+
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /workspace/src/drivers/crypto/fips/fips1804_sha512.c > CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.i
+
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /workspace/src/drivers/crypto/fips/fips1804_sha512.c -o CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.s
+
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o: CMakeFiles/tweetnacl.dir/flags.make
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o: /workspace/src/drivers/crypto/fips/fips1865_ed25519.c
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o: CMakeFiles/tweetnacl.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o -MF CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o.d -o CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o -c /workspace/src/drivers/crypto/fips/fips1865_ed25519.c
+
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /workspace/src/drivers/crypto/fips/fips1865_ed25519.c > CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.i
+
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /workspace/src/drivers/crypto/fips/fips1865_ed25519.c -o CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.s
+
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o: CMakeFiles/tweetnacl.dir/flags.make
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o: /workspace/src/drivers/crypto/fips/fips_selftest.c
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o: CMakeFiles/tweetnacl.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building C object CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o -MF CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o.d -o CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o -c /workspace/src/drivers/crypto/fips/fips_selftest.c
+
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /workspace/src/drivers/crypto/fips/fips_selftest.c > CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.i
+
+CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /workspace/src/drivers/crypto/fips/fips_selftest.c -o CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.s
+
+CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o: CMakeFiles/tweetnacl.dir/flags.make
+CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o: /workspace/src/core/fips_selftest.c
+CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o: CMakeFiles/tweetnacl.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building C object CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o -MF CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o.d -o CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o -c /workspace/src/core/fips_selftest.c
+
+CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /workspace/src/core/fips_selftest.c > CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.i
+
+CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /workspace/src/core/fips_selftest.c -o CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.s
+
 CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o: CMakeFiles/tweetnacl.dir/flags.make
 CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o: /workspace/src/arch/generic/lib/software_impl.c
 CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o: CMakeFiles/tweetnacl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building C object CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o -MF CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o.d -o CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o -c /workspace/src/arch/generic/lib/software_impl.c
 
 CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.i: cmake_force
@@ -231,10 +273,13 @@ tweetnacl_OBJECTS = \
 "CMakeFiles/tweetnacl.dir/src/core/integrity.c.o" \
 "CMakeFiles/tweetnacl.dir/src/core/keygen_validate.c.o" \
 "CMakeFiles/tweetnacl.dir/src/core/error.c.o" \
-"CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o" \
 "CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o" \
 "CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o" \
 "CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o" \
+"CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o" \
+"CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o" \
+"CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o" \
+"CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o" \
 "CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o"
 
 # External object files for target tweetnacl
@@ -246,14 +291,17 @@ libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/core/secure_utils.c.o
 libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/core/integrity.c.o
 libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/core/keygen_validate.c.o
 libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/core/error.c.o
-libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o
 libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/drivers/rng/randombytes.c.o
 libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/drivers/crypto/pqc.c.o
 libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/drivers/rng/drng.c.o
+libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o
+libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o
+libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o
+libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o
 libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/src/arch/generic/lib/software_impl.c.o
 libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/build.make
 libtweetnacl.so.2.0.0: CMakeFiles/tweetnacl.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking C shared library libtweetnacl.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Linking C shared library libtweetnacl.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/tweetnacl.dir/link.txt --verbose=$(VERBOSE)
 	$(CMAKE_COMMAND) -E cmake_symlink_library libtweetnacl.so.2.0.0 libtweetnacl.so.2 libtweetnacl.so
 

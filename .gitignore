@@ -1,32 +1,15 @@
 ```
-# CMake build artifacts
+# Build artifacts
 build/
 CMakeCache.txt
 CMakeFiles/
-
-# Compiled libraries and executables
-*.a
-*.so
-*.so.*
-*.exe
-*.dll
-*.out
-
-# Test binaries
-test_*
-*_app
-
-# Object files
-*.o
-*.obj
-*.d
-
-# Logs
-*.log
-
-# Coverage and temporary test files
-Testing/
 CTestTestfile.cmake
-cmake_install.cmake
 Makefile
+cmake_install.cmake
+
+# Test outputs
+Testing/
+
+# Log files
+*.log
 ```
