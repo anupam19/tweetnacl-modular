@@ -201,6 +201,9 @@ int crypto_onetimeauth(u8 *out,const u8 *m,u64 n,const u8 *k)
 {
   u32 s,i,j,u,x[17],r[17],h[17],c[17],g[17];
 
+  /* V002: Validate pointer parameters */
+  if (out == NULL || m == NULL || k == NULL) return -1;
+
   FOR(j,17) r[j]=h[j]=0;
   FOR(j,16) r[j]=k[j];
   r[3]&=15;
@@ -213,7 +216,7 @@ int crypto_onetimeauth(u8 *out,const u8 *m,u64 n,const u8 *k)
 
   while (n > 0) {
     FOR(j,17) c[j] = 0;
-    for (j = 0;(j < 16) && (j < n);++j) c[j] = m[j];
+    for (j = 0;(j < 16) && ((u64)j < n);++j) c[j] = m[j];
     c[j] = 1;
     m += j; n -= j;
     add1305(h,c);
@@ -554,6 +557,9 @@ int crypto_hashblocks(u8 *x,const u8 *m,u64 n)
 
   FOR(i,8) z[i] = a[i] = dl64(x + 8 * i);
 
+  /* V002: Validate pointer parameters */
+  if (x == NULL || m == NULL) return -1;
+
   while (n >= 128) {
     FOR(i,16) w[i] = dl64(m + 8 * i);
 
@@ -576,7 +582,7 @@ int crypto_hashblocks(u8 *x,const u8 *m,u64 n)
 
   FOR(i,8) ts64(x+8*i,z[i]);
 
-  return n;
+  return (int)n;
 }
 
 static const u8 iv[64] = {
