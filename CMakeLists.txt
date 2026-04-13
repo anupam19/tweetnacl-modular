@@ -182,6 +182,7 @@ set(NACL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/integrity.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keygen_validate.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/error.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/fips_selftest.c
     # Drivers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/rng/randombytes.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/crypto/pqc.c

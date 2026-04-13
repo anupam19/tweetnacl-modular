@@ -59,6 +59,46 @@ CMakeFiles/tweetnacl.dir/src/core/error.c.o: /workspace/src/core/error.c \
   /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
 
+CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o: /workspace/src/core/fips_selftest.c \
+  /usr/include/stdc-predef.h \
+  /workspace/include/core/fips_selftest.h \
+  /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h \
+  /usr/include/stdint.h \
+  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
+  /usr/include/features.h \
+  /usr/include/features-time64.h \
+  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
+  /usr/include/x86_64-linux-gnu/bits/timesize.h \
+  /usr/include/x86_64-linux-gnu/sys/cdefs.h \
+  /usr/include/x86_64-linux-gnu/bits/long-double.h \
+  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
+  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
+  /usr/include/x86_64-linux-gnu/bits/types.h \
+  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
+  /usr/include/x86_64-linux-gnu/bits/time64.h \
+  /usr/include/x86_64-linux-gnu/bits/wchar.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
+  /workspace/include/core/error.h \
+  /workspace/include/drivers/rng/randombytes.h \
+  /usr/lib/gcc/x86_64-linux-gnu/12/include/stddef.h \
+  /workspace/include/tweetnacl/tweetnacl.h \
+  /workspace/include/core/types.h \
+  /workspace/include/drivers/crypto/verify.h \
+  /workspace/include/drivers/crypto/salsa20/salsa20.h \
+  /workspace/include/drivers/crypto/salsa20/salsa20_impl.h \
+  /workspace/include/drivers/crypto/poly1305/poly1305.h \
+  /workspace/include/drivers/crypto/poly1305/poly1305_impl.h \
+  /workspace/include/drivers/crypto/sha512/sha512.h \
+  /workspace/include/drivers/crypto/sha512/sha512_impl.h \
+  /workspace/include/drivers/crypto/curve25519/curve25519.h \
+  /workspace/include/drivers/crypto/curve25519/curve25519_impl.h \
+  /workspace/include/drivers/crypto/ed25519/ed25519.h \
+  /workspace/include/drivers/crypto/hmacsha512256.h \
+  /workspace/include/secretbox/secretbox.h \
+  /workspace/include/box/box.h \
+  /usr/include/string.h
+
 CMakeFiles/tweetnacl.dir/src/core/integrity.c.o: /workspace/src/core/integrity.c \
   /usr/include/stdc-predef.h \
   /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h \
@@ -367,8 +407,6 @@ CMakeFiles/tweetnacl.dir/src/tweetnacl/tweetnacl.c.o: /workspace/src/tweetnacl/t
 
 /workspace/include/drivers/rng/drng.h:
 
-/workspace/include/drivers/rng/randombytes.h:
-
 /workspace/src/tweetnacl/tweetnacl.c:
 
 /workspace/src/drivers/rng/drng.c:
@@ -378,6 +416,10 @@ CMakeFiles/tweetnacl.dir/src/tweetnacl/tweetnacl.c.o: /workspace/src/tweetnacl/t
 /usr/include/x86_64-linux-gnu/bits/floatn.h:
 
 /workspace/include/drivers/crypto/pqc.h:
+
+/workspace/include/internal/safety.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
 
@@ -431,10 +473,6 @@ CMakeFiles/tweetnacl.dir/src/tweetnacl/tweetnacl.c.o: /workspace/src/tweetnacl/t
 
 /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
-
-/workspace/src/core/utils.c:
-
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
 
 /usr/include/features.h:
@@ -465,6 +503,8 @@ CMakeFiles/tweetnacl.dir/src/tweetnacl/tweetnacl.c.o: /workspace/src/tweetnacl/t
 
 /usr/include/x86_64-linux-gnu/bits/time64.h:
 
+/workspace/src/core/fips_selftest.c:
+
 /usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
 /workspace/include/drivers/crypto/salsa20.h:
@@ -477,11 +517,9 @@ CMakeFiles/tweetnacl.dir/src/tweetnacl/tweetnacl.c.o: /workspace/src/tweetnacl/t
 
 /workspace/include/drivers/crypto/curve25519/curve25519_impl.h:
 
-/workspace/include/internal/safety.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
-
 /workspace/include/secretbox/secretbox.h:
+
+/workspace/include/drivers/rng/randombytes.h:
 
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
 
@@ -490,6 +528,14 @@ CMakeFiles/tweetnacl.dir/src/tweetnacl/tweetnacl.c.o: /workspace/src/tweetnacl/t
 /workspace/include/box/box.h:
 
 /usr/include/limits.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+
+/workspace/src/core/utils.c:
+
+/workspace/include/core/fips_selftest.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/12/include/limits.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/time_t.h:
 
@@ -512,8 +558,6 @@ CMakeFiles/tweetnacl.dir/src/tweetnacl/tweetnacl.c.o: /workspace/src/tweetnacl/t
 /workspace/src/core/error.c:
 
 /workspace/src/core/secure_utils.c:
-
-/usr/lib/gcc/x86_64-linux-gnu/12/include/limits.h:
 
 /usr/include/errno.h:
 

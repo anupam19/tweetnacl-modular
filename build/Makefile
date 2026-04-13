@@ -224,19 +224,6 @@ test_kat/fast:
 .PHONY : test_kat/fast
 
 #=============================================================================
-# Target rules for targets named test_cavp
-
-# Build rule for target.
-test_cavp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_cavp
-.PHONY : test_cavp
-
-# fast build rule for target.
-test_cavp/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cavp.dir/build.make CMakeFiles/test_cavp.dir/build
-.PHONY : test_cavp/fast
-
-#=============================================================================
 # Target rules for targets named tweetnacl_app
 
 # Build rule for target.
@@ -339,6 +326,33 @@ src/core/error.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/core/error.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/core/error.c.s
 .PHONY : src/core/error.c.s
+
+src/core/fips_selftest.o: src/core/fips_selftest.c.o
+.PHONY : src/core/fips_selftest.o
+
+# target to build an object file
+src/core/fips_selftest.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/core/fips_selftest.c.o
+.PHONY : src/core/fips_selftest.c.o
+
+src/core/fips_selftest.i: src/core/fips_selftest.c.i
+.PHONY : src/core/fips_selftest.i
+
+# target to preprocess a source file
+src/core/fips_selftest.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/core/fips_selftest.c.i
+.PHONY : src/core/fips_selftest.c.i
+
+src/core/fips_selftest.s: src/core/fips_selftest.c.s
+.PHONY : src/core/fips_selftest.s
+
+# target to generate assembly for a file
+src/core/fips_selftest.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/core/fips_selftest.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/core/fips_selftest.c.s
+.PHONY : src/core/fips_selftest.c.s
 
 src/core/integrity.o: src/core/integrity.c.o
 .PHONY : src/core/integrity.o
@@ -448,87 +462,6 @@ src/core/utils.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/core/utils.c.s
 .PHONY : src/core/utils.c.s
 
-src/drivers/crypto/fips/fips1804_sha512.o: src/drivers/crypto/fips/fips1804_sha512.c.o
-.PHONY : src/drivers/crypto/fips/fips1804_sha512.o
-
-# target to build an object file
-src/drivers/crypto/fips/fips1804_sha512.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/drivers/crypto/fips/fips1804_sha512.c.o
-.PHONY : src/drivers/crypto/fips/fips1804_sha512.c.o
-
-src/drivers/crypto/fips/fips1804_sha512.i: src/drivers/crypto/fips/fips1804_sha512.c.i
-.PHONY : src/drivers/crypto/fips/fips1804_sha512.i
-
-# target to preprocess a source file
-src/drivers/crypto/fips/fips1804_sha512.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/drivers/crypto/fips/fips1804_sha512.c.i
-.PHONY : src/drivers/crypto/fips/fips1804_sha512.c.i
-
-src/drivers/crypto/fips/fips1804_sha512.s: src/drivers/crypto/fips/fips1804_sha512.c.s
-.PHONY : src/drivers/crypto/fips/fips1804_sha512.s
-
-# target to generate assembly for a file
-src/drivers/crypto/fips/fips1804_sha512.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1804_sha512.c.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/drivers/crypto/fips/fips1804_sha512.c.s
-.PHONY : src/drivers/crypto/fips/fips1804_sha512.c.s
-
-src/drivers/crypto/fips/fips1865_ed25519.o: src/drivers/crypto/fips/fips1865_ed25519.c.o
-.PHONY : src/drivers/crypto/fips/fips1865_ed25519.o
-
-# target to build an object file
-src/drivers/crypto/fips/fips1865_ed25519.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/drivers/crypto/fips/fips1865_ed25519.c.o
-.PHONY : src/drivers/crypto/fips/fips1865_ed25519.c.o
-
-src/drivers/crypto/fips/fips1865_ed25519.i: src/drivers/crypto/fips/fips1865_ed25519.c.i
-.PHONY : src/drivers/crypto/fips/fips1865_ed25519.i
-
-# target to preprocess a source file
-src/drivers/crypto/fips/fips1865_ed25519.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/drivers/crypto/fips/fips1865_ed25519.c.i
-.PHONY : src/drivers/crypto/fips/fips1865_ed25519.c.i
-
-src/drivers/crypto/fips/fips1865_ed25519.s: src/drivers/crypto/fips/fips1865_ed25519.c.s
-.PHONY : src/drivers/crypto/fips/fips1865_ed25519.s
-
-# target to generate assembly for a file
-src/drivers/crypto/fips/fips1865_ed25519.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips1865_ed25519.c.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/drivers/crypto/fips/fips1865_ed25519.c.s
-.PHONY : src/drivers/crypto/fips/fips1865_ed25519.c.s
-
-src/drivers/crypto/fips/fips_selftest.o: src/drivers/crypto/fips/fips_selftest.c.o
-.PHONY : src/drivers/crypto/fips/fips_selftest.o
-
-# target to build an object file
-src/drivers/crypto/fips/fips_selftest.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/drivers/crypto/fips/fips_selftest.c.o
-.PHONY : src/drivers/crypto/fips/fips_selftest.c.o
-
-src/drivers/crypto/fips/fips_selftest.i: src/drivers/crypto/fips/fips_selftest.c.i
-.PHONY : src/drivers/crypto/fips/fips_selftest.i
-
-# target to preprocess a source file
-src/drivers/crypto/fips/fips_selftest.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/drivers/crypto/fips/fips_selftest.c.i
-.PHONY : src/drivers/crypto/fips/fips_selftest.c.i
-
-src/drivers/crypto/fips/fips_selftest.s: src/drivers/crypto/fips/fips_selftest.c.s
-.PHONY : src/drivers/crypto/fips/fips_selftest.s
-
-# target to generate assembly for a file
-src/drivers/crypto/fips/fips_selftest.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl.dir/build.make CMakeFiles/tweetnacl.dir/src/drivers/crypto/fips/fips_selftest.c.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/drivers/crypto/fips/fips_selftest.c.s
-.PHONY : src/drivers/crypto/fips/fips_selftest.c.s
-
 src/drivers/crypto/pqc.o: src/drivers/crypto/pqc.c.o
 .PHONY : src/drivers/crypto/pqc.o
 
@@ -637,30 +570,6 @@ src/tweetnacl/tweetnacl.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tweetnacl_static.dir/build.make CMakeFiles/tweetnacl_static.dir/src/tweetnacl/tweetnacl.c.s
 .PHONY : src/tweetnacl/tweetnacl.c.s
 
-tests/fips/test_cavp.o: tests/fips/test_cavp.c.o
-.PHONY : tests/fips/test_cavp.o
-
-# target to build an object file
-tests/fips/test_cavp.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cavp.dir/build.make CMakeFiles/test_cavp.dir/tests/fips/test_cavp.c.o
-.PHONY : tests/fips/test_cavp.c.o
-
-tests/fips/test_cavp.i: tests/fips/test_cavp.c.i
-.PHONY : tests/fips/test_cavp.i
-
-# target to preprocess a source file
-tests/fips/test_cavp.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cavp.dir/build.make CMakeFiles/test_cavp.dir/tests/fips/test_cavp.c.i
-.PHONY : tests/fips/test_cavp.c.i
-
-tests/fips/test_cavp.s: tests/fips/test_cavp.c.s
-.PHONY : tests/fips/test_cavp.s
-
-# target to generate assembly for a file
-tests/fips/test_cavp.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cavp.dir/build.make CMakeFiles/test_cavp.dir/tests/fips/test_cavp.c.s
-.PHONY : tests/fips/test_cavp.c.s
-
 tests/kat/kat_runner.o: tests/kat/kat_runner.c.o
 .PHONY : tests/kat/kat_runner.o
 
@@ -699,7 +608,6 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... uninstall"
-	@echo "... test_cavp"
 	@echo "... test_kat"
 	@echo "... test_original"
 	@echo "... tweetnacl"
@@ -714,6 +622,9 @@ help:
 	@echo "... src/core/error.o"
 	@echo "... src/core/error.i"
 	@echo "... src/core/error.s"
+	@echo "... src/core/fips_selftest.o"
+	@echo "... src/core/fips_selftest.i"
+	@echo "... src/core/fips_selftest.s"
 	@echo "... src/core/integrity.o"
 	@echo "... src/core/integrity.i"
 	@echo "... src/core/integrity.s"
@@ -726,15 +637,6 @@ help:
 	@echo "... src/core/utils.o"
 	@echo "... src/core/utils.i"
 	@echo "... src/core/utils.s"
-	@echo "... src/drivers/crypto/fips/fips1804_sha512.o"
-	@echo "... src/drivers/crypto/fips/fips1804_sha512.i"
-	@echo "... src/drivers/crypto/fips/fips1804_sha512.s"
-	@echo "... src/drivers/crypto/fips/fips1865_ed25519.o"
-	@echo "... src/drivers/crypto/fips/fips1865_ed25519.i"
-	@echo "... src/drivers/crypto/fips/fips1865_ed25519.s"
-	@echo "... src/drivers/crypto/fips/fips_selftest.o"
-	@echo "... src/drivers/crypto/fips/fips_selftest.i"
-	@echo "... src/drivers/crypto/fips/fips_selftest.s"
 	@echo "... src/drivers/crypto/pqc.o"
 	@echo "... src/drivers/crypto/pqc.i"
 	@echo "... src/drivers/crypto/pqc.s"
@@ -747,9 +649,6 @@ help:
 	@echo "... src/tweetnacl/tweetnacl.o"
 	@echo "... src/tweetnacl/tweetnacl.i"
 	@echo "... src/tweetnacl/tweetnacl.s"
-	@echo "... tests/fips/test_cavp.o"
-	@echo "... tests/fips/test_cavp.i"
-	@echo "... tests/fips/test_cavp.s"
 	@echo "... tests/kat/kat_runner.o"
 	@echo "... tests/kat/kat_runner.i"
 	@echo "... tests/kat/kat_runner.s"

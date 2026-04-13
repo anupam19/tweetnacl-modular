@@ -2,7 +2,6 @@
 /workspace/build/CMakeFiles/tweetnacl_static.dir
 /workspace/build/CMakeFiles/uninstall.dir
 /workspace/build/CMakeFiles/test_kat.dir
-/workspace/build/CMakeFiles/test_cavp.dir
 /workspace/build/CMakeFiles/tweetnacl_app.dir
 /workspace/build/CMakeFiles/test.dir
 /workspace/build/CMakeFiles/edit_cache.dir

@@ -1,1 +1,32 @@
-Nothing should be ignored based on the provided file changes, as they consist only of source code and header files (.md, .h, .c) without any build artifacts, dependencies, or temporary files.
+```
+# CMake build artifacts
+build/
+CMakeCache.txt
+CMakeFiles/
+
+# Compiled libraries and executables
+*.a
+*.so
+*.so.*
+*.exe
+*.dll
+*.out
+
+# Test binaries
+test_*
+*_app
+
+# Object files
+*.o
+*.obj
+*.d
+
+# Logs
+*.log
+
+# Coverage and temporary test files
+Testing/
+CTestTestfile.cmake
+cmake_install.cmake
+Makefile
+```

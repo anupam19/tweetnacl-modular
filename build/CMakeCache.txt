@@ -280,7 +280,7 @@ ENABLE_COVERAGE:BOOL=OFF
 ENABLE_DRNG:BOOL=ON
 
 //Enable FIPS 140-3 algorithm compliance
-ENABLE_FIPS_MODE:BOOL=ON
+ENABLE_FIPS_MODE:BOOL=OFF
 
 //Enable Link Time Optimization
 ENABLE_LTO:BOOL=OFF
@@ -290,9 +290,6 @@ ENABLE_PQC:BOOL=ON
 
 //Enable AddressSanitizer + UBSan
 ENABLE_SANITIZERS:BOOL=OFF
-
-//No help, variable specified on the command line.
-FIPS_MODE:UNINITIALIZED=ON
 
 //Enable runtime dispatch (default)
 NACL_RUNTIME_DISPATCH:BOOL=OFF
