@@ -1,0 +1,149 @@
+Start testing: Apr 13 19:02 UTC
+----------------------------------------------------------
+1/2 Testing: kat_selftest
+1/2 Test: kat_selftest
+Command: "/workspace/build/test_kat"
+Directory: /workspace/build
+"kat_selftest" start time: Apr 13 19:02 UTC
+Output:
+----------------------------------------------------------
+Running Known Answer Tests...
+[PASS] SHA-512
+[PASS] Poly1305
+[PASS] Curve25519
+[PASS] Ed25519
+[PASS] SecretBox
+[PASS] Box
+
+KAT Results: 6/6 passed
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"kat_selftest" end time: Apr 13 19:02 UTC
+"kat_selftest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/2 Testing: OriginalTests
+2/2 Test: OriginalTests
+Command: "/workspace/build/tests/test_original"
+Directory: /workspace/build/tests
+"OriginalTests" start time: Apr 13 19:02 UTC
+Output:
+----------------------------------------------------------
+========================================
+TweetNaCl Unit Tests
+Architecture: x86_64
+========================================
+
+=== Testing Architecture Detection ===
+[PASS] Architecture name is defined
+Detected architecture: x86_64
+[PASS] x86_64 flag set
+[PASS] Little endian detected
+[PASS] HAVE_NATIVE_UINT64 defined
+
+=== Testing Random Bytes Generation ===
+[PASS] Random bytes generated (non-zero)
+[PASS] Random bytes have variation
+Random sample 1: ef5c850b7a1e3f5af296033be1e0a98eaa174a88ccefb0268d856e1c8ea0005a
+
+=== Testing SHA512 Hash ===
+[PASS] Hash is deterministic
+[PASS] Different messages produce different hashes
+SHA512 hash: 3dc65483e28aa0205ea795b501445dbff31438e137cce5f9e3f05b8b63e96630...
+
+=== Testing Secret Box (Symmetric Encryption) ===
+[PASS] Encryption succeeds
+[PASS] Decryption succeeds
+[PASS] Decrypted message matches original
+[PASS] Wrong key fails decryption
+
+=== Testing Crypto Box (Asymmetric Encryption) ===
+[PASS] Box encryption succeeds
+[PASS] Box decryption succeeds
+[PASS] Decrypted message matches
+Public Key 1: c193748516b512ed198c06cc274e52e3138c9be78a1b9d4470e890f72be06b34
+Public Key 2: a25d50af4895e19d0bb0d9c1e0e6fbe06cf1ea89515f65550ddfd870c624f74e
+
+=== Testing Digital Signatures ===
+[PASS] Signing succeeds
+[PASS] Signature length correct
+[PASS] Verification succeeds
+[PASS] Verified message length correct
+[PASS] Verified message matches
+[PASS] Tampered signature detection
+Signing Public Key: 098cd76cf03225039e3e3e02812247075f1fd34212d2e533e1b90382fac4e065
+
+=== Testing Scalar Multiplication ===
+[PASS] Scalar mult base succeeds
+[PASS] Scalar mult base deterministic
+Scalar mult result: d33e29abc5776b8e84de8d661c44807ea16fe59cd5478dd5ec597ca314d2c721
+
+=== Testing PQC Interface ===
+[PASS] PQC get params succeeds
+[PASS] KYBER768 has valid public key size
+[PASS] KYBER768 has valid secret key size
+PQC Algorithm: KYBER768 - NIST Level 3 KEM
+  Public key size: 1184
+  Secret key size: 2400
+[PASS] PQC keygen succeeds
+[PASS] PQC encapsulation succeeds
+[PASS] PQC decapsulation succeeds
+[PASS] PQC signing interface works
+[PASS] PQC verification interface works
+
+=== Testing Hybrid Cryptography ===
+[PASS] Hybrid keygen succeeds
+[PASS] Hybrid public key has reasonable size
+[PASS] Hybrid secret key has reasonable size
+Hybrid public key size: 1216
+Hybrid secret key size: 2432
+[PASS] Hybrid encapsulation succeeds
+[PASS] Hybrid decapsulation succeeds
+
+=== Testing Error Handling ===
+[PASS] Invalid algorithm returns error
+[PASS] NULL public key returns error
+[PASS] NULL secret key returns error
+[PASS] Small buffer returns error
+[PASS] Error string conversion works
+[PASS] Error string for invalid param
+
+=== Testing Basic Performance ===
+100 SHA512 hashes of 1KB: 0.0070 seconds
+[PASS] Hash performance reasonable
+
+=== Testing Secure Memory Operations ===
+[TEST] secure_memset basic functionality... [PASS]
+[TEST] secure_zero clears sensitive data... [PASS]
+[TEST] safe_memcpy bounds checking... [PASS]
+[TEST] safe_memcpy NULL pointer handling... [PASS]
+[TEST] secure_memcmp constant-time comparison... [PASS]
+[TEST] safe_strcpy null termination - SKIPPED... [PASS]
+[TEST] safe_strcpy truncation with small buffer - SKIPPED... [PASS]
+[TEST] safe_add_size overflow detection... [PASS]
+[TEST] safe_mul_size overflow detection - SKIPPED... [PASS]
+[TEST] validate_index bounds checking - SKIPPED... [PASS]
+[TEST] constant_time_select operation... [PASS]
+[TEST] secure_memory_lock/unlock - SKIPPED... [PASS]
+[TEST] safe_range_check validation... [PASS]
+
+Secure Memory Tests: 13/13 passed
+
+========================================
+Test Summary
+========================================
+Total tests: 56
+Passed: 56
+Failed: 0
+========================================
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"OriginalTests" end time: Apr 13 19:02 UTC
+"OriginalTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Apr 13 19:02 UTC

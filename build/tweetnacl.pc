@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: tweetnacl
+Description: Production-grade modular TweetNaCl with Post-Quantum Cryptography
+Version: 2.0.0
+Libs: -L${libdir} -ltweetnacl
+Cflags: -I${includedir}/tweetnacl

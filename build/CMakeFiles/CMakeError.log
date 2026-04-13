@@ -1,0 +1,61 @@
+Performing C SOURCE FILE Test HAVE_RDRAND_COMPILE failed with the following output:
+Change Dir: /workspace/build/CMakeFiles/CMakeScratch/TryCompile-BWlLnp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_1b5b4/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_1b5b4.dir/build.make CMakeFiles/cmTC_1b5b4.dir/build
+gmake[1]: Entering directory '/workspace/build/CMakeFiles/CMakeScratch/TryCompile-BWlLnp'
+Building C object CMakeFiles/cmTC_1b5b4.dir/src.c.o
+/usr/bin/cc -DHAVE_RDRAND_COMPILE  -std=c11 -o CMakeFiles/cmTC_1b5b4.dir/src.c.o -c /workspace/build/CMakeFiles/CMakeScratch/TryCompile-BWlLnp/src.c
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/include/immintrin.h:27,
+                 from /workspace/build/CMakeFiles/CMakeScratch/TryCompile-BWlLnp/src.c:2:
+/usr/lib/gcc/x86_64-linux-gnu/12/include/x86gprintrin.h: In function ‘main’:
+/usr/lib/gcc/x86_64-linux-gnu/12/include/x86gprintrin.h:225:1: error: inlining failed in call to ‘always_inline’ ‘_rdrand64_step’: target specific option mismatch
+  225 | _rdrand64_step (unsigned long long *__P)
+      | ^~~~~~~~~~~~~~
+/workspace/build/CMakeFiles/CMakeScratch/TryCompile-BWlLnp/src.c:5:24: note: called from here
+    5 |                 return _rdrand64_step(&r) ? 0 : 1;
+      |                        ^~~~~~~~~~~~~~~~~~
+gmake[1]: *** [CMakeFiles/cmTC_1b5b4.dir/build.make:78: CMakeFiles/cmTC_1b5b4.dir/src.c.o] Error 1
+gmake[1]: Leaving directory '/workspace/build/CMakeFiles/CMakeScratch/TryCompile-BWlLnp'
+gmake: *** [Makefile:127: cmTC_1b5b4/fast] Error 2
+
+
+Source file was:
+
+            #include <immintrin.h>
+            int main(void) {
+                unsigned long long r;
+                return _rdrand64_step(&r) ? 0 : 1;
+            }
+        
+
+Performing C SOURCE FILE Test HAVE_RDSEED_COMPILE failed with the following output:
+Change Dir: /workspace/build/CMakeFiles/CMakeScratch/TryCompile-h7OFZz
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_3c9fe/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_3c9fe.dir/build.make CMakeFiles/cmTC_3c9fe.dir/build
+gmake[1]: Entering directory '/workspace/build/CMakeFiles/CMakeScratch/TryCompile-h7OFZz'
+Building C object CMakeFiles/cmTC_3c9fe.dir/src.c.o
+/usr/bin/cc -DHAVE_RDSEED_COMPILE  -std=c11 -o CMakeFiles/cmTC_3c9fe.dir/src.c.o -c /workspace/build/CMakeFiles/CMakeScratch/TryCompile-h7OFZz/src.c
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/include/x86gprintrin.h:75,
+                 from /usr/lib/gcc/x86_64-linux-gnu/12/include/immintrin.h:27,
+                 from /workspace/build/CMakeFiles/CMakeScratch/TryCompile-h7OFZz/src.c:2:
+/usr/lib/gcc/x86_64-linux-gnu/12/include/rdseedintrin.h: In function ‘main’:
+/usr/lib/gcc/x86_64-linux-gnu/12/include/rdseedintrin.h:55:1: error: inlining failed in call to ‘always_inline’ ‘_rdseed64_step’: target specific option mismatch
+   55 | _rdseed64_step (unsigned long long *__p)
+      | ^~~~~~~~~~~~~~
+/workspace/build/CMakeFiles/CMakeScratch/TryCompile-h7OFZz/src.c:5:24: note: called from here
+    5 |                 return _rdseed64_step(&r) ? 0 : 1;
+      |                        ^~~~~~~~~~~~~~~~~~
+gmake[1]: *** [CMakeFiles/cmTC_3c9fe.dir/build.make:78: CMakeFiles/cmTC_3c9fe.dir/src.c.o] Error 1
+gmake[1]: Leaving directory '/workspace/build/CMakeFiles/CMakeScratch/TryCompile-h7OFZz'
+gmake: *** [Makefile:127: cmTC_3c9fe/fast] Error 2
+
+
+Source file was:
+
+            #include <immintrin.h>
+            int main(void) {
+                unsigned long long r;
+                return _rdseed64_step(&r) ? 0 : 1;
+            }
+        
+

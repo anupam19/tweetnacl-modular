@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,-z,relro,-z,now CMakeFiles/test_original.dir/test_all.c.o CMakeFiles/test_original.dir/test_secure_mem.c.o -o test_original  ../libtweetnacl.a 

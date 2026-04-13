@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,-z,relro,-z,now CMakeFiles/tweetnacl_app.dir/samples/main.c.o -o tweetnacl_app  libtweetnacl.a 
