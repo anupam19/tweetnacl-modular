@@ -1,0 +1,41 @@
+name: Nightly Integration Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 2 AM UTC daily
+  workflow_dispatch:
+
+jobs:
+  build-all-configs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build with all options
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DENABLE_DRNG=ON
+          cmake --build build --parallel
+          cd build && ctest --output-on-failure
+
+  regression-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test last 5 commits
+        run: |
+          for commit in $(git log --format="%H" -5); do
+            echo "Testing commit: $commit"
+            git checkout $commit
+            cmake -B build -DBUILD_TESTS=ON
+            cmake --build build
+            cd build && ctest --output-on-failure || exit 1
+            cd ..
+            rm -rf build
+          done

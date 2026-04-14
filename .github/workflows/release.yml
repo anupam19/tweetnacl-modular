@@ -1,0 +1,76 @@
+name: Release & Artifacts
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-release-artifacts:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-linux-gnu
+          - os: macos-latest
+            target: arm64-apple-darwin
+          - os: windows-latest
+            target: x86_64-windows-msvc
+
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Release
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=ON \
+            -DBUILD_STATIC_LIBS=ON
+          cmake --build build --parallel
+
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p dist/include dist/lib
+          cp -r include/* dist/include/
+          cp build/libtweetnacl.* dist/lib/ 2>/dev/null || true
+          tar czf tweetnacl-${{ matrix.target }}.tar.gz -C dist .
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir -p dist/include dist/lib
+          Copy-Item -Recurse include/* dist/include/
+          Copy-Item build/*.lib dist/lib/
+          Copy-Item build/*.dll dist/lib/
+          Compress-Archive -Path dist/* -DestinationPath tweetnacl-${{ matrix.target }}.zip
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.target }}
+          path: |
+            tweetnacl-*.tar.gz
+            tweetnacl-*.zip
+
+  create-release:
+    needs: build-release-artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release-*/tweetnacl-*
+          generate_release_notes: true
+          draft: false
