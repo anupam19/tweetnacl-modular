@@ -77,32 +77,44 @@ int salsa20_sse2(u8 *out, const u8 *in, const u8 *k, const u8 *c) {
         salsa20_sse2_round(&x0, &x1, &x2, &x3);
 
         /* Row rounds (transpose, round, transpose back) */
-        /* Simplified: use software for rows since SSE2 transpose is expensive */
+        /* Store current state to array for transpose */
         _mm_storeu_si128((__m128i*)x, x0);
         _mm_storeu_si128((__m128i*)(x+4), x1);
         _mm_storeu_si128((__m128i*)(x+8), x2);
         _mm_storeu_si128((__m128i*)(x+12), x3);
 
-        u32 tmp;
-        tmp = x[1]; x[1] = x[4]; x[4] = x[1];
-        tmp = x[6]; x[6] = x[9]; x[9] = x[6]; x[6] = tmp;
-        tmp = x[11]; x[11] = x[14]; x[14] = x[11];
+        /* Correct 4x4 matrix transpose using temporary storage */
+        u32 t[16];
+        /* Row 0 becomes Column 0 */
+        t[0] = x[0]; t[4] = x[1]; t[8] = x[2]; t[12] = x[3];
+        /* Row 1 becomes Column 1 */
+        t[1] = x[4]; t[5] = x[5]; t[9] = x[6]; t[13] = x[7];
+        /* Row 2 becomes Column 2 */
+        t[2] = x[8]; t[6] = x[9]; t[10] = x[10]; t[14] = x[11];
+        /* Row 3 becomes Column 3 */
+        t[3] = x[12]; t[7] = x[13]; t[11] = x[14]; t[15] = x[15];
 
-        x0 = _mm_setr_epi32(x[0], x[4], x[8], x[12]);
-        x1 = _mm_setr_epi32(x[1], x[5], x[9], x[13]);
-        x2 = _mm_setr_epi32(x[2], x[6], x[10], x[14]);
-        x3 = _mm_setr_epi32(x[3], x[7], x[11], x[15]);
+        /* Load transposed state for column round */
+        x0 = _mm_setr_epi32(t[0], t[4], t[8], t[12]);
+        x1 = _mm_setr_epi32(t[1], t[5], t[9], t[13]);
+        x2 = _mm_setr_epi32(t[2], t[6], t[10], t[14]);
+        x3 = _mm_setr_epi32(t[3], t[7], t[11], t[15]);
+        
         salsa20_sse2_round(&x0, &x1, &x2, &x3);
-        _mm_storeu_si128((__m128i*)x, x0);
-        _mm_storeu_si128((__m128i*)(x+4), x1);
-        _mm_storeu_si128((__m128i*)(x+8), x2);
-        _mm_storeu_si128((__m128i*)(x+12), x3);
+        
+        /* Store result */
+        _mm_storeu_si128((__m128i*)t, x0);
+        _mm_storeu_si128((__m128i*)(t+4), x1);
+        _mm_storeu_si128((__m128i*)(t+8), x2);
+        _mm_storeu_si128((__m128i*)(t+12), x3);
 
-        /* Transpose back */
-        tmp = x[1]; x[1] = x[4]; x[4] = x[1]; x[1] = tmp;
-        tmp = x[6]; x[6] = x[9]; x[9] = x[6]; x[6] = tmp;
-        tmp = x[11]; x[11] = x[14]; x[14] = x[11];
+        /* Transpose back: Column 0 becomes Row 0 */
+        x[0] = t[0]; x[1] = t[4]; x[2] = t[8]; x[3] = t[12];
+        x[4] = t[1]; x[5] = t[5]; x[6] = t[9]; x[7] = t[13];
+        x[8] = t[2]; x[9] = t[6]; x[10] = t[10]; x[11] = t[14];
+        x[12] = t[3]; x[13] = t[7]; x[14] = t[11]; x[15] = t[15];
 
+        /* Reload for next iteration */
         x0 = _mm_setr_epi32(x[0], x[4], x[8], x[12]);
         x1 = _mm_setr_epi32(x[1], x[5], x[9], x[13]);
         x2 = _mm_setr_epi32(x[2], x[6], x[10], x[14]);

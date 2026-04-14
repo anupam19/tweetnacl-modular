@@ -63,6 +63,7 @@ sv st32(u8 *x,u32 u)
 sv ts64(u8 *x,u64 u)
 {
   int i;
+  if (!x) return;  /* NULL check for safety */
   for (i = 7;i >= 0;--i) { x[i] = u; u >>= 8; }
 }
 
@@ -603,6 +604,7 @@ int crypto_hash(u8 *out,const u8 *m,u64 n)
 
   /* V002: Validate pointer parameters */
   if (out == NULL) return -1;
+  if (m == NULL && n > 0) return -1;
 
   FOR(i,64) h[i] = iv[i];
 
