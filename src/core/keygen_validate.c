@@ -5,9 +5,9 @@
  * Catches faulty RNG or implementation bugs during key generation.
  */
 
-#include "tweetnacl/tweetnacl.h"
 #include "core/secure_mem.h"
 #include "scalarmult/scalarmult.h"
+#include "tweetnacl/tweetnacl.h"
 
 /**
  * Validate an Ed25519 keypair
@@ -17,7 +17,8 @@
  * @return 0 if valid, -1 if invalid
  */
 int nacl_keypair_validate(const uint8_t *pk, const uint8_t *sk) {
-    if (pk == NULL || sk == NULL) return -1;
+    if (pk == NULL || sk == NULL)
+        return -1;
 
     /* Recompute public key from the seed in the secret key */
     uint8_t test_pk[32];
@@ -34,13 +35,15 @@ int nacl_keypair_validate(const uint8_t *pk, const uint8_t *sk) {
  * @return 0 on success, -1 if validation fails after retries
  */
 int nacl_keypair_generate_validated(uint8_t *pk, uint8_t *sk) {
-    if (pk == NULL || sk == NULL) return -1;
+    if (pk == NULL || sk == NULL)
+        return -1;
 
     int attempts = 0;
     const int max_attempts = 3;
 
     do {
-        if (crypto_box_keypair(pk, sk) != 0) return -1;
+        if (crypto_box_keypair(pk, sk) != 0)
+            return -1;
         attempts++;
     } while (nacl_keypair_validate(pk, sk) != 0 && attempts < max_attempts);
 

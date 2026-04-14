@@ -15,10 +15,16 @@
 
 static int pass = 0, fail = 0;
 
-#define TEST(name, cond) do { \
-    if (cond) { printf("[PASS] %s\n", name); pass++; } \
-    else { printf("[FAIL] %s\n", name); fail++; } \
-} while(0)
+#define TEST(name, cond)                                                                           \
+    do {                                                                                           \
+        if (cond) {                                                                                \
+            printf("[PASS] %s\n", name);                                                           \
+            pass++;                                                                                \
+        } else {                                                                                   \
+            printf("[FAIL] %s\n", name);                                                           \
+            fail++;                                                                                \
+        }                                                                                          \
+    } while (0)
 
 /* ─── SHA-512 CAVP Tests ──────────────────────────────────────────────── */
 
@@ -39,8 +45,14 @@ static void test_cavp_sha512(void) {
         printf("[PASS] SHA-512(long msg)\n"); pass++;
     } else {
         printf("[FAIL] SHA-512(long msg)\n");
-        printf("  got:      "); for(int i=0;i<64;i++) printf("%02x",hash[i]); printf("\n");
-        printf("  expected: "); for(int i=0;i<64;i++) printf("%02x",cavp_sha512_expected_long[i]); printf("\n");
+        printf("  got:      ");
+        for (int i = 0; i < 64; i++)
+            printf("%02x", hash[i]);
+        printf("\n");
+        printf("  expected: ");
+        for (int i = 0; i < 64; i++)
+            printf("%02x", cavp_sha512_expected_long[i]);
+        printf("\n");
         fail++;
     }
 }

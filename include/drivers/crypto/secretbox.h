@@ -1,7 +1,7 @@
 /*
  * TweetNaCl SecretBox Module Header
  * Internal header for XSalsa20-Poly1305 symmetric encryption
- * 
+ *
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header

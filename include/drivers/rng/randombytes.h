@@ -3,7 +3,7 @@
  * @brief Random Bytes Generation Header
  * @details Provides cryptographically secure random number generation with
  *          proper error handling and multiple implementation backends.
- * 
+ *
  * Priority order:
  *   1. Hardware DRNG (RDSEED/RDRAND/ARM RNDR) — if WITH_DRNG
  *   2. BCryptGenRandom (Windows CNG)
@@ -14,12 +14,12 @@
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header
- * 
+ *
  * @copyright MIT License
  * @author Anupam Datta
  * @version 1.0.0
  * @date 2024
- * 
+ *
  * @defgroup rng Random Number Generation
  * @brief Cryptographically secure random number generation
  * @{
@@ -28,9 +28,9 @@
 #ifndef RANDOMBYTES_H
 #define RANDOMBYTES_H
 
-#include <stdint.h>
-#include <stddef.h>
 #include "core/error.h"
+#include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,7 +39,7 @@ extern "C" {
 /**
  * @brief Initialize the random bytes generator
  * @return NACL_SUCCESS on success, error code on failure
- * 
+ *
  * @note This function is optional - randombytes() will auto-initialize if needed
  * @see randombytes_safe() for non-exiting variant
  */
@@ -50,7 +50,7 @@ int randombytes_init(void);
  * @param[out] buf Output buffer
  * @param[in] len Number of bytes to generate
  * @return NACL_SUCCESS on success, error code on failure
- * 
+ *
  * @note Uses hardware DRNG if available, falls back to OS RNG
  * @warning Unlike legacy randombytes(), this function returns error codes
  *          instead of calling exit() on failure
@@ -61,7 +61,7 @@ int randombytes_safe(uint8_t *buf, size_t len);
  * @brief Generate cryptographically secure random bytes (legacy API)
  * @param[out] buf Output buffer
  * @param[in] len Number of bytes to generate
- * 
+ *
  * @deprecated Use randombytes_safe() for proper error handling
  * @note This function maintains backward compatibility but calls abort() on failure
  */

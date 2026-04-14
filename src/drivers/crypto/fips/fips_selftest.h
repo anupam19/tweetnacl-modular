@@ -31,10 +31,10 @@ extern "C" {
  * can be performed in FIPS mode.
  */
 typedef enum {
-    FIPS_STATE_INITIAL = 0,    /**< Module uninitialized */
-    FIPS_STATE_SELFTEST = 1,   /**< Self-test in progress */
-    FIPS_STATE_ERROR = 2,      /**< Self-test failed, module disabled */
-    FIPS_STATE_APPROVED = 3    /**< Module approved and operational */
+    FIPS_STATE_INITIAL = 0,  /**< Module uninitialized */
+    FIPS_STATE_SELFTEST = 1, /**< Self-test in progress */
+    FIPS_STATE_ERROR = 2,    /**< Self-test failed, module disabled */
+    FIPS_STATE_APPROVED = 3  /**< Module approved and operational */
 } fips_state_t;
 
 /**
@@ -101,7 +101,7 @@ fips_state_t nacl_get_fips_state(void);
  * @param state FIPS state to describe
  * @return Constant string describing the state
  */
-const char* nacl_get_fips_error_string(fips_state_t state);
+const char *nacl_get_fips_error_string(fips_state_t state);
 
 #ifdef __cplusplus
 }

@@ -11,10 +11,10 @@
  */
 
 #include "drivers/crypto/fips/fips_selftest.h"
-#include "tweetnacl/tweetnacl.h"
-#include "core/secure_mem.h"
 #include "core/error.h"
+#include "core/secure_mem.h"
 #include "drivers/rng/randombytes.h"
+#include "tweetnacl/tweetnacl.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -31,7 +31,7 @@ static volatile uint32_t keygen_counter = 0;
  * @param data Pointer to sensitive data
  * @param len Length of data in bytes
  */
-static void fips_zeroize(volatile void* data, size_t len) {
+static void fips_zeroize(volatile void *data, size_t len) {
     if (data != NULL && len > 0) {
         secure_zero(data, len);
     }
@@ -47,15 +47,11 @@ static void fips_zeroize(volatile void* data, size_t len) {
 static int fips_kat_sha512(void) {
     static const uint8_t abc[] = "abc";
     static const uint8_t expected[64] = {
-        0xdd, 0xaf, 0x35, 0xa1, 0x93, 0x61, 0x7a, 0xba,
-        0xcc, 0x41, 0x73, 0x49, 0xae, 0x20, 0x41, 0x31,
-        0x12, 0xe6, 0xfa, 0x4e, 0x89, 0xa9, 0x7e, 0xa2,
-        0x0a, 0x9e, 0xee, 0xe6, 0x4b, 0x55, 0xd3, 0x9a,
-        0x21, 0x92, 0x99, 0x2a, 0x27, 0x4f, 0xc1, 0xa8,
-        0x36, 0xba, 0x3c, 0x23, 0xa3, 0xfe, 0xeb, 0xbd,
-        0x45, 0x4d, 0x44, 0x23, 0x64, 0x3c, 0xe8, 0x0e,
-        0x2a, 0x9a, 0xc9, 0x4f, 0xa5, 0x4c, 0xa4, 0x9f
-    };
+        0xdd, 0xaf, 0x35, 0xa1, 0x93, 0x61, 0x7a, 0xba, 0xcc, 0x41, 0x73, 0x49, 0xae,
+        0x20, 0x41, 0x31, 0x12, 0xe6, 0xfa, 0x4e, 0x89, 0xa9, 0x7e, 0xa2, 0x0a, 0x9e,
+        0xee, 0xe6, 0x4b, 0x55, 0xd3, 0x9a, 0x21, 0x92, 0x99, 0x2a, 0x27, 0x4f, 0xc1,
+        0xa8, 0x36, 0xba, 0x3c, 0x23, 0xa3, 0xfe, 0xeb, 0xbd, 0x45, 0x4d, 0x44, 0x23,
+        0x64, 0x3c, 0xe8, 0x0e, 0x2a, 0x9a, 0xc9, 0x4f, 0xa5, 0x4c, 0xa4, 0x9f};
     uint8_t hash[64];
 
     /* Clear buffer before use */
@@ -90,11 +86,16 @@ static int fips_kat_ed25519(void) {
     secure_zero(sm, sizeof(sm));
     secure_zero(m, sizeof(m));
 
-    if (crypto_sign_keypair(pk, sk) != 0) goto cleanup;
-    if (crypto_sign(sm, &smlen, msg, sizeof(msg) - 1, sk) != 0) goto cleanup;
-    if (crypto_sign_open(m, &mlen, sm, smlen, pk) != 0) goto cleanup;
-    if (mlen != sizeof(msg) - 1) goto cleanup;
-    if (secure_memcmp(m, msg, mlen) != 0) goto cleanup;
+    if (crypto_sign_keypair(pk, sk) != 0)
+        goto cleanup;
+    if (crypto_sign(sm, &smlen, msg, sizeof(msg) - 1, sk) != 0)
+        goto cleanup;
+    if (crypto_sign_open(m, &mlen, sm, smlen, pk) != 0)
+        goto cleanup;
+    if (mlen != sizeof(msg) - 1)
+        goto cleanup;
+    if (secure_memcmp(m, msg, mlen) != 0)
+        goto cleanup;
 
     ret = 0;
 
@@ -119,13 +120,16 @@ static int fips_kat_x25519(void) {
     secure_zero(sk, sizeof(sk));
     secure_zero(ss, sizeof(ss));
 
-    if (crypto_box_keypair(pk, sk) != 0) goto cleanup;
-    if (crypto_scalarmult(ss, sk, pk) != 0) goto cleanup;
+    if (crypto_box_keypair(pk, sk) != 0)
+        goto cleanup;
+    if (crypto_scalarmult(ss, sk, pk) != 0)
+        goto cleanup;
 
     /* Verify result is not all zeros (invalid point) */
     uint8_t zero_check[32];
     secure_zero(zero_check, sizeof(zero_check));
-    if (secure_memcmp(ss, zero_check, 32) == 0) goto cleanup;
+    if (secure_memcmp(ss, zero_check, 32) == 0)
+        goto cleanup;
 
     ret = 0;
 
@@ -155,11 +159,15 @@ static int fips_pct_keygen_ed25519(void) {
     secure_zero(msg, sizeof(msg));
 
     /* Generate random message */
-    if (randombytes_safe(msg, sizeof(msg)) != 0) goto cleanup;
+    if (randombytes_safe(msg, sizeof(msg)) != 0)
+        goto cleanup;
 
-    if (crypto_sign_keypair(pk, sk) != 0) goto cleanup;
-    if (crypto_sign(sig, &smlen, msg, sizeof(msg), sk) != 0) goto cleanup;
-    if (crypto_sign_open(msg, &mlen, sig, smlen, pk) != 0) goto cleanup;
+    if (crypto_sign_keypair(pk, sk) != 0)
+        goto cleanup;
+    if (crypto_sign(sig, &smlen, msg, sizeof(msg), sk) != 0)
+        goto cleanup;
+    if (crypto_sign_open(msg, &mlen, sig, smlen, pk) != 0)
+        goto cleanup;
 
     ret = 0;
 
@@ -188,15 +196,20 @@ static int fips_pct_keygen_x25519(void) {
     secure_zero(ss1, sizeof(ss1));
     secure_zero(ss2, sizeof(ss2));
 
-    if (crypto_box_keypair(pk1, sk1) != 0) goto cleanup;
-    if (crypto_box_keypair(pk2, sk2) != 0) goto cleanup;
+    if (crypto_box_keypair(pk1, sk1) != 0)
+        goto cleanup;
+    if (crypto_box_keypair(pk2, sk2) != 0)
+        goto cleanup;
 
     /* Both parties derive shared secret */
-    if (crypto_scalarmult(ss1, sk1, pk2) != 0) goto cleanup;
-    if (crypto_scalarmult(ss2, sk2, pk1) != 0) goto cleanup;
+    if (crypto_scalarmult(ss1, sk1, pk2) != 0)
+        goto cleanup;
+    if (crypto_scalarmult(ss2, sk2, pk1) != 0)
+        goto cleanup;
 
     /* Verify shared secrets match */
-    if (secure_memcmp(ss1, ss2, 32) != 0) goto cleanup;
+    if (secure_memcmp(ss1, ss2, 32) != 0)
+        goto cleanup;
 
     ret = 0;
 
@@ -264,12 +277,18 @@ static int fips_software_load_test(void) {
      */
 
     /* Verify function pointers are valid (not NULL) */
-    if ((void*)crypto_hash == NULL) return -1;
-    if ((void*)crypto_sign == NULL) return -1;
-    if ((void*)crypto_sign_open == NULL) return -1;
-    if ((void*)crypto_box_keypair == NULL) return -1;
-    if ((void*)crypto_scalarmult == NULL) return -1;
-    if ((void*)randombytes == NULL) return -1;
+    if ((void *)crypto_hash == NULL)
+        return -1;
+    if ((void *)crypto_sign == NULL)
+        return -1;
+    if ((void *)crypto_sign_open == NULL)
+        return -1;
+    if ((void *)crypto_box_keypair == NULL)
+        return -1;
+    if ((void *)crypto_scalarmult == NULL)
+        return -1;
+    if ((void *)randombytes == NULL)
+        return -1;
 
     return 0;
 }
@@ -388,26 +407,24 @@ const char *nacl_fips_version(void) {
  * Get current FIPS state
  * @return Current fips_state_t value
  */
-fips_state_t nacl_get_fips_state(void) {
-    return fips_state;
-}
+fips_state_t nacl_get_fips_state(void) { return fips_state; }
 
 /**
  * Get FIPS error description
  * @param state FIPS state to describe
  * @return Human-readable error string
  */
-const char* nacl_get_fips_error_string(fips_state_t state) {
+const char *nacl_get_fips_error_string(fips_state_t state) {
     switch (state) {
-        case FIPS_STATE_INITIAL:
-            return "FIPS module uninitialized";
-        case FIPS_STATE_SELFTEST:
-            return "FIPS self-test in progress";
-        case FIPS_STATE_ERROR:
-            return "FIPS self-test failed - module disabled";
-        case FIPS_STATE_APPROVED:
-            return "FIPS module approved and operational";
-        default:
-            return "Unknown FIPS state";
+    case FIPS_STATE_INITIAL:
+        return "FIPS module uninitialized";
+    case FIPS_STATE_SELFTEST:
+        return "FIPS self-test in progress";
+    case FIPS_STATE_ERROR:
+        return "FIPS self-test failed - module disabled";
+    case FIPS_STATE_APPROVED:
+        return "FIPS module approved and operational";
+    default:
+        return "Unknown FIPS state";
     }
 }

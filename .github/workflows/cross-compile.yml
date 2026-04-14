@@ -1,0 +1,51 @@
+name: Cross-Compilation Matrix
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  cross-compile-all:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: arm32
+            pkg: gcc-arm-linux-gnueabihf
+            toolchain: arm32
+            qemu: qemu-arm-static
+          - name: arm64
+            pkg: gcc-aarch64-linux-gnu
+            toolchain: arm64
+            qemu: qemu-aarch64-static
+          - name: riscv64
+            pkg: gcc-riscv64-linux-gnu
+            toolchain: riscv64
+            qemu: qemu-riscv64-static
+          - name: x86_32
+            pkg: gcc-multilib
+            toolchain: x86_32
+            qemu: ""
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cross-compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ${{ matrix.target.pkg }} qemu-user-static
+
+      - name: Configure
+        run: |
+          cmake -B build \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/${{ matrix.target.toolchain }}.cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build --parallel

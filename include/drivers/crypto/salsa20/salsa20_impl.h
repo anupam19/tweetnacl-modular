@@ -1,7 +1,7 @@
 /*
  * TweetNaCl Salsa20 Core Module Header
  * Internal header for Salsa20 stream cipher primitives
- * 
+ *
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header

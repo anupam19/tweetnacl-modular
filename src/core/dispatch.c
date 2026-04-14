@@ -6,8 +6,8 @@
  * Selection happens once at first call (lazy initialization).
  */
 
-#include "api/tweetnacl.h"
 #include "core/dispatch.h"
+#include "api/tweetnacl.h"
 #include "drivers/crypto/salsa20.h"
 #include <string.h>
 
@@ -27,45 +27,37 @@ extern int hsalsa20_soft(u8 *out, const u8 *in, const u8 *k, const u8 *c);
 /* Implementation table */
 static const nacl_impl_t implementations[] = {
     /* Software fallback — always first, always available */
-    {
-        .name = "software",
-        .salsa20 = salsa20_soft,
-        .hsalsa20 = hsalsa20_soft,
-        .priority = 0,
-        .cpu_features_required = 0
-    },
+    {.name = "software",
+     .salsa20 = salsa20_soft,
+     .hsalsa20 = hsalsa20_soft,
+     .priority = 0,
+     .cpu_features_required = 0},
 
 #ifdef HAVE_SSE2_IMPL
-    {
-        .name = "sse2",
-        .salsa20 = salsa20_sse2,
-        .hsalsa20 = hsalsa20_sse2,
-        .priority = 10,
-        .cpu_features_required = CPU_FEATURE_SSE2
-    },
+    {.name = "sse2",
+     .salsa20 = salsa20_sse2,
+     .hsalsa20 = hsalsa20_sse2,
+     .priority = 10,
+     .cpu_features_required = CPU_FEATURE_SSE2},
 #endif
 
 #ifdef HAVE_AVX2_IMPL
-    {
-        .name = "avx2",
-        .salsa20 = salsa20_avx2,
-        .hsalsa20 = hsalsa20_avx2,
-        .priority = 20,
-        .cpu_features_required = CPU_FEATURE_AVX2
-    },
+    {.name = "avx2",
+     .salsa20 = salsa20_avx2,
+     .hsalsa20 = hsalsa20_avx2,
+     .priority = 20,
+     .cpu_features_required = CPU_FEATURE_AVX2},
 #endif
 
 #ifdef HAVE_NEON_IMPL
-    {
-        .name = "neon",
-        .salsa20 = salsa20_neon,
-        .hsalsa20 = hsalsa20_neon,
-        .priority = 15,
-        .cpu_features_required = CPU_FEATURE_NEON
-    },
+    {.name = "neon",
+     .salsa20 = salsa20_neon,
+     .hsalsa20 = hsalsa20_neon,
+     .priority = 15,
+     .cpu_features_required = CPU_FEATURE_NEON},
 #endif
 
-    { NULL, NULL, NULL, 0, 0 }  /* Sentinel */
+    {NULL, NULL, NULL, 0, 0} /* Sentinel */
 };
 
 static const nacl_impl_t *current_impl = NULL;
@@ -74,12 +66,19 @@ static const nacl_impl_t *current_impl = NULL;
 /* Compile-time selection — no dispatch overhead */
 int nacl_select_implementation(void) { return 0; }
 const char *nacl_get_implementation_name(void) { return "static"; }
-int nacl_set_implementation(const char *name) { (void)name; return 0; }
-const char **nacl_list_implementations(int *count) { *count = 0; return NULL; }
+int nacl_set_implementation(const char *name) {
+    (void)name;
+    return 0;
+}
+const char **nacl_list_implementations(int *count) {
+    *count = 0;
+    return NULL;
+}
 #else
 /* Runtime selection */
 int nacl_select_implementation(void) {
-    if (current_impl != NULL) return 0;  /* Already selected */
+    if (current_impl != NULL)
+        return 0; /* Already selected */
 
     uint32_t features = detect_cpu_features();
     const nacl_impl_t *best = &implementations[0];

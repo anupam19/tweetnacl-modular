@@ -1,7 +1,7 @@
 /*
  * TweetNaCl Curve25519 Module Header
  * Internal header for Curve25519 elliptic curve operations
- * 
+ *
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header

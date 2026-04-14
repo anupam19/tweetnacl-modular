@@ -116,28 +116,39 @@ endif()
 message(STATUS "Target architecture: ${ARCH_NAME}")
 
 # ─── Security Compiler Flags ────────────────────────────────────────────────
-add_compile_options(
-    -Wextra
-    -Wformat-security
-    -Wmissing-declarations
-    -Wmissing-prototypes
-    -Wnested-externs
-    -Wpointer-arith
-    -Wshadow
-    -Wstrict-prototypes
-    -Wswitch-default
-    -Wswitch-enum
-    -Wunused
-    -Wunused-result
-    -fstack-protector-strong
-    -fstack-clash-protection
-    -D_FORTIFY_SOURCE=2
-    -fPIC
-)
+# Only apply GCC/Clang specific flags to non-MSVC compilers
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(
+        -Wextra
+        -Wformat-security
+        -Wmissing-declarations
+        -Wmissing-prototypes
+        -Wnested-externs
+        -Wpointer-arith
+        -Wshadow
+        -Wstrict-prototypes
+        -Wswitch-default
+        -Wswitch-enum
+        -Wunused
+        -Wunused-result
+        -fstack-protector-strong
+        -fstack-clash-protection
+        -D_FORTIFY_SOURCE=2
+        -fPIC
+    )
 
-# GCC-only warnings
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wlogical-op)
+    # GCC-only warnings
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        add_compile_options(-Wlogical-op)
+    endif()
+elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    # MSVC security flags
+    add_compile_options(
+        /W3
+        /Guard:cf
+        /D_FORTIFY_SOURCE=2
+    )
+    add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
 endif()
 
 # Linker security flags

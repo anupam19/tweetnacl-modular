@@ -1,36 +1,36 @@
 /*
  * TweetNaCl Public API Header
- * 
+ *
  * A minimal, auditable cryptographic library refactored for:
  * - CERT C secure coding compliance
  * - Modular design with no forward declarations
  * - Multi-architecture support (x86, ARM, RISC-V)
  * - Post-Quantum Cryptography integration
- * 
+ *
  * Usage: Include this single header for all crypto operations.
  */
 
 #ifndef TWEETNACL_H
 #define TWEETNACL_H
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 /* Import internal module headers */
+#include "box/box.h"
 #include "core/types.h"
-#include "drivers/crypto/verify.h"
-#include "drivers/crypto/salsa20/salsa20.h"
-#include "drivers/crypto/salsa20/salsa20_impl.h"
-#include "drivers/crypto/poly1305/poly1305.h"
-#include "drivers/crypto/poly1305/poly1305_impl.h"
-#include "drivers/crypto/sha512/sha512.h"
-#include "drivers/crypto/sha512/sha512_impl.h"
 #include "drivers/crypto/curve25519/curve25519.h"
 #include "drivers/crypto/curve25519/curve25519_impl.h"
 #include "drivers/crypto/ed25519/ed25519.h"
 #include "drivers/crypto/hmacsha512256.h"
+#include "drivers/crypto/poly1305/poly1305.h"
+#include "drivers/crypto/poly1305/poly1305_impl.h"
+#include "drivers/crypto/salsa20/salsa20.h"
+#include "drivers/crypto/salsa20/salsa20_impl.h"
+#include "drivers/crypto/sha512/sha512.h"
+#include "drivers/crypto/sha512/sha512_impl.h"
+#include "drivers/crypto/verify.h"
 #include "secretbox/secretbox.h"
-#include "box/box.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -145,6 +145,101 @@ int crypto_hash(u8 *out, const u8 *m, u64 n);
  * @return Remaining bytes not processed
  */
 int crypto_hashblocks(u8 *x, const u8 *m, u64 n);
+
+/**
+ * Ed25519 digital signature - generate keypair
+ * @param pk Output public key (32 bytes)
+ * @param sk Output secret key (64 bytes)
+ * @return 0 on success
+ */
+int crypto_sign_keypair(u8 *pk, u8 *sk);
+
+/**
+ * Ed25519 digital signature - sign message
+ * @param sm Output buffer for signed message (message + 64 bytes)
+ * @param smlen Output length of signed message
+ * @param m Input message to sign
+ * @param n Message length
+ * @param sk Secret key (64 bytes)
+ * @return 0 on success
+ */
+int crypto_sign(u8 *sm, u64 *smlen, const u8 *m, u64 n, const u8 *sk);
+
+/**
+ * Ed25519 digital signature - verify signed message
+ * @param m Output buffer for message (must be at least smlen - 64 bytes)
+ * @param mlen Output length of message
+ * @param sm Input signed message
+ * @param n Signed message length
+ * @param pk Public key (32 bytes)
+ * @return 0 on success (valid signature)
+ */
+int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk);
+
+/**
+ * Scalar multiplication on Curve25519
+ * @param q Output point (32 bytes)
+ * @param n Scalar (32 bytes)
+ * @param p Input point (32 bytes), NULL for base point
+ * @return 0 on success
+ */
+int crypto_scalarmult(u8 *q, const u8 *n, const u8 *p);
+
+/**
+ * Scalar multiplication with base point
+ * @param q Output point (32 bytes)
+ * @param n Scalar (32 bytes)
+ * @return 0 on success
+ */
+int crypto_scalarmult_base(u8 *q, const u8 *n);
+
+/**
+ * Curve25519 key exchange - generate keypair
+ * @param pk Output public key (32 bytes)
+ * @param sk Output secret key (32 bytes)
+ * @return 0 on success
+ */
+int crypto_box_keypair(u8 *pk, u8 *sk);
+
+/**
+ * Curve25519 key exchange - compute shared secret
+ * @param shared Output shared secret (32 bytes)
+ * @param my_sk My secret key (32 bytes)
+ * @param their_pk Their public key (32 bytes)
+ * @return 0 on success
+ */
+int crypto_box(u8 *shared, const u8 *my_sk, const u8 *their_pk);
+
+/**
+ * XSalsa20-Poly1305 secret box - encrypt
+ * @param c Output ciphertext (message + 16 bytes)
+ * @param m Input message
+ * @param n Message length
+ * @param nonce 24-byte nonce
+ * @param k 32-byte key
+ * @return 0 on success
+ */
+int crypto_secretbox(u8 *c, const u8 *m, u64 n, const u8 *nonce, const u8 *k);
+
+/**
+ * XSalsa20-Poly1305 secret box - decrypt
+ * @param m Output message
+ * @param c Input ciphertext
+ * @param n Ciphertext length
+ * @param nonce 24-byte nonce
+ * @param k 32-byte key
+ * @return 0 on success
+ */
+int crypto_secretbox_open(u8 *m, const u8 *c, u64 n, const u8 *nonce, const u8 *k);
+
+/**
+ * Constant-time comparison
+ * @param x First buffer
+ * @param y Second buffer
+ * @param n Length
+ * @return 0 if equal, non-zero otherwise
+ */
+int crypto_verify_32(const u8 *x, const u8 *y);
 
 /* ============================================================
  * SELF-TEST AND INTEGRITY (NIST SP 800-193)

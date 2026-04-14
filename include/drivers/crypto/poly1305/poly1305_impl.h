@@ -1,7 +1,7 @@
 /*
  * TweetNaCl Poly1305 MAC Module Header
  * Internal header for Poly1305 one-time authenticator
- * 
+ *
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header

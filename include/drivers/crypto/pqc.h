@@ -6,8 +6,8 @@
 #ifndef PQC_H
 #define PQC_H
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,11 +30,7 @@ typedef enum {
 } pqc_algorithm_t;
 
 /* PQC Key Types */
-typedef enum {
-    PQC_KEY_PUBLIC = 0,
-    PQC_KEY_SECRET = 1,
-    PQC_KEY_SHARED = 2
-} pqc_key_type_t;
+typedef enum { PQC_KEY_PUBLIC = 0, PQC_KEY_SECRET = 1, PQC_KEY_SHARED = 2 } pqc_key_type_t;
 
 /* PQC Operation Results */
 typedef enum {
@@ -57,59 +53,52 @@ typedef struct {
     size_t ciphertext_size;
     size_t signature_size;
     size_t shared_secret_size;
-    const char* name;
-    const char* description;
+    const char *name;
+    const char *description;
 } pqc_params_t;
 
 /* Get algorithm parameters */
-pqc_result_t pqc_get_params(pqc_algorithm_t algo, pqc_params_t* params);
+pqc_result_t pqc_get_params(pqc_algorithm_t algo, pqc_params_t *params);
 
 /* Key Generation */
-pqc_result_t pqc_keygen(pqc_algorithm_t algo, 
-                        uint8_t* public_key, size_t public_key_len,
-                        uint8_t* secret_key, size_t secret_key_len,
-                        const uint8_t* seed, size_t seed_len);
+pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public_key_len,
+                        uint8_t *secret_key, size_t secret_key_len, const uint8_t *seed,
+                        size_t seed_len);
 
 /* Encapsulation (KEM) */
-pqc_result_t pqc_encapsulate(pqc_algorithm_t algo,
-                             const uint8_t* public_key, size_t public_key_len,
-                             uint8_t* ciphertext, size_t* ciphertext_len,
-                             uint8_t* shared_secret, size_t shared_secret_len,
-                             const uint8_t* random, size_t random_len);
+pqc_result_t pqc_encapsulate(pqc_algorithm_t algo, const uint8_t *public_key, size_t public_key_len,
+                             uint8_t *ciphertext, size_t *ciphertext_len, uint8_t *shared_secret,
+                             size_t shared_secret_len, const uint8_t *random, size_t random_len);
 
-pqc_result_t pqc_decapsulate(pqc_algorithm_t algo,
-                             const uint8_t* secret_key, size_t secret_key_len,
-                             const uint8_t* ciphertext, size_t ciphertext_len,
-                             uint8_t* shared_secret, size_t shared_secret_len);
+pqc_result_t pqc_decapsulate(pqc_algorithm_t algo, const uint8_t *secret_key, size_t secret_key_len,
+                             const uint8_t *ciphertext, size_t ciphertext_len,
+                             uint8_t *shared_secret, size_t shared_secret_len);
 
 /* Digital Signatures */
-pqc_result_t pqc_sign(pqc_algorithm_t algo,
-                      const uint8_t* secret_key, size_t secret_key_len,
-                      const uint8_t* message, size_t message_len,
-                      uint8_t* signature, size_t* signature_len,
-                      const uint8_t* random, size_t random_len);
+pqc_result_t pqc_sign(pqc_algorithm_t algo, const uint8_t *secret_key, size_t secret_key_len,
+                      const uint8_t *message, size_t message_len, uint8_t *signature,
+                      size_t *signature_len, const uint8_t *random, size_t random_len);
 
-pqc_result_t pqc_verify(pqc_algorithm_t algo,
-                        const uint8_t* public_key, size_t public_key_len,
-                        const uint8_t* message, size_t message_len,
-                        const uint8_t* signature, size_t signature_len);
+pqc_result_t pqc_verify(pqc_algorithm_t algo, const uint8_t *public_key, size_t public_key_len,
+                        const uint8_t *message, size_t message_len, const uint8_t *signature,
+                        size_t signature_len);
 
 /* Hybrid Mode: Combine classical (Curve25519) with PQC */
-pqc_result_t pqc_hybrid_keygen(pqc_algorithm_t pqc_algo,
-                               uint8_t* hybrid_public_key, size_t* hybrid_public_key_len,
-                               uint8_t* hybrid_secret_key, size_t* hybrid_secret_key_len);
+pqc_result_t pqc_hybrid_keygen(pqc_algorithm_t pqc_algo, uint8_t *hybrid_public_key,
+                               size_t *hybrid_public_key_len, uint8_t *hybrid_secret_key,
+                               size_t *hybrid_secret_key_len);
 
-pqc_result_t pqc_hybrid_encapsulate(const uint8_t* hybrid_public_key, size_t hybrid_public_key_len,
-                                    uint8_t* hybrid_ciphertext, size_t* hybrid_ciphertext_len,
-                                    uint8_t* hybrid_shared_secret, size_t hybrid_shared_secret_len);
+pqc_result_t pqc_hybrid_encapsulate(const uint8_t *hybrid_public_key, size_t hybrid_public_key_len,
+                                    uint8_t *hybrid_ciphertext, size_t *hybrid_ciphertext_len,
+                                    uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len);
 
-pqc_result_t pqc_hybrid_decapsulate(const uint8_t* hybrid_secret_key, size_t hybrid_secret_key_len,
-                                    const uint8_t* hybrid_ciphertext, size_t hybrid_ciphertext_len,
-                                    uint8_t* hybrid_shared_secret, size_t hybrid_shared_secret_len);
+pqc_result_t pqc_hybrid_decapsulate(const uint8_t *hybrid_secret_key, size_t hybrid_secret_key_len,
+                                    const uint8_t *hybrid_ciphertext, size_t hybrid_ciphertext_len,
+                                    uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len);
 
 /* Utility Functions */
-const char* pqc_result_to_string(pqc_result_t result);
-const char* pqc_algorithm_to_string(pqc_algorithm_t algo);
+const char *pqc_result_to_string(pqc_result_t result);
+const char *pqc_algorithm_to_string(pqc_algorithm_t algo);
 
 #ifdef __cplusplus
 }

@@ -10,6 +10,8 @@ jobs:
   build-native:
     name: Build & Test (Native)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         compiler: [gcc, clang]
@@ -36,6 +38,8 @@ jobs:
   binary-check:
     name: No Binary Artifacts
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -60,6 +64,8 @@ jobs:
   build-native-valgrind:
     name: Valgrind Memory Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -84,6 +90,8 @@ jobs:
   build-cross-arm64:
     name: Cross-Compile (ARM64)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -105,6 +113,8 @@ jobs:
   build-cross-x86-32:
     name: Cross-Compile (x86 32-bit)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -126,6 +136,8 @@ jobs:
   static-analysis:
     name: Static Analysis
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -146,6 +158,8 @@ jobs:
   full-test-suite:
     name: Full Test Suite (Automation Script)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
