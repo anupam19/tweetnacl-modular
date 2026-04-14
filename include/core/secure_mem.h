@@ -62,6 +62,31 @@ int safe_memmove(void* dest, size_t dest_size, const void* src, size_t count);
  */
 int secure_memcmp(const void* x, const void* y, size_t n);
 
+/**
+ * Safe string copy with null termination
+ * @param dest Destination buffer
+ * @param dest_size Size of destination buffer
+ * @param src Source string
+ * @return 0 if successful, 1 if truncated, -1 on error
+ */
+int safe_strcpy(char* dest, size_t dest_size, const char* src);
+
+/**
+ * Lock memory pages to prevent swapping
+ * @param addr Memory address
+ * @param len Length in bytes
+ * @return 0 on success, -1 on failure
+ */
+int secure_memory_lock(void* addr, size_t len);
+
+/**
+ * Unlock memory pages (allows swapping)
+ * @param addr Memory address
+ * @param len Length in bytes
+ * @return 0 on success, -1 on failure
+ */
+int secure_memory_unlock(void* addr, size_t len);
+
 #ifdef __cplusplus
 }
 #endif

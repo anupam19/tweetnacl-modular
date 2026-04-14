@@ -1,8 +1,13 @@
 /*
- * Post-Quantum Cryptography (PQC) Implementation Stub
+ * Post-Quantum Cryptography (PQC) Implementation
  * Provides reference implementation interface for PQC algorithms
- * Note: This is a stub implementation. For production use, integrate
- * with liboqs (Open Quantum Safe) or similar libraries.
+ * 
+ * Integration:
+ * - Stub implementation by default (for testing)
+ * - Real PQC via liboqs when compiled with WITH_PQC_LIBOQS
+ * 
+ * Build with liboqs:
+ *   cmake -DWITH_PQC_LIBOQS=ON ..
  */
 
 #include "drivers/crypto/pqc.h"
@@ -11,6 +16,10 @@
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef WITH_PQC_LIBOQS
+#include <oqs/oqs.h>
 #endif
 
 /* Algorithm parameters for supported PQC algorithms */
@@ -43,18 +52,91 @@ static const pqc_params_t pqc_params_table[] = {
 
 #define NUM_PQC_ALGORITHMS (sizeof(pqc_params_table) / sizeof(pqc_params_t))
 
+/* Get algorithm parameters - works for both stub and liboqs */
 pqc_result_t pqc_get_params(pqc_algorithm_t algo, pqc_params_t* params) {
     if (params == NULL) {
         return PQC_ERROR_INVALID_PARAM;
     }
-    
+
     if (algo < 0 || algo >= (pqc_algorithm_t)NUM_PQC_ALGORITHMS) {
         return PQC_ERROR_ALGORITHM_NOT_SUPPORTED;
     }
-    
+
     memcpy(params, &pqc_params_table[algo], sizeof(pqc_params_t));
     return PQC_SUCCESS;
 }
+
+#ifdef WITH_PQC_LIBOQS
+
+/* Map our enum to OQS algorithm names */
+static const char* oqs_alg_name(pqc_algorithm_t algo) {
+    switch(algo) {
+        case PQC_KYBER512: return OQS_KEM_alg_kyber_512;
+        case PQC_KYBER768: return OQS_KEM_alg_kyber_768;
+        case PQC_KYBER1024: return OQS_KEM_alg_kyber_1024;
+        case PQC_DILITHIUM2: return OQS_SIG_alg_dilithium_2;
+        case PQC_DILITHIUM3: return OQS_SIG_alg_dilithium_3;
+        case PQC_DILITHIUM5: return OQS_SIG_alg_dilithium_5;
+        default: return NULL;
+    }
+}
+
+/* liboqs-based implementation */
+pqc_result_t pqc_keygen(pqc_algorithm_t algo,
+                        uint8_t* public_key, size_t public_key_len,
+                        uint8_t* secret_key, size_t secret_key_len,
+                        const uint8_t* seed, size_t seed_len) {
+    const char *alg_name = oqs_alg_name(algo);
+    if (!alg_name) return PQC_ERROR_ALGORITHM_NOT_SUPPORTED;
+    
+    if (public_key == NULL || secret_key == NULL) {
+        return PQC_ERROR_INVALID_PARAM;
+    }
+    
+    /* Determine if KEM or SIG */
+    if (OQS_KEM_alg_is_enabled(alg_name)) {
+        OQS_KEM *kem = OQS_KEM_new(alg_name);
+        if (!kem) return PQC_ERROR_KEY_GENERATION_FAILED;
+        
+        if (public_key_len < kem->length_public_key ||
+            secret_key_len < kem->length_secret_key) {
+            OQS_KEM_free(kem);
+            return PQC_ERROR_BUFFER_TOO_SMALL;
+        }
+        
+        if (OQS_KEM_keypair(kem, public_key, secret_key) != OQS_SUCCESS) {
+            OQS_KEM_free(kem);
+            return PQC_ERROR_KEY_GENERATION_FAILED;
+        }
+        
+        OQS_KEM_free(kem);
+        return PQC_SUCCESS;
+        
+    } else if (OQS_SIG_alg_is_enabled(alg_name)) {
+        OQS_SIG *sig = OQS_SIG_new(alg_name);
+        if (!sig) return PQC_ERROR_KEY_GENERATION_FAILED;
+        
+        if (public_key_len < sig->length_public_key ||
+            secret_key_len < sig->length_secret_key) {
+            OQS_SIG_free(sig);
+            return PQC_ERROR_BUFFER_TOO_SMALL;
+        }
+        
+        if (OQS_SIG_keypair(sig, public_key, secret_key) != OQS_SUCCESS) {
+            OQS_SIG_free(sig);
+            return PQC_ERROR_KEY_GENERATION_FAILED;
+        }
+        
+        OQS_SIG_free(sig);
+        return PQC_SUCCESS;
+    }
+    
+    return PQC_ERROR_ALGORITHM_NOT_SUPPORTED;
+}
+
+/* Additional liboqs implementations would go here */
+
+#else /* WITH_PQC_STUB */
 
 /* Stub key generation - in production, call actual PQC library */
 pqc_result_t pqc_keygen(pqc_algorithm_t algo, 
@@ -353,6 +435,9 @@ pqc_result_t pqc_hybrid_decapsulate(const uint8_t* hybrid_secret_key, size_t hyb
     return PQC_SUCCESS;
 }
 
+#endif /* WITH_PQC_LIBOQS */
+
+/* Utility functions - available in both stub and liboqs */
 const char* pqc_result_to_string(pqc_result_t result) {
     switch (result) {
         case PQC_SUCCESS: return "Success";

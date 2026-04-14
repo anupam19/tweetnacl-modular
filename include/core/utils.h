@@ -90,6 +90,23 @@ size_t constant_time_max(size_t a, size_t b);
  */
 int safe_range_check(int value, int min_val, int max_val);
 
+/**
+ * Safe size_t multiplication with overflow checking
+ * @param a First operand
+ * @param b Second operand
+ * @param result Output (if successful)
+ * @return 0 on success, -1 on overflow
+ */
+int safe_mul_size(size_t a, size_t b, size_t* result);
+
+/**
+ * Validate array index bounds
+ * @param index Index to validate
+ * @param array_size Size of the array
+ * @return 0 if valid, -1 if out of bounds
+ */
+int validate_index(size_t index, size_t array_size);
+
 #ifdef __cplusplus
 }
 #endif

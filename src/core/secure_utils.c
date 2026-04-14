@@ -9,6 +9,7 @@
  */
 
 #include "core/utils.h"
+#include "core/secure_mem.h"
 #include <errno.h>
 #include <sys/types.h>
 
@@ -121,10 +122,112 @@ int safe_range_check(int value, int min_val, int max_val) {
     if (min_val > max_val) {
         return -1;
     }
-    
+
     /* Constant-time range check */
     int below_min = (value < min_val);
     int above_max = (value > max_val);
-    
+
     return (below_min | above_max) ? -1 : 0;
 }
+
+int safe_mul_size(size_t a, size_t b, size_t* result) {
+    if (result == NULL) {
+        return -1;
+    }
+    
+    if (a == 0 || b == 0) {
+        *result = 0;
+        return 0;
+    }
+    
+    /* Check for overflow: a * b > SIZE_MAX */
+    if (a > SIZE_MAX / b) {
+        return -1;
+    }
+    
+    *result = a * b;
+    return 0;
+}
+
+int validate_index(size_t index, size_t array_size) {
+    if (array_size == 0) {
+        return -1;
+    }
+    if (index >= array_size) {
+        return -1;
+    }
+    return 0;
+}
+
+int safe_strcpy(char* dest, size_t dest_size, const char* src) {
+    if (dest == NULL || src == NULL || dest_size == 0) {
+        return -1;
+    }
+    
+    size_t i;
+    for (i = 0; i < dest_size - 1 && src[i] != '\0'; i++) {
+        dest[i] = src[i];
+    }
+    
+    dest[i] = '\0';  /* Always null terminate */
+    
+    /* Return 0 if entire string fit, 1 if truncated */
+    return (src[i] == '\0') ? 0 : 1;
+}
+
+/* Platform-specific memory locking */
+#if defined(_WIN32) || defined(_WIN64)
+/* Windows implementation */
+#include <windows.h>
+
+int secure_memory_lock(void* addr, size_t len) {
+    if (addr == NULL || len == 0) {
+        return -1;
+    }
+    
+    /* VirtualLock prevents pages from being paged out */
+    return (VirtualLock(addr, len)) ? 0 : -1;
+}
+
+int secure_memory_unlock(void* addr, size_t len) {
+    if (addr == NULL || len == 0) {
+        return -1;
+    }
+    
+    /* Clear sensitive data before unlocking */
+    secure_memset(addr, 0, len);
+    
+    return (VirtualUnlock(addr, len)) ? 0 : -1;
+}
+#else
+/* POSIX implementation */
+#include <sys/mman.h>
+#include <unistd.h>
+
+int secure_memory_lock(void* addr, size_t len) {
+    if (addr == NULL || len == 0) {
+        return -1;
+    }
+    
+#ifdef MLOCK_ONFAULT
+    /* Linux-specific: don't fault in pages, just lock if present */
+    if (mlock2(addr, len, MLOCK_ONFAULT) == 0) {
+        return 0;
+    }
+#endif
+    
+    /* Standard mlock */
+    return (mlock(addr, len) == 0) ? 0 : -1;
+}
+
+int secure_memory_unlock(void* addr, size_t len) {
+    if (addr == NULL || len == 0) {
+        return -1;
+    }
+    
+    /* Clear sensitive data before unlocking */
+    secure_memset(addr, 0, len);
+    
+    return (munlock(addr, len) == 0) ? 0 : -1;
+}
+#endif
