@@ -843,8 +843,3 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     *mlen = n;
     return 0;
 }
-
-    FOR(i, n) m[i] = sm[i + 64];
-    *mlen = n;
-    return 0;
-}
