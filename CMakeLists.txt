@@ -12,11 +12,12 @@ project(TweetNaClModular
 )
 
 # ─── MSVC Calling Convention Normalization ────────────────────────────────────
-# Define macro always (no-op on non-MSVC) so CMake doesn't error during configure.
-# Actual stripping happens inside the macro, guarded by compiler check.
+# Define macro always (no-op on non-MSVC) so Clang/gcc won't error during configure.
+# Actual stripping happens inside, guarded by compiler check.
 if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     macro(normalize_msvc_flags target)
-        # Strip /Gr, /Gd, /Gv, /Gz from all CMAKE_C_FLAGS* before they reach targets.
+        # Strip /Gr, /Gd, /Gv, /Gz from all CMAKE_C_FLAGS* variables *before*
+        # targets are defined, and also from any later variable uses.
         foreach(flag_var CMAKE_C_FLAGS
                             CMAKE_C_FLAGS_DEBUG
                             CMAKE_C_FLAGS_RELEASE
@@ -29,6 +30,9 @@ if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
                 string(REPLACE "/Gz" "" ${flag_var} "${${flag_var}}")
             endif()
         endforeach()
+        # Explicitly set per-target compile options to ensure /Gd is the only
+        # calling convention on the command line, appended last so it overrides.
+        target_compile_options(${target} PRIVATE "/Gd")
     endmacro()
 else()
     macro(normalize_msvc_flags target)
