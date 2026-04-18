@@ -189,13 +189,13 @@ static int rdseed64_retry(uint64_t *val) {
 #endif /* __x86_64__ || __i386__ */
 
 /* ─── ARM RNDR ──────────────────────────────────────────────────────────── */
-#ifdef HAS_ARM_RNG
-static int arm_rndr(uint64_t *val) {
-    uint64_t rnd;
-    __asm__ __volatile__("mrs %0, s3_3_c2_c4_0" : "=r"(rnd));
-    *val = rnd;
-    return 1;
-}
+#if defined(HAS_ARM_RNG) && !defined(__APPLE__)
+    if (rng_impl == RNG_NONE) {
+        uint64_t t;
+        if (arm_rndr(&t)) {
+            rng_impl = RNG_ARM_RNDR;
+        }
+    }
 #endif
 
 /* ─── drng_fill: Fill buffer with hardware RNG ─────────────────────────── */
@@ -377,7 +377,7 @@ static void drng_init(void) {
     /* GitHub Actions / Azure VMs report RDSEED/RDRAND but SIGSEGV when executed */
     rng_impl = RNG_NONE;
 #endif
-#ifdef HAS_ARM_RNG
+#if defined(HAS_ARM_RNG) && !defined(__APPLE__)
     if (rng_impl == RNG_NONE) {
         uint64_t t;
         if (arm_rndr(&t)) {
