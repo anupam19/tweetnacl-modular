@@ -153,6 +153,7 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
         /W3
         /guard:cf
         /GS
+        /std:c11
     )
     add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
 endif()
