@@ -542,11 +542,16 @@ if(BUILD_APP)
         ${CMAKE_CURRENT_SOURCE_DIR}/samples
     )
     target_link_libraries(tweetnacl_app PRIVATE tweetnacl_static)
-    target_compile_options(tweetnacl_app PRIVATE
-        -Wextra -Wformat-security -Wmissing-declarations -Wmissing-prototypes
-        -Wnested-externs -Wpointer-arith -Wshadow -Wstrict-prototypes
-        -g -O0
-    )
+    # Only apply GCC/Clang specific flags to non-MSVC compilers
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+        target_compile_options(tweetnacl_app PRIVATE
+            -Wextra -Wformat-security -Wmissing-declarations -Wmissing-prototypes
+            -Wnested-externs -Wpointer-arith -Wshadow -Wstrict-prototypes
+            -g -O0
+        )
+    elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+        target_compile_options(tweetnacl_app PRIVATE /W3)
+    endif()
 endif()
 
 # ─── Summary ────────────────────────────────────────────────────────────────
