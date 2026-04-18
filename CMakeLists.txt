@@ -11,7 +11,17 @@ project(TweetNaClModular
     HOMEPAGE_URL "https://github.com/anupam19/tweetnacl-modular"
 )
 
-# ─── MSVC Compatibility ─────────────────────────────────────────────────────
+# ─── Global Compile Definitions ────────────────────────────────────────────────
+# Enable C11 atomics on MSVC for all targets (required for <stdatomic.h>)
+if(MSVC)
+    add_compile_definitions(_HAS_C11_ATOMICS=1)
+endif()
+
+# ─── C Language Standard ───────────────────────────────────────────────────────
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+# ─── MSVC Compatibility ───────────────────────────────────────────────────────
 # Provide a no-op macro for non-MSVC builds; real logic lives in the MSVC block.
 macro(normalize_msvc_flags target)
     # Intentionally empty for all compilers; /Gd handling done globally.
@@ -153,8 +163,14 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
         /W3
         /guard:cf
         /GS
+        /std:c11
+        /experimental:c11atomics
     )
-    add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
+    # Enable C11 atomics explicitly (required for <stdatomic.h>)
+    add_compile_definitions(
+        _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+        _HAS_C11_ATOMICS=1
+    )
 endif()
 
 # Linker security flags

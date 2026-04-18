@@ -21,11 +21,22 @@
  * @date 2024
  */
 
+/* Force C11 atomics on MSVC: override any existing definition (including 0) */
+#if defined(_HAS_C11_ATOMICS)
+#  if _HAS_C11_ATOMICS != 1
+#    undef _HAS_C11_ATOMICS
+#    define _HAS_C11_ATOMICS 1
+#  endif
+#else
+#  define _HAS_C11_ATOMICS 1
+#endif
+
 #include "drivers/rng/randombytes.h"
 #include "core/error.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdatomic.h>
 
 #ifndef _WIN32
 #include <errno.h>
@@ -44,10 +55,10 @@ extern int _randombytes_drng_impl_is_software(void);
 #endif
 
 /* Periodic RNG health check counter (NIST 800-90B) */
-static volatile uint64_t randombytes_call_count = 0;
+static atomic_uint_fast64_t randombytes_call_count = 0;
 
 /* Initialization state */
-static int randombytes_initialized = 0;
+static atomic_int randombytes_initialized = 0;
 
 /**
  * @brief Initialize the random bytes generator
@@ -56,7 +67,7 @@ static int randombytes_initialized = 0;
  * @note This function is optional - randombytes() will auto-initialize if needed
  */
 int randombytes_init(void) {
-    if (randombytes_initialized) {
+    if (atomic_load_explicit(&randombytes_initialized, memory_order_acquire)) {
         return NACL_SUCCESS;
     }
 
@@ -65,13 +76,13 @@ int randombytes_init(void) {
     uint8_t test_buf[16];
     if (_randombytes_drng_fill(test_buf, sizeof(test_buf)) == 0) {
         /* Hardware DRNG available */
-        randombytes_initialized = 1;
+        atomic_store_explicit(&randombytes_initialized, 1, memory_order_release);
         return NACL_SUCCESS;
     }
     /* Hardware DRNG not available - will fall back to software */
 #endif
 
-    randombytes_initialized = 1;
+    atomic_store_explicit(&randombytes_initialized, 1, memory_order_release);
     return NACL_SUCCESS;
 }
 
@@ -125,8 +136,8 @@ int randombytes_safe(uint8_t *buf, size_t len) {
         return NACL_ERROR_INVALID_PARAM;
     }
 
-    /* Auto-initialize if needed */
-    if (!randombytes_initialized) {
+    /* Auto-initialize if needed (thread-safe) */
+    if (!atomic_load_explicit(&randombytes_initialized, memory_order_acquire)) {
         ret = randombytes_init();
         if (ret != NACL_SUCCESS) {
             return ret;
@@ -134,12 +145,13 @@ int randombytes_safe(uint8_t *buf, size_t len) {
     }
 
     /* Every 1000 calls, run quick RNG self-test (NIST 800-90B) */
-    if ((++randombytes_call_count % 1000) == 0) {
+    uint64_t call_count = atomic_fetch_add_explicit(&randombytes_call_count, 1, memory_order_relaxed) + 1;
+    if (call_count % 1000 == 0) {
         uint8_t test_buf[16];
         ret = randombytes_selftest_quick(test_buf, sizeof(test_buf));
         if (ret != NACL_SUCCESS) {
-            /* Self-test failed - try to reinitialize */
-            randombytes_initialized = 0;
+            /* Self-test failed - reset RNG state and reinitialize */
+            atomic_store_explicit(&randombytes_initialized, 0, memory_order_release);
             ret = randombytes_init();
             if (ret != NACL_SUCCESS) {
                 return NACL_ERROR_RNG_FAILURE;
@@ -204,20 +216,13 @@ int randombytes_safe(uint8_t *buf, size_t len) {
 }
 
 /**
- * @brief Legacy API - generates random bytes (exits on failure)
+ * @brief Legacy API - generates random bytes (deprecated)
  * @param[out] buf Buffer to store random bytes
  * @param[in] len Number of bytes to generate
  *
- * @deprecated Use randombytes_safe() instead for proper error handling
- * @note This function maintains backward compatibility but will be removed
+ * @deprecated Use randombytes_safe() instead. Will be removed in next major version.
+ * @note Returns silently on failure; does NOT abort.
  */
 void randombytes(uint8_t *buf, size_t len) {
-    int ret = randombytes_safe(buf, len);
-    if (ret != NACL_SUCCESS) {
-        fprintf(stderr, "Critical: RNG failure (%s). Please report this.\n",
-                nacl_error_string(ret));
-        /* In library code, we should NOT call exit() - but for backward compat */
-        /* New code should use randombytes_safe() which returns error codes */
-        abort();
-    }
+    (void)randombytes_safe(buf, len);
 }

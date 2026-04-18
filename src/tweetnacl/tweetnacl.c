@@ -73,7 +73,7 @@ sv ts64(u8 *x, u64 u) {
     if (!x)
         return; /* NULL check for safety */
     for (i = 7; i >= 0; --i) {
-        x[i] = u;
+        x[i] = (u8)u;  /* Intentional truncation to byte */
         u >>= 8;
     }
 }
@@ -244,7 +244,7 @@ int crypto_onetimeauth(u8 *out, const u8 *m, u64 n, const u8 *k) {
 
     FOR(j, 17) g[j] = h[j];
     add1305(h, minusp);
-    s = -(h[16] >> 7);
+    s = (u32)(-(int)(h[16] >> 7));  /* Convert to signed int before negation to avoid C4146 */
     FOR(j, 17) h[j] ^= s & (g[j] ^ h[j]);
 
     FOR(j, 16) c[j] = k[j + 16];
@@ -333,8 +333,8 @@ sv pack25519(u8 *o, const gf n) {
         sel25519(t, m, 1 - b);
     }
     FOR(i, 16) {
-        o[2 * i] = t[i] & 0xff;
-        o[2 * i + 1] = t[i] >> 8;
+        o[2 * i] = (u8)(t[i] & 0xff);
+        o[2 * i + 1] = (u8)(t[i] >> 8);
     }
 }
 
@@ -421,8 +421,8 @@ int crypto_scalarmult(u8 *q, const u8 *n, const u8 *p) {
     a[0] = d[0] = 1;
     for (i = 254; i >= 0; --i) {
         r = (z[i >> 3] >> (i & 7)) & 1;
-        sel25519(a, b, r);
-        sel25519(c, d, r);
+        sel25519(a, b, (int)r);
+        sel25519(c, d, (int)r);
         A(e, a, c);
         Z(a, a, c);
         A(c, b, d);
@@ -441,8 +441,8 @@ int crypto_scalarmult(u8 *q, const u8 *n, const u8 *p) {
         M(a, d, f);
         M(d, b, x);
         S(b, e);
-        sel25519(a, b, r);
-        sel25519(c, d, r);
+        sel25519(a, b, (int)r);
+        sel25519(c, d, (int)r);
     }
     FOR(i, 16) {
         x[i + 16] = a[i];
@@ -467,7 +467,8 @@ int crypto_box_keypair(u8 *y, u8 *x) {
     /* V002: Validate pointer parameters */
     if (y == NULL || x == NULL)
         return -1;
-    randombytes(x, 32);
+    if (randombytes_safe(x, 32) != NACL_SUCCESS)
+        return -1;
     return crypto_scalarmult_base(y, x);
 }
 
@@ -683,7 +684,8 @@ NO_SANITIZE_UNDEFINED int crypto_sign_keypair(u8 *pk, u8 *sk) {
     if (pk == NULL || sk == NULL)
         return -1;
 
-    randombytes(sk, 32);
+    if (randombytes_safe(sk, 32) != NACL_SUCCESS)
+        return -1;
     crypto_hash(d, sk, 32);
     d[0] &= 248;
     d[31] &= 127;
