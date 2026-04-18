@@ -73,7 +73,7 @@ sv ts64(u8 *x, u64 u) {
     if (!x)
         return; /* NULL check for safety */
     for (i = 7; i >= 0; --i) {
-        x[i] = u;
+        x[i] = (u8)u;  /* Intentional truncation to byte */
         u >>= 8;
     }
 }
@@ -333,8 +333,8 @@ sv pack25519(u8 *o, const gf n) {
         sel25519(t, m, 1 - b);
     }
     FOR(i, 16) {
-        o[2 * i] = t[i] & 0xff;
-        o[2 * i + 1] = t[i] >> 8;
+        o[2 * i] = (u8)(t[i] & 0xff);
+        o[2 * i + 1] = (u8)(t[i] >> 8);
     }
 }
 
@@ -421,8 +421,8 @@ int crypto_scalarmult(u8 *q, const u8 *n, const u8 *p) {
     a[0] = d[0] = 1;
     for (i = 254; i >= 0; --i) {
         r = (z[i >> 3] >> (i & 7)) & 1;
-        sel25519(a, b, r);
-        sel25519(c, d, r);
+        sel25519(a, b, (int)r);
+        sel25519(c, d, (int)r);
         A(e, a, c);
         Z(a, a, c);
         A(c, b, d);
@@ -441,8 +441,8 @@ int crypto_scalarmult(u8 *q, const u8 *n, const u8 *p) {
         M(a, d, f);
         M(d, b, x);
         S(b, e);
-        sel25519(a, b, r);
-        sel25519(c, d, r);
+        sel25519(a, b, (int)r);
+        sel25519(c, d, (int)r);
     }
     FOR(i, 16) {
         x[i + 16] = a[i];
