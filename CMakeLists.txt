@@ -11,30 +11,11 @@ project(TweetNaClModular
     HOMEPAGE_URL "https://github.com/anupam19/tweetnacl-modular"
 )
 
-# ─── MSVC Calling Convention Normalization ────────────────────────────────────
-# CMake defaults to /Gd; remove any /Gr, /Gv, /Gz that may be embedded in
-# generated .vcxproj files (stale from prior builds). Must run at configure
-# time so the project files are clean before the first build.
-if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    macro(normalize_msvc_flags target)
-        # Enforce /Gd (cdecl) on the target itself
-        target_compile_options(${target} PRIVATE "/Gd")
-        # Strip calling-convention flags from all generated .vcxproj files
-        file(GLOB vcxproj_files "${CMAKE_BINARY_DIR}/**/*.vcxproj")
-        foreach(vf ${vcxproj_files})
-            file(READ "${vf}" content)
-            string(REPLACE "/Gr" "" content "${content}")
-            string(REPLACE "/Gd" "" content "${content}")
-            string(REPLACE "/Gv" "" content "${content}")
-            string(REPLACE "/Gz" "" content "${content}")
-            file(WRITE "${vf}" "${content}")
-        endforeach()
-    endmacro()
-else()
-    macro(normalize_msvc_flags target)
-        # No-op on non-MSVC compilers
-    endmacro()
-endif()
+# ─── MSVC Compatibility ─────────────────────────────────────────────────────
+# Provide a no-op macro for non-MSVC builds; real logic lives in the MSVC block.
+macro(normalize_msvc_flags target)
+    # Intentionally empty for all compilers; /Gd handling done globally.
+endmacro()
 
 # ─── Options ─────────────────────────────────────────────────────────────────
 option(BUILD_SHARED_LIBS "Build shared library" ON)
@@ -167,11 +148,11 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
         add_compile_options(-Wlogical-op)
     endif()
 elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    # MSVC security flags
+    # MSVC security flags (use correct MSVC syntax)
     add_compile_options(
         /W3
-        /Guard:cf
-        /D_FORTIFY_SOURCE=2
+        /guard:cf
+        /GS
     )
     add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
 endif()
