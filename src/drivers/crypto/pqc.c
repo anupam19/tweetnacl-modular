@@ -123,11 +123,11 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
         }
 
         if (OQS_KEM_keypair(kem, public_key, secret_key) != OQS_SUCCESS) {
-            OQS_KEM_free(kem);
+            if (kem) OQS_KEM_free(kem);
             return PQC_ERROR_KEY_GENERATION_FAILED;
         }
 
-        OQS_KEM_free(kem);
+        if (kem) OQS_KEM_free(kem);
         return PQC_SUCCESS;
 
     } else if (OQS_SIG_alg_is_enabled(alg_name)) {
@@ -141,11 +141,11 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
         }
 
         if (OQS_SIG_keypair(sig, public_key, secret_key) != OQS_SUCCESS) {
-            OQS_SIG_free(sig);
+            if (sig) OQS_SIG_free(sig);
             return PQC_ERROR_KEY_GENERATION_FAILED;
         }
 
-        OQS_SIG_free(sig);
+        if (sig) OQS_SIG_free(sig);
         return PQC_SUCCESS;
     }
 
