@@ -779,11 +779,11 @@ NO_SANITIZE_UNDEFINED int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n
     if (unpackneg(q, pk))
         goto out;
 
-    /* Reconstruct m = sm[0..n-1] with pk overwritten at offset 32 */
+    /* Reconstruct m = sm[0..n-1] with pk appended at offset 32 */
     for (i = 0; i < (size_t)n; i++) m[i] = sm[i];
     for (i = 0; i < 32; i++) m[i + 32] = pk[i];
 
-    crypto_hash(h, m, n);
+    crypto_hash(h, m, n + 32);
     reduce(h);
 
     /* p = hA */
@@ -822,28 +822,6 @@ out:
     secure_zero(p, sizeof(p));
     secure_zero(q, sizeof(q));
     return ret;
-}
-    }
-
-    if (!failed) {
-        *mlen = msg_len;
-        ret = 0;
-    } else {
-        *mlen = 0;
-    }
-
-out:
-    /* Secure zeroization of all sensitive intermediates */
-    secure_zero(t, 32);
-    secure_zero(h, 64);
-    secure_zero(p, sizeof(p));
-    secure_zero(q, sizeof(q));
-    return ret;
-}
-
-    FOR(i, n) m[i] = sm[i + 64];
-    *mlen = n;
-    return 0;
 }
 
 NO_SANITIZE_UNDEFINED int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, const u8 *sk)
