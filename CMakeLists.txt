@@ -16,11 +16,13 @@ project(TweetNaClModular
 # calling convention flags (/Gr fastcall, /Gv vectorcall, /Gz large) to prevent
 # D8016: "/Gd" and "/Gr" command-line options are incompatible.
 # This is done after each target definition to ensure flags are cleared before
-# compilation of target sources.
+# compilation of target sources. Uses generator expression to force /Gd override.
 if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     macro(normalize_msvc_flags target)
-        set_target_properties(${target} PROPERTIES
-            COMPILE_FLAGS "$<$<COMPILE_LANGUAGE:C>:/Gd>"
+        # Force /Gd (cdecl) via COMPILE_OPTIONS generator expression.
+        # This runs after any other flags and takes precedence on the command line.
+        target_compile_options(${target} PRIVATE
+            "$<$<COMPILE_LANGUAGE:C>:/Gd>"
         )
     endmacro()
 else()
