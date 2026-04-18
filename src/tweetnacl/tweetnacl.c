@@ -727,20 +727,55 @@ sv reduce(u8 *r) {
 }
 
 __attribute__((no_sanitize("undefined")))
-int crypto_sign(u8 *sm, u64 *smlen, const u8 *m, u64 n, const u8 *sk) {
-    u8 d[64], h[64], r[64];
-    u64 i, j, x[64];
-    gf p[4];
+int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
+    unsigned int i;
+    u8 t[32], h[64];
+    gf p[4], q[4];
+    gf zero = {{0}};
+    gf neg_y, neg_t;
 
     /* V002: Validate pointer parameters */
-    if (sm == NULL || smlen == NULL || m == NULL || sk == NULL)
+    if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
         return -1;
 
-    /* V001: Check for integer overflow */
-    if (n > UINT64_MAX - 64) {
-        *smlen = 0;
+    *mlen = -1;
+    if (n < 64)
+        return -1;
+
+    if (unpackneg(q, pk))
+        return -1;
+
+    FOR(i, n) m[i] = sm[i];
+    FOR(i, 32) m[i + 32] = pk[i];
+    crypto_hash(h, m, n);
+    reduce(h);
+
+    /* p = hA */
+    scalarmult(p, q, h);
+
+    /* Negate p to get -hA (Edwards negation: (X, -Y, Z, -T)) */
+    FOR(i, 16) neg_y[i] = p[1][i];
+    FOR(i, 16) neg_t[i] = p[3][i];
+    Z(p[1], zero, neg_y);  /* p[1] = -Y */
+    Z(p[3], zero, neg_t);  /* p[3] = -T */
+
+    /* q = sB (signature scalar times base point) */
+    scalarbase(q, sm + 32);
+
+    /* p = sB - hA */
+    add(p, q);
+    pack(t, p);
+
+    n -= 64;
+    if (crypto_verify_32(sm, t)) {
+        FOR(i, n) m[i] = 0;
         return -1;
     }
+
+    FOR(i, n) m[i] = sm[i + 64];
+    *mlen = n;
+    return 0;
+}
 
     crypto_hash(d, sk, 32);
     d[0] &= 248;
@@ -811,6 +846,7 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     unsigned int i;
     u8 t[32], h[64];
     gf p[4], q[4];
+    gf zero = {{0}};
 
     /* V002: Validate pointer parameters */
     if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
@@ -827,9 +863,18 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     FOR(i, 32) m[i + 32] = pk[i];
     crypto_hash(h, m, n);
     reduce(h);
+
+    /* p = h * pk */
     scalarmult(p, q, h);
 
+    /* Negate p to get -h*pk */
+    Z(p[1], zero, p[1]);  /* -Y */
+    Z(p[3], zero, p[3]);  /* -T */
+
+    /* q = s * B (where s is signature scalar from sm) */
     scalarbase(q, sm + 32);
+
+    /* p = sB + (-hA) = sB - hA */
     add(p, q);
     pack(t, p);
 
