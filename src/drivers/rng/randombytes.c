@@ -33,8 +33,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #else
-#include <bcrypt.h>
 #include <windows.h>
+#include <bcrypt.h>
 #endif
 
 /* DRNG internal helpers (from randombytes_drng.c) */
