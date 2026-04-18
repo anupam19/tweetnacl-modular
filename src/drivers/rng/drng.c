@@ -31,7 +31,7 @@
 
 #include "drivers/rng/drng.h"
 #include "core/error.h"
-#include "core/secure_utils.h"
+#include "core/secure_mem.h"
 #include "drivers/rng/randombytes.h"
 #include <stdint.h>
 #include <stdio.h>
