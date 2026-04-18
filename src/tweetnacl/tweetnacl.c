@@ -416,6 +416,8 @@ int crypto_scalarmult(u8 *q, const u8 *n, const u8 *p) {
     u8 z[32];
     i64 x[80], r, i;
     gf a = {0}, b = {0}, c = {0}, d = {0}, e = {0}, f = {0};
+    /* Compile-time verification: x[80] must accommodate maximum accessed index 79 (i+64 with i=15) */
+    _Static_assert(16 + 64 <= 80, "x array overflow risk in crypto_scalarmult");
     /* V002: Validate pointer parameters */
     if (q == NULL || n == NULL || p == NULL)
         return -1;
@@ -678,7 +680,7 @@ sv scalarmult(gf p[4], gf q[4], const u8 *s) {
     set25519(p[2], gf1);
     set25519(p[3], gf0);
     for (i = 255; i >= 0; --i) {
-        u8 b = (s[i / 8] >> (i & 7)) & 1;
+        u8 b = (s[i >> 3] >> (i & 7)) & 1;
         cswap(p, q, b);
         add(q, p);
         add(p, p);
@@ -773,6 +775,10 @@ NO_SANITIZE_UNDEFINED int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n
     if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
         goto out;
 
+    /* Check for integer overflow: n + 64 must not wrap (for size_t conversions on 32-bit) */
+    if (n > SIZE_MAX - 64)
+        goto out;
+
     if (n < 64)
         goto out;
 
@@ -828,6 +834,8 @@ NO_SANITIZE_UNDEFINED int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, con
 {
     u8 d[64], h[64], r[64];
     i64 x[64];
+    /* Compile-time verification: x[64] must accommodate max index 62 (i+j where i,j < 32) */
+    _Static_assert(32 + 32 - 1 < 64, "x array overflow risk in crypto_sign");
     gf p[4];
     size_t i, j;
 
