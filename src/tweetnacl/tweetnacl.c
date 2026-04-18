@@ -815,15 +815,15 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
         return -1;
 
     *mlen = -1;
-    if (n < 64 || n > sizeof(hash_input) - 32)
+    if (n < 64 || n > sizeof(hash_input))
         return -1;
 
     if (unpackneg(q, pk))
         return -1;
 
     FOR(i, n) hash_input[i] = sm[i];
-    FOR(i, 32) hash_input[i + n] = pk[i];
-    crypto_hash(h, hash_input, n + 32);
+    FOR(i, 32) hash_input[32 + i] = pk[i];  /* Overwrite s with public key */
+    crypto_hash(h, hash_input, n);
     reduce(h);
     scalarmult(p, q, h);
 
