@@ -12,22 +12,28 @@ project(TweetNaClModular
 )
 
 # ─── MSVC Calling Convention Normalization ────────────────────────────────────
-# Strip /Gd, /Gr, /Gv, /Gz from ALL CMAKE_C_FLAGS* variables *before* any
-# targets are defined. This prevents D8016 (incompatible /Gd and /Gr).
-# Must run early, before add_executable/add_library generate per-target flags.
+# Define macro always (no-op on non-MSVC) so CMake doesn't error during configure.
+# Actual stripping happens inside the macro, guarded by compiler check.
 if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    foreach(flag_var CMAKE_C_FLAGS
-                        CMAKE_C_FLAGS_DEBUG
-                        CMAKE_C_FLAGS_RELEASE
-                        CMAKE_C_FLAGS_MINSIZEREL
-                        CMAKE_C_FLAGS_RELWITHDEBINFO)
-        if(DEFINED ${flag_var})
-            string(REPLACE "/Gr" "" ${flag_var} "${${flag_var}}")
-            string(REPLACE "/Gd" "" ${flag_var} "${${flag_var}}")
-            string(REPLACE "/Gv" "" ${flag_var} "${${flag_var}}")
-            string(REPLACE "/Gz" "" ${flag_var} "${${flag_var}}")
-        endif()
-    endforeach()
+    macro(normalize_msvc_flags target)
+        # Strip /Gr, /Gd, /Gv, /Gz from all CMAKE_C_FLAGS* before they reach targets.
+        foreach(flag_var CMAKE_C_FLAGS
+                            CMAKE_C_FLAGS_DEBUG
+                            CMAKE_C_FLAGS_RELEASE
+                            CMAKE_C_FLAGS_MINSIZEREL
+                            CMAKE_C_FLAGS_RELWITHDEBINFO)
+            if(DEFINED ${flag_var})
+                string(REPLACE "/Gr" "" ${flag_var} "${${flag_var}}")
+                string(REPLACE "/Gd" "" ${flag_var} "${${flag_var}}")
+                string(REPLACE "/Gv" "" ${flag_var} "${${flag_var}}")
+                string(REPLACE "/Gz" "" ${flag_var} "${${flag_var}}")
+            endif()
+        endforeach()
+    endmacro()
+else()
+    macro(normalize_msvc_flags target)
+        # No-op on non-MSVC compilers
+    endmacro()
 endif()
 
 # ─── Options ─────────────────────────────────────────────────────────────────
