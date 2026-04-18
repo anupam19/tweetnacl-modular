@@ -811,7 +811,6 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     unsigned int i;
     u8 t[32], h[64];
     gf p[4], q[4];
-    u8 hash_input[512];  /* Temporary buffer for hash input */
 
     /* V002: Validate pointer parameters */
     if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
@@ -824,21 +823,24 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     if (unpackneg(q, pk))
         return -1;
 
-    FOR(i, n) hash_input[i] = sm[i];
-    FOR(i, 32) hash_input[32 + i] = pk[i];  /* Overwrite s with public key */
-    crypto_hash(h, hash_input, n);
+    for (i = 0; i < n; i++) m[i] = sm[i];
+    crypto_hash(h, m, n);
     reduce(h);
     scalarmult(p, q, h);
-
     scalarbase(q, sm + 32);
     add(p, q);
     pack(t, p);
 
     n -= 64;
     if (crypto_verify_32(sm, t)) {
-        FOR(i, n) m[i] = 0;
+        for (i = 0; i < n; i++) m[i] = 0;
         return -1;
     }
+
+    for (i = 0; i < n; i++) m[i] = sm[i + 64];
+    *mlen = n;
+    return 0;
+}
 
     FOR(i, n) m[i] = sm[i + 64];
     *mlen = n;
