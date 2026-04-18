@@ -21,8 +21,10 @@
  * @date 2024
  */
 
-/* Enable C11 atomics before ANY standard headers (required for <stdatomic.h> on MSVC) */
-#define _HAS_C11_ATOMICS 1
+/* Ensure C11 atomics are enabled on MSVC before any standard headers */
+#if !defined(_HAS_C11_ATOMICS)
+#  define _HAS_C11_ATOMICS 1
+#endif
 
 #include "drivers/rng/randombytes.h"
 #include "core/error.h"
