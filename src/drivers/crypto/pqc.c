@@ -22,7 +22,11 @@ extern "C" {
 #ifdef WITH_PQC_LIBOQS
 #include <oqs/oqs.h>
 #else
+#if defined(_MSC_VER)
+#pragma message("warning: PQC stub implementation is active - NOT FOR PRODUCTION. Compile with -DWITH_PQC_LIBOQS=ON for real PQC.")
+#else
 #warning "PQC stub implementation is active - NOT FOR PRODUCTION. Compile with -DWITH_PQC_LIBOQS=ON for real PQC."
+#endif
 #endif
 
 /* Algorithm parameters for supported PQC algorithms */

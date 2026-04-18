@@ -61,14 +61,7 @@ typedef struct {
     atomic_int catastrophic_failure;       /* Catastrophic failure flag */
 } drng_state_t;
 
-static drng_state_t drng_state = {
-    ATOMIC_VAR_INIT(0),
-    ATOMIC_VAR_INIT(0),
-    ATOMIC_VAR_INIT(0),
-    ATOMIC_VAR_INIT(0),
-    ATOMIC_VAR_INIT(0),
-    ATOMIC_VAR_INIT(0)
-};
+static drng_state_t drng_state = {0};
 
 /* Lock-free state management using C11 atomics */
 static void drng_set_initialized(void) {
