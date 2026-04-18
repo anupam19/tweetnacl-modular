@@ -783,7 +783,7 @@ NO_SANITIZE_UNDEFINED int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n
     for (i = 0; i < (size_t)n; i++) m[i] = sm[i];
     for (i = 0; i < 32; i++) m[i + 32] = pk[i];
 
-    crypto_hash(h, m, n + 32);
+    crypto_hash(h, m, n);
     reduce(h);
 
     /* p = hA */
