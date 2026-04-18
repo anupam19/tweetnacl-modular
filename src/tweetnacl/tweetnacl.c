@@ -467,7 +467,8 @@ int crypto_box_keypair(u8 *y, u8 *x) {
     /* V002: Validate pointer parameters */
     if (y == NULL || x == NULL)
         return -1;
-    randombytes(x, 32);
+    if (randombytes_safe(x, 32) != NACL_SUCCESS)
+        return -1;
     return crypto_scalarmult_base(y, x);
 }
 
@@ -683,7 +684,8 @@ NO_SANITIZE_UNDEFINED int crypto_sign_keypair(u8 *pk, u8 *sk) {
     if (pk == NULL || sk == NULL)
         return -1;
 
-    randombytes(sk, 32);
+    if (randombytes_safe(sk, 32) != NACL_SUCCESS)
+        return -1;
     crypto_hash(d, sk, 32);
     d[0] &= 248;
     d[31] &= 127;
