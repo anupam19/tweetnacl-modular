@@ -9,7 +9,6 @@
  */
 
 #include "core/secure_mem.h"
-#include <errno.h>
 #include <string.h>
 
 /* Compiler barrier to prevent optimization removal */
@@ -49,12 +48,10 @@ void secure_zero(volatile void *dest, size_t count) { secure_memset(dest, 0, cou
  */
 int safe_memcpy(void *dest, size_t dest_size, const void *src, size_t count) {
     if (dest == NULL || src == NULL) {
-        errno = EINVAL;
         return -1;
     }
 
     if (count > dest_size) {
-        errno = ERANGE;
         return -1;
     }
 
@@ -67,12 +64,10 @@ int safe_memcpy(void *dest, size_t dest_size, const void *src, size_t count) {
  */
 int safe_memmove(void *dest, size_t dest_size, const void *src, size_t count) {
     if (dest == NULL || src == NULL) {
-        errno = EINVAL;
         return -1;
     }
 
     if (count > dest_size) {
-        errno = ERANGE;
         return -1;
     }
 

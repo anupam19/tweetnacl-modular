@@ -10,18 +10,16 @@
 
 #include "core/secure_mem.h"
 #include "core/utils.h"
-#include <errno.h>
+#include <limits.h>
 #include <sys/types.h>
 
 int safe_add_int(int a, int b, int *result) {
     if (result == NULL) {
-        errno = EINVAL;
         return -1;
     }
 
     /* Check for overflow before it happens */
     if ((b > 0 && a > INT_MAX - b) || (b < 0 && a < INT_MIN - b)) {
-        errno = ERANGE;
         return -1;
     }
 
@@ -31,13 +29,11 @@ int safe_add_int(int a, int b, int *result) {
 
 int safe_sub_int(int a, int b, int *result) {
     if (result == NULL) {
-        errno = EINVAL;
         return -1;
     }
 
     /* Check for underflow before it happens */
     if ((b > 0 && a < INT_MIN + b) || (b < 0 && a > INT_MAX + b)) {
-        errno = ERANGE;
         return -1;
     }
 
@@ -47,7 +43,6 @@ int safe_sub_int(int a, int b, int *result) {
 
 int safe_mul_int(int a, int b, int *result) {
     if (result == NULL) {
-        errno = EINVAL;
         return -1;
     }
 
@@ -55,24 +50,20 @@ int safe_mul_int(int a, int b, int *result) {
     if (a > 0) {
         if (b > 0) {
             if (a > INT_MAX / b) {
-                errno = ERANGE;
                 return -1;
             }
         } else {
             if (b < INT_MIN / a) {
-                errno = ERANGE;
                 return -1;
             }
         }
     } else {
         if (b > 0) {
             if (a < INT_MIN / b) {
-                errno = ERANGE;
                 return -1;
             }
         } else {
             if (a != 0 && b < INT_MAX / a) {
-                errno = ERANGE;
                 return -1;
             }
         }
@@ -84,13 +75,11 @@ int safe_mul_int(int a, int b, int *result) {
 
 int safe_add_size(size_t a, size_t b, size_t *result) {
     if (result == NULL) {
-        errno = EINVAL;
         return -1;
     }
 
     /* Check for overflow */
     if (a > SIZE_MAX - b) {
-        errno = ERANGE;
         return -1;
     }
 
