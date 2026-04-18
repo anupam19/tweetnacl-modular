@@ -12,18 +12,17 @@ project(TweetNaClModular
 )
 
 # ─── MSVC Calling Convention Normalization ────────────────────────────────────
-# Strip /Gd, /Gr, /Gv, /Gz from all CMAKE_C_FLAGS* to prevent D8016 conflicts.
+# CMake adds /Gd (cdecl) by default for MSVC; we must strip it and any other
+# calling convention flags (/Gr fastcall, /Gv vectorcall, /Gz large) to prevent
+# D8016: "/Gd" and "/Gr" command-line options are incompatible.
+# This is done after each target definition to ensure flags are cleared before
+# compilation of target sources.
 if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    foreach(flag_var CMAKE_C_FLAGS
-                        CMAKE_C_FLAGS_DEBUG
-                        CMAKE_C_FLAGS_RELEASE
-                        CMAKE_C_FLAGS_MINSIZEREL
-                        CMAKE_C_FLAGS_RELWITHDEBINFO)
-        if(DEFINED ${flag_var})
-            string(REGEX REPLACE "/G(d|r|v|z)(=[^ ]+)?" "" normalized "${${flag_var}}")
-            set(${flag_var} "${normalized}" CACHE STRING "" FORCE)
-        endif()
-    endforeach()
+    macro(normalize_msvc_flags target)
+        set_target_properties(${target} PROPERTIES
+            COMPILE_FLAGS "$<$<COMPILE_LANGUAGE:C>:/Gd>"
+        )
+    endmacro()
 endif()
 
 # ─── Options ─────────────────────────────────────────────────────────────────
@@ -351,11 +350,12 @@ endif()
 # Alias for internal use
 if(BUILD_SHARED_LIBS)
     add_library(TweetNaClModular::tweetnacl ALIAS tweetnacl)
-elseif(BUILD_STATIC_LIBS)
-    add_library(TweetNaClModular::tweetnacl ALIAS tweetnacl_static)
-endif()
-
-# ─── Installation ───────────────────────────────────────────────────────────
+    elseif(BUILD_STATIC_LIBS)
+        add_library(tweetnacl_static ALIAS tweetnacl)
+        normalize_msvc_flags(tweetnacl_static)
+    endif()
+    
+    # ─── Installation ───────────────────────────────────────────────────────────
 include(GNUInstallDirs)
 
 if(BUILD_SHARED_LIBS)
@@ -567,6 +567,7 @@ if(BUILD_APP)
     elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
         target_compile_options(tweetnacl_app PRIVATE /W3)
     endif()
+    normalize_msvc_flags(tweetnacl_app)
 endif()
 
 # ─── Summary ────────────────────────────────────────────────────────────────
