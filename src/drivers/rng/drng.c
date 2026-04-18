@@ -189,7 +189,14 @@ static int rdseed64_retry(uint64_t *val) {
 #endif /* __x86_64__ || __i386__ */
 
 /* ─── ARM RNDR ──────────────────────────────────────────────────────────── */
-/* (Disabled on macOS due to illegal instruction) */
+#if defined(HAS_ARM_RNG) && !defined(__APPLE__)
+static int arm_rndr(uint64_t *val) {
+    uint64_t rnd;
+    __asm__ __volatile__("mrs %0, s3_3_c2_c4_0" : "=r"(rnd));
+    *val = rnd;
+    return 1;
+}
+#endif
 
 /* ─── drng_fill: Fill buffer with hardware RNG ─────────────────────────── */
 static int drng_fill(uint8_t *buf, size_t len) {
