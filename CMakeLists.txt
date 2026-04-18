@@ -310,7 +310,6 @@ if(NACL_RUNTIME_DISPATCH AND NOT NACL_STATIC_IMPL)
 endif()
 
 # ─── Library Targets ────────────────────────────────────────────────────────
-# Shared library
 if(BUILD_SHARED_LIBS)
     add_library(tweetnacl SHARED ${NACL_SOURCES})
     target_include_directories(tweetnacl PUBLIC
@@ -324,6 +323,9 @@ if(BUILD_SHARED_LIBS)
         SOVERSION ${PROJECT_VERSION_MAJOR}
         POSITION_INDEPENDENT_CODE ON
     )
+    if(WIN32)
+        target_link_libraries(tweetnacl PRIVATE bcrypt)
+    endif()
 endif()
 
 # Static library
@@ -337,6 +339,9 @@ if(BUILD_STATIC_LIBS)
         OUTPUT_NAME tweetnacl
         POSITION_INDEPENDENT_CODE ON
     )
+    if(WIN32)
+        target_link_libraries(tweetnacl_static PRIVATE bcrypt)
+    endif()
 endif()
 
 # Alias for internal use
