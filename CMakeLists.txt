@@ -155,7 +155,11 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
         /GS
         /std:c11
     )
-    add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
+    # Enable C11 atomics explicitly (required for <stdatomic.h>)
+    add_compile_definitions(
+        _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+        _HAS_C11_ATOMICS=1
+    )
 endif()
 
 # Linker security flags
