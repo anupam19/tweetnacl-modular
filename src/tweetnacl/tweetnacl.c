@@ -244,7 +244,7 @@ int crypto_onetimeauth(u8 *out, const u8 *m, u64 n, const u8 *k) {
 
     FOR(j, 17) g[j] = h[j];
     add1305(h, minusp);
-    s = -(h[16] >> 7);
+    s = (u32)(-(int)(h[16] >> 7));  /* Convert to signed int before negation to avoid C4146 */
     FOR(j, 17) h[j] ^= s & (g[j] ^ h[j]);
 
     FOR(j, 16) c[j] = k[j + 16];
