@@ -808,7 +808,7 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     unsigned int i;
     u8 t[32], h[64];
     gf p[4], q[4];
-    u8 hash_input[4096];  /* Temporary buffer for hash input - supports messages up to ~4KB */
+    u8 hash_input[512];  /* Temporary buffer for hash input */
 
     /* V002: Validate pointer parameters */
     if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
