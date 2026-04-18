@@ -847,7 +847,7 @@ NO_SANITIZE_UNDEFINED int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, con
 
     *mlen = n + 64;
     for (i = 0; i < (size_t)n; i++) sm[64 + i] = m[i];
-    for (i = 0; i < 32; i++) sm[32 + i] = d[32 + i];
+    for (i = 0; i < 32; i++) sm[32 + i] = sk[32 + i];
 
     crypto_hash(r, sm + 32, n + 32);
     reduce(r);
