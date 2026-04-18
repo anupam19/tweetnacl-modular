@@ -830,7 +830,6 @@ NO_SANITIZE_UNDEFINED int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, con
     i64 x[64];
     gf p[4];
     size_t i, j;
-    int ret = 0;
 
     /* V002: Validate pointer parameters */
     if (sm == NULL || mlen == NULL || m == NULL || sk == NULL)
