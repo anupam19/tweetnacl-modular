@@ -151,11 +151,14 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
     
     # Normalize calling convention to /Gd (cdecl) and remove conflicts
-    # Strip any /Gr, /Gd, /Gv, /Gz from all build-type flags
     foreach(flag_var CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
                     CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
-        string(REGEX REPLACE "/Gr|/Gd|/Gv|/Gz" "" ${flag_var} "${${flag_var}}")
-        set(${flag_var} "${${flag_var}} /Gd" CACHE STRING "" FORCE)
+        # Get current value
+        set(current "${${flag_var}}")
+        # Strip any calling convention flags
+        string(REGEX REPLACE "/Gr|/Gd|/Gv|/Gz" "" current "${current}")
+        # Ensure /Gd is present
+        set(${flag_var} "${current} /Gd" CACHE STRING "" FORCE)
     endforeach()
 endif()
 
