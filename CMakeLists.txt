@@ -12,32 +12,41 @@ project(TweetNaClModular
 )
 
 # ─── MSVC Calling Convention Normalization ────────────────────────────────────
-# Patch generated .vcxproj files to strip any /Gr (fastcall) flags that conflict
-# with CMake's default /Gd (cdecl), preventing D8016.
+# Strip /Gr, /Gd, /Gv, /Gz from all CMAKE_C_FLAGS* and from generated project
+# files to prevent D8016 (incompatible calling conventions). This is always
+# defined (no-op on non-MSVC) so the command is available during configure.
 if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    # Remove all calling convention flags from CMAKE_C_FLAGS cache variables
-    foreach(flag_var CMAKE_C_FLAGS
-                        CMAKE_C_FLAGS_DEBUG
-                        CMAKE_C_FLAGS_RELEASE
-                        CMAKE_C_FLAGS_MINSIZEREL
-                        CMAKE_C_FLAGS_RELWITHDEBINFO)
-        if(DEFINED ${flag_var})
-            string(REPLACE "/Gr" "" ${flag_var} "${${flag_var}}")
-            string(REPLACE "/Gd" "" ${flag_var} "${${flag_var}}")
-            string(REPLACE "/Gv" "" ${flag_var} "${${flag_var}}")
-            string(REPLACE "/Gz" "" ${flag_var} "${${flag_var}}")
-        endif()
-    endforeach()
-    # Also strip them from the generated project files (.vcxproj) to be extra safe
-    file(GLOB vcxproj_files "${CMAKE_BINARY_DIR}/**/*.vcxproj")
-    foreach(vf ${vcxproj_files})
-        file(READ "${vf}" content)
-        string(REPLACE "/Gr" "" content "${content}")
-        string(REPLACE "/Gd" "" content "${content}")
-        string(REPLACE "/Gv" "" content "${content}")
-        string(REPLACE "/Gz" "" content "${content}")
-        file(WRITE "${vf}" "${content}")
-    endforeach()
+    macro(normalize_msvc_flags target)
+        # Strip any calling-convention flags from cache variables
+        foreach(flag_var CMAKE_C_FLAGS
+                            CMAKE_C_FLAGS_DEBUG
+                            CMAKE_C_FLAGS_RELEASE
+                            CMAKE_C_FLAGS_MINSIZEREL
+                            CMAKE_C_FLAGS_RELWITHDEBINFO)
+            if(DEFINED ${flag_var})
+                string(REPLACE "/Gr" "" ${flag_var} "${${flag_var}}")
+                string(REPLACE "/Gd" "" ${flag_var} "${${flag_var}}")
+                string(REPLACE "/Gv" "" ${flag_var} "${${flag_var}}")
+                string(REPLACE "/Gz" "" ${flag_var} "${${flag_var}}")
+            endif()
+        endforeach()
+        # Enforce /Gd on each target as the sole calling convention
+        target_compile_options(${target} PRIVATE "/Gd")
+        # Patch generated .vcxproj files to remove any lingering flags
+        file(GLOB vcxproj_files "${CMAKE_BINARY_DIR}/**/*.vcxproj")
+        foreach(vf ${vcxproj_files})
+            file(READ "${vf}" content)
+            string(REPLACE "/Gr" "" content "${content}")
+            string(REPLACE "/Gd" "" content "${content}")
+            string(REPLACE "/Gv" "" content "${content}")
+            string(REPLACE "/Gz" "" content "${content}")
+            file(WRITE "${vf}" "${content}")
+        endforeach()
+    endmacro()
+else()
+    macro(normalize_msvc_flags target)
+        # No-op on non-MSVC compilers
+    endmacro()
 endif()
 
 # ─── Options ─────────────────────────────────────────────────────────────────
