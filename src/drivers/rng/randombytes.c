@@ -144,9 +144,9 @@ int randombytes_safe(uint8_t *buf, size_t len) {
         }
     }
 
-    /* Every 1000 calls, run quick RNG self-test (NIST 800-90B) */
+    /* Every 100 calls, run quick RNG self-test (NIST 800-90B) */
     uint64_t call_count = atomic_fetch_add_explicit(&randombytes_call_count, 1, memory_order_relaxed) + 1;
-    if (call_count % 1000 == 0) {
+    if (call_count % 100 == 0) {
         uint8_t test_buf[16];
         ret = randombytes_selftest_quick(test_buf, sizeof(test_buf));
         if (ret != NACL_SUCCESS) {
