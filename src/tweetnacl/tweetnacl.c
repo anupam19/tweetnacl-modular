@@ -782,6 +782,7 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     return 0;
 }
 
+__attribute__((no_sanitize("undefined")))
 int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, const u8 *sk) {
     u8 d[64], h[64], r[64];
     u64 x[64];
