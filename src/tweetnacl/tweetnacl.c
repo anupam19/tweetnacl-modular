@@ -15,7 +15,6 @@
 #include "core/utils.h"
 #include "drivers/rng/randombytes.h"
 #include "internal/safety.h"
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -769,13 +768,6 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     add(p, q);
     pack(t, p);
 
-    /* Debug: print computed R and signature R */
-    fprintf(stderr, "Computed R: ");
-    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", t[i]);
-    fprintf(stderr, "\nSignature R: ");
-    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", sm[i]);
-    fprintf(stderr, "\n");
-
     n -= 64;
     if (crypto_verify_32(sm, t)) {
         FOR(i, n) m[i] = 0;
@@ -799,40 +791,23 @@ int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, const u8 *sk)
     d[31] &= 127;
     d[31] |= 64;
 
-    /* Debug: print a = d[0..31] */
-    fprintf(stderr, "a = ");
-    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", d[i]);
-    fprintf(stderr, "\n");
-
     *mlen = n + 64;
     FOR(i, n) sm[64 + i] = m[i];
     FOR(i, 32) sm[32 + i] = d[32 + i];
 
     crypto_hash(r, sm + 32, n + 32);
     reduce(r);
-    /* Debug: print r after reduction */
-    fprintf(stderr, "r = ");
-    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", r[i]);
-    fprintf(stderr, "\n");
     scalarbase(p, r);
     pack(sm, p);
 
     FOR(i, 32) sm[i + 32] = sk[i + 32];
     crypto_hash(h, sm, n + 64);
     reduce(h);
-    /* Debug: print h after reduction */
-    fprintf(stderr, "h = ");
-    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", h[i]);
-    fprintf(stderr, "\n");
 
     FOR(i, 64) x[i] = 0;
     FOR(i, 32) x[i] = (u64)r[i];
     FOR(i, 32) FOR(j, 32) x[i + j] += h[i] * (u64)d[j];
     modL(sm + 32, x);
-    /* Debug: print s */
-    fprintf(stderr, "s = ");
-    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", sm[32+i]);
-    fprintf(stderr, "\n");
 
     return 0;
 }
