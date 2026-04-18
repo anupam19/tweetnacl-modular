@@ -815,7 +815,7 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
         return -1;
 
     *mlen = -1;
-    if (n < 64 || n > sizeof(hash_input))
+    if (n < 64)
         return -1;
 
     if (unpackneg(q, pk))
