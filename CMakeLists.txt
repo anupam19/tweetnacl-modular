@@ -23,6 +23,10 @@ if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
             COMPILE_FLAGS "$<$<COMPILE_LANGUAGE:C>:/Gd>"
         )
     endmacro()
+else()
+    macro(normalize_msvc_flags target)
+        # No-op on non-MSVC compilers
+    endmacro()
 endif()
 
 # ─── Options ─────────────────────────────────────────────────────────────────
