@@ -140,8 +140,10 @@ int nacl_selftest_secretbox(void) {
         0x0c, 0x9b, 0x4a, 0x2f, 0x8d, 0x1e, 0x6c, 0x3b,
         0x7a, 0x0f, 0x5d, 0x9e, 0x2c, 0x8b, 0x1a, 0x6f
     };
-    size_t pt_len = sizeof(plaintext) - 1;
-    size_t buf_len = pt_len + 32; /* TweetNaCl requires 32-byte padding */
+    size_t pt_len;
+    size_t buf_len;
+    pt_len = sizeof(plaintext) - 1;
+    buf_len = pt_len + 32; /* TweetNaCl requires 32-byte padding */
 
     uint8_t msg[256], ct[256], pt[256];
     memset(msg, 0, 32);
