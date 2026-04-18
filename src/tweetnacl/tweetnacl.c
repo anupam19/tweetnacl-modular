@@ -808,21 +808,22 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     unsigned int i;
     u8 t[32], h[64];
     gf p[4], q[4];
+    u8 hash_input[4096];  /* Temporary buffer for hash input - supports messages up to ~4KB */
 
     /* V002: Validate pointer parameters */
     if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
         return -1;
 
     *mlen = -1;
-    if (n < 64)
+    if (n < 64 || n > sizeof(hash_input) - 32)
         return -1;
 
     if (unpackneg(q, pk))
         return -1;
 
-    FOR(i, n) m[i] = sm[i];
-    FOR(i, 32) m[i + n] = pk[i];
-    crypto_hash(h, m, n + 32);
+    FOR(i, n) hash_input[i] = sm[i];
+    FOR(i, 32) hash_input[i + n] = pk[i];
+    crypto_hash(h, hash_input, n + 32);
     reduce(h);
     scalarmult(p, q, h);
 
