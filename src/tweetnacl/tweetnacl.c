@@ -144,6 +144,14 @@ int crypto_stream_salsa20_xor(u8 *c, const u8 *m, u64 b, const u8 *n, const u8 *
     u32 u, i;
     if (!b)
         return 0;
+    /* Reject extremely large messages to limit CPU and prevent arithmetic overflow */
+    if (b > (u64)256 * 1024 * 1024)
+        return -1;
+    /* V002: Validate pointer parameters */
+    if (c == NULL || n == NULL || k == NULL)
+        return -1;
+    if (m != NULL && m == c) /* overlapping buffers not allowed */
+        return -1;
     FOR(i, 16) z[i] = 0;
     FOR(i, 8) z[i] = n[i];
     while (b >= 64) {
@@ -256,7 +264,8 @@ int crypto_onetimeauth(u8 *out, const u8 *m, u64 n, const u8 *k) {
 
 int crypto_onetimeauth_verify(const u8 *h, const u8 *m, u64 n, const u8 *k) {
     u8 x[16];
-    crypto_onetimeauth(x, m, n, k);
+    if (crypto_onetimeauth(x, m, n, k) != 0)
+        return -1;
     return crypto_verify_16(h, x);
 }
 
