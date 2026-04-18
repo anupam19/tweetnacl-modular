@@ -12,27 +12,14 @@ project(TweetNaClModular
 )
 
 # ─── MSVC Calling Convention Normalization ────────────────────────────────────
-# Strip /Gr, /Gd, /Gv, /Gz from all CMAKE_C_FLAGS* and from generated project
-# files to prevent D8016 (incompatible calling conventions). This is always
-# defined (no-op on non-MSVC) so the command is available during configure.
+# CMake defaults to /Gd; remove any /Gr, /Gv, /Gz that may be embedded in
+# generated .vcxproj files (stale from prior builds). Must run at configure
+# time so the project files are clean before the first build.
 if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
     macro(normalize_msvc_flags target)
-        # Strip any calling-convention flags from cache variables
-        foreach(flag_var CMAKE_C_FLAGS
-                            CMAKE_C_FLAGS_DEBUG
-                            CMAKE_C_FLAGS_RELEASE
-                            CMAKE_C_FLAGS_MINSIZEREL
-                            CMAKE_C_FLAGS_RELWITHDEBINFO)
-            if(DEFINED ${flag_var})
-                string(REPLACE "/Gr" "" ${flag_var} "${${flag_var}}")
-                string(REPLACE "/Gd" "" ${flag_var} "${${flag_var}}")
-                string(REPLACE "/Gv" "" ${flag_var} "${${flag_var}}")
-                string(REPLACE "/Gz" "" ${flag_var} "${${flag_var}}")
-            endif()
-        endforeach()
-        # Enforce /Gd on each target as the sole calling convention
+        # Enforce /Gd (cdecl) on the target itself
         target_compile_options(${target} PRIVATE "/Gd")
-        # Patch generated .vcxproj files to remove any lingering flags
+        # Strip calling-convention flags from all generated .vcxproj files
         file(GLOB vcxproj_files "${CMAKE_BINARY_DIR}/**/*.vcxproj")
         foreach(vf ${vcxproj_files})
             file(READ "${vf}" content)
