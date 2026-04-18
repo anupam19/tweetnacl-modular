@@ -13,6 +13,7 @@
 #include "drivers/crypto/pqc.h"
 #include <stdlib.h>
 #include <string.h>
+#include "core/secure_mem.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -123,11 +124,14 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
         }
 
         if (OQS_KEM_keypair(kem, public_key, secret_key) != OQS_SUCCESS) {
-            if (kem) OQS_KEM_free(kem);
+            /* Zeroize partial key material before cleanup */
+            secure_zero(public_key, public_key_len);
+            secure_zero(secret_key, secret_key_len);
+            OQS_KEM_free(kem);
             return PQC_ERROR_KEY_GENERATION_FAILED;
         }
 
-        if (kem) OQS_KEM_free(kem);
+        OQS_KEM_free(kem);
         return PQC_SUCCESS;
 
     } else if (OQS_SIG_alg_is_enabled(alg_name)) {
@@ -141,11 +145,14 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
         }
 
         if (OQS_SIG_keypair(sig, public_key, secret_key) != OQS_SUCCESS) {
-            if (sig) OQS_SIG_free(sig);
+            /* Zeroize partial key material before cleanup */
+            secure_zero(public_key, public_key_len);
+            secure_zero(secret_key, secret_key_len);
+            OQS_SIG_free(sig);
             return PQC_ERROR_KEY_GENERATION_FAILED;
         }
 
-        if (sig) OQS_SIG_free(sig);
+        OQS_SIG_free(sig);
         return PQC_SUCCESS;
     }
 
