@@ -12,30 +12,22 @@ project(TweetNaClModular
 )
 
 # ─── MSVC Calling Convention Normalization ────────────────────────────────────
-# CMake adds /Gd (cdecl) by default for MSVC; we must strip it and any other
-# calling convention flags (/Gr fastcall, /Gv vectorcall, /Gz large) to prevent
-# D8016: "/Gd" and "/Gr" command-line options are incompatible.
-# This is done after each target definition to ensure flags are cleared before
-# compilation of target sources.
+# Strip /Gd, /Gr, /Gv, /Gz from ALL CMAKE_C_FLAGS* variables *before* any
+# targets are defined. This prevents D8016 (incompatible /Gd and /Gr).
+# Must run early, before add_executable/add_library generate per-target flags.
 if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    macro(normalize_msvc_flags target)
-        # Strip any existing calling convention flags from target's compile options
-        get_target_property(tmp ${target} COMPILE_OPTIONS)
-        if(tmp)
-            string(REPLACE "/Gr" "" tmp "${tmp}")
-            string(REPLACE "/Gv" "" tmp "${tmp}")
-            string(REPLACE "/Gz" "" tmp "${tmp}")
-            set_target_properties(${target} PROPERTIES
-                COMPILE_OPTIONS "${tmp}"
-            )
+    foreach(flag_var CMAKE_C_FLAGS
+                        CMAKE_C_FLAGS_DEBUG
+                        CMAKE_C_FLAGS_RELEASE
+                        CMAKE_C_FLAGS_MINSIZEREL
+                        CMAKE_C_FLAGS_RELWITHDEBINFO)
+        if(DEFINED ${flag_var})
+            string(REPLACE "/Gr" "" ${flag_var} "${${flag_var}}")
+            string(REPLACE "/Gd" "" ${flag_var} "${${flag_var}}")
+            string(REPLACE "/Gv" "" ${flag_var} "${${flag_var}}")
+            string(REPLACE "/Gz" "" ${flag_var} "${${flag_var}}")
         endif()
-        # Now explicitly add /Gd (cdecl) as the only calling convention
-        target_compile_options(${target} PRIVATE "/Gd")
-    endmacro()
-else()
-    macro(normalize_msvc_flags target)
-        # No-op on non-MSVC compilers
-    endmacro()
+    endforeach()
 endif()
 
 # ─── Options ─────────────────────────────────────────────────────────────────
