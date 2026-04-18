@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdatomic.h>
 
 #define RDRAND_RETRIES 10
 
@@ -373,39 +374,54 @@ static int drng_continuous_health_test(const uint8_t *buf, size_t len) {
     return NACL_SUCCESS;
 }
 
-/* ─── Init: detect best available RNG at runtime with self-tests ──────── */
+/* Initialization lock to prevent race conditions */
+static atomic_flag drng_init_lock = ATOMIC_FLAG_INIT;
+
+/* ─── drng_init: thread-safe one-time initialization ───────────────────── */
 static void drng_init(void) {
+    /* Fast path: check if already initialized */
     if (drng_is_initialized()) {
-        return; /* Already initialized */
+        return;
     }
 
+    /* Acquire initialization lock (spin) */
+    while (atomic_flag_test_and_set_explicit(&drng_init_lock, memory_order_acquire)) {
+        /* Busy-wait; drng_init is fast, so spin is acceptable */
+    }
+
+    /* Double-check inside lock */
+    if (!drng_is_initialized()) {
+        /* Original initialization body */
 #if defined(__x86_64__) || defined(__i386__)
-    /* Disable hardware RNG in virtualized CI environments - CPUID lies about support */
-    /* GitHub Actions / Azure VMs report RDSEED/RDRAND but SIGSEGV when executed */
-    rng_impl = RNG_NONE;
+        /* Disable hardware RNG in virtualized CI environments - CPUID lies about support */
+        /* GitHub Actions / Azure VMs report RDSEED/RDRAND but SIGSEGV when executed */
+        rng_impl = RNG_NONE;
 #endif
 #if defined(HAS_ARM_RNG) && !defined(__APPLE__)
-    if (rng_impl == RNG_NONE) {
-        uint64_t t;
-        if (arm_rndr(&t)) {
-            rng_impl = RNG_ARM_RNDR;
+        if (rng_impl == RNG_NONE) {
+            uint64_t t;
+            if (arm_rndr(&t)) {
+                rng_impl = RNG_ARM_RNDR;
+            }
         }
-    }
 #endif
 
-    /* If we have a hardware RNG, run power-up self-test */
-    if (rng_impl != RNG_NONE) {
-        int selftest_result = drng_power_up_selftest();
-        if (selftest_result == NACL_SUCCESS) {
-            drng_state.power_up_selftest_passed = 1;
-        } else {
-            /* Hardware RNG failed self-test - fall back to software */
-            rng_impl = RNG_NONE;
-            drng_state.power_up_selftest_passed = 0;
+        /* If we have a hardware RNG, run power-up self-test */
+        if (rng_impl != RNG_NONE) {
+            int selftest_result = drng_power_up_selftest();
+            if (selftest_result == NACL_SUCCESS) {
+                drng_state.power_up_selftest_passed = 1;
+            } else {
+                /* Hardware RNG failed self-test - fall back to software */
+                rng_impl = RNG_NONE;
+                drng_state.power_up_selftest_passed = 0;
+            }
         }
+
+        drng_set_initialized();
     }
 
-    drng_set_initialized();
+    atomic_flag_clear_explicit(&drng_init_lock, memory_order_release);
 }
 
 /* ─── Public API ───────────────────────────────────────────────────────── */
