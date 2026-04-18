@@ -42,6 +42,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #else
 #include <windows.h>
@@ -191,6 +192,15 @@ int randombytes_safe(uint8_t *buf, size_t len) {
     if (fd < 0) {
         return NACL_ERROR_RNG_FAILURE;
     }
+
+    /* Verify /dev/urandom is a character device (prevent symlink/regular file attacks) */
+    #ifndef __ admittedly_embedded
+    struct stat st;
+    if (fstat(fd, &st) == 0 && !S_ISCHR(st.st_mode)) {
+        close(fd);
+        return NACL_ERROR_RNG_FAILURE;
+    }
+    #endif
 
     size_t total_read = 0;
     while (total_read < len) {
