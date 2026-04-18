@@ -11,6 +11,21 @@ project(TweetNaClModular
     HOMEPAGE_URL "https://github.com/anupam19/tweetnacl-modular"
 )
 
+# ─── MSVC Calling Convention Normalization ────────────────────────────────────
+# Strip /Gd, /Gr, /Gv, /Gz from all CMAKE_C_FLAGS* to prevent D8016 conflicts.
+if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    foreach(flag_var CMAKE_C_FLAGS
+                        CMAKE_C_FLAGS_DEBUG
+                        CMAKE_C_FLAGS_RELEASE
+                        CMAKE_C_FLAGS_MINSIZEREL
+                        CMAKE_C_FLAGS_RELWITHDEBINFO)
+        if(DEFINED ${flag_var})
+            string(REGEX REPLACE "/G(d|r|v|z)(=[^ ]+)?" "" normalized "${${flag_var}}")
+            set(${flag_var} "${normalized}" CACHE STRING "" FORCE)
+        endif()
+    endforeach()
+endif()
+
 # ─── Options ─────────────────────────────────────────────────────────────────
 option(BUILD_SHARED_LIBS "Build shared library" ON)
 option(BUILD_STATIC_LIBS "Build static library" ON)
@@ -149,14 +164,6 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
         /D_FORTIFY_SOURCE=2
     )
     add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
-    
-    # Remove conflicting calling convention flags from all build-type flags
-    foreach(flag_var CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-                    CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
-        set(current "${${flag_var}}")
-        string(REGEX REPLACE "/G(d|r|v|z)(=[^ ]+)?" "" current "${current}")
-        set(${flag_var} "${current}" CACHE STRING "" FORCE)
-    endforeach()
 endif()
 
 # Linker security flags
