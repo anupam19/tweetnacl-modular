@@ -25,12 +25,6 @@ int crypto_sign_ed25519ctx(uint8_t *sm, uint64_t *smlen, const uint8_t *m, uint6
     (void)ctx_len;
     return crypto_sign(sm, smlen, m, mlen, sk);
 }
-    /* For now, use standard Ed25519 (context is validated but not fully applied
-     * as tweetnacl.c internals are static) */
-    (void)ctx;
-    (void)ctx_len;
-    return crypto_sign(sm, smlen, m, mlen, sk);
-}
 
 int crypto_sign_ed25519ctx_open(uint8_t *m, uint64_t *mlen, const uint8_t *sm, uint64_t smlen,
                                  const uint8_t *pk, const char *ctx, size_t ctx_len) {
@@ -38,10 +32,6 @@ int crypto_sign_ed25519ctx_open(uint8_t *m, uint64_t *mlen, const uint8_t *sm, u
     if (ctx != NULL && ctx_len > 255) {
         return -1;
     }
-    (void)ctx;
-    (void)ctx_len;
-    return crypto_sign_open(m, mlen, sm, smlen, pk);
-}
     (void)ctx;
     (void)ctx_len;
     return crypto_sign_open(m, mlen, sm, smlen, pk);
