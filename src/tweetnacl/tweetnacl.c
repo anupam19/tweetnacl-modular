@@ -739,7 +739,6 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     u8 t[32], h[64];
     gf p[4], q[4];
     gf zero = {0};
-    gf neg_y, neg_t;
 
     /* V002: Validate pointer parameters */
     if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
@@ -760,11 +759,10 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     /* p = hA */
     scalarmult(p, q, h);
 
-    /* Negate p to get -hA (Edwards negation: (X, -Y, Z, -T)) */
-    FOR(i, 16) neg_y[i] = p[1][i];
-    FOR(i, 16) neg_t[i] = p[3][i];
-    Z(p[1], zero, neg_y);  /* p[1] = -Y */
-    Z(p[3], zero, neg_t);  /* p[3] = -T */
+    /* Negate p to get -hA (Edwards negation: (-X, -Y, Z, T)) */
+    Z(p[0], zero, p[0]);  /* p[0] = -X */
+    Z(p[1], zero, p[1]);  /* p[1] = -Y */
+    /* p[2] (Z) and p[3] (T) remain unchanged */
 
     /* q = sB (signature scalar times base point) */
     scalarbase(q, sm + 32);
