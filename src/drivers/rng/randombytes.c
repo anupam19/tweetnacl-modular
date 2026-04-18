@@ -55,10 +55,10 @@ extern int _randombytes_drng_impl_is_software(void);
 #endif
 
 /* Periodic RNG health check counter (NIST 800-90B) */
-static atomic_uint_fast64_t randombytes_call_count = ATOMIC_VAR_INIT(0);
+static atomic_uint_fast64_t randombytes_call_count = 0;
 
 /* Initialization state */
-static atomic_int randombytes_initialized = ATOMIC_VAR_INIT(0);
+static atomic_int randombytes_initialized = 0;
 
 /**
  * @brief Initialize the random bytes generator
