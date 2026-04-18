@@ -256,7 +256,8 @@ int crypto_onetimeauth(u8 *out, const u8 *m, u64 n, const u8 *k) {
 
 int crypto_onetimeauth_verify(const u8 *h, const u8 *m, u64 n, const u8 *k) {
     u8 x[16];
-    crypto_onetimeauth(x, m, n, k);
+    if (crypto_onetimeauth(x, m, n, k) != 0)
+        return -1;
     return crypto_verify_16(h, x);
 }
 
