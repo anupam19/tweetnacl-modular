@@ -31,11 +31,13 @@
 
 #include "drivers/rng/drng.h"
 #include "core/error.h"
+#include "core/secure_utils.h"
 #include "drivers/rng/randombytes.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #define RDRAND_RETRIES 10
 
@@ -209,7 +211,9 @@ static int drng_fill(uint8_t *buf, size_t len) {
             drng_mark_failure();
             return -1;
         }
-        memcpy(buf + offset, &val, 8);
+        /* Explicit bounds validation via safe_memcpy */
+        if (safe_memcpy(buf + offset, len - offset, &val, 8) != 0)
+            return -1;
         offset += 8;
     }
     if (offset + 4 <= len) {
@@ -218,7 +222,8 @@ static int drng_fill(uint8_t *buf, size_t len) {
             drng_mark_failure();
             return -1;
         }
-        memcpy(buf + offset, &val, 4);
+        if (safe_memcpy(buf + offset, len - offset, &val, 4) != 0)
+            return -1;
         offset += 4;
     }
     if (offset < len) {
@@ -227,7 +232,8 @@ static int drng_fill(uint8_t *buf, size_t len) {
             drng_mark_failure();
             return -1;
         }
-        memcpy(buf + offset, &val, len - offset);
+        if (safe_memcpy(buf + offset, len - offset, &val, (size_t)(len - offset)) != 0)
+            return -1;
     }
 #elif defined(HAS_ARM_RNG) && !defined(__APPLE__)
     while (offset + 8 <= len) {
@@ -236,7 +242,8 @@ static int drng_fill(uint8_t *buf, size_t len) {
             drng_mark_failure();
             return -1;
         }
-        memcpy(buf + offset, &val, 8);
+        if (safe_memcpy(buf + offset, len - offset, &val, 8) != 0)
+            return -1;
         offset += 8;
     }
     if (offset < len) {
@@ -245,7 +252,8 @@ static int drng_fill(uint8_t *buf, size_t len) {
             drng_mark_failure();
             return -1;
         }
-        memcpy(buf + offset, &val, len - offset);
+        if (safe_memcpy(buf + offset, len - offset, &val, len - offset) != 0)
+            return -1;
     }
 #else
     (void)buf;

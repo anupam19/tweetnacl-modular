@@ -174,17 +174,6 @@ int crypto_stream_salsa20_xor(u8 *c, const u8 *m, u64 b, const u8 *n, const u8 *
     }
     return 0;
 }
-        b -= 64;
-        c += 64;
-        if (m)
-            m += 64;
-    }
-    if (b) {
-        crypto_core_salsa20(x, z, k, sigma);
-        FOR(i, b) c[i] = (m ? m[i] : 0) ^ x[i];
-    }
-    return 0;
-}
 
 int crypto_stream_salsa20(u8 *c, u64 d, const u8 *n, const u8 *k) {
     return crypto_stream_salsa20_xor(c, 0, d, n, k);
