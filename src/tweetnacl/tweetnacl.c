@@ -823,21 +823,23 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     if (unpackneg(q, pk))
         return -1;
 
-    for (i = 0; i < n; i++) m[i] = sm[i];
+    FOR(i, n) m[i] = sm[i];
+    FOR(i, 32) m[i + 32] = pk[i];
     crypto_hash(h, m, n);
     reduce(h);
     scalarmult(p, q, h);
+
     scalarbase(q, sm + 32);
     add(p, q);
     pack(t, p);
 
     n -= 64;
     if (crypto_verify_32(sm, t)) {
-        for (i = 0; i < n; i++) m[i] = 0;
+        FOR(i, n) m[i] = 0;
         return -1;
     }
 
-    for (i = 0; i < n; i++) m[i] = sm[i + 64];
+    FOR(i, n) m[i] = sm[i + 64];
     *mlen = n;
     return 0;
 }
