@@ -88,11 +88,13 @@ pqc_result_t pqc_hybrid_keygen(pqc_algorithm_t pqc_algo, uint8_t *hybrid_public_
                                size_t *hybrid_public_key_len, uint8_t *hybrid_secret_key,
                                size_t *hybrid_secret_key_len);
 
-pqc_result_t pqc_hybrid_encapsulate(const uint8_t *hybrid_public_key, size_t hybrid_public_key_len,
+pqc_result_t pqc_hybrid_encapsulate(pqc_algorithm_t pqc_algo,
+                                    const uint8_t *hybrid_public_key, size_t hybrid_public_key_len,
                                     uint8_t *hybrid_ciphertext, size_t *hybrid_ciphertext_len,
                                     uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len);
 
-pqc_result_t pqc_hybrid_decapsulate(const uint8_t *hybrid_secret_key, size_t hybrid_secret_key_len,
+pqc_result_t pqc_hybrid_decapsulate(pqc_algorithm_t pqc_algo,
+                                    const uint8_t *hybrid_secret_key, size_t hybrid_secret_key_len,
                                     const uint8_t *hybrid_ciphertext, size_t hybrid_ciphertext_len,
                                     uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len);
 

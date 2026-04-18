@@ -342,14 +342,14 @@ void test_hybrid_crypto(void) {
     /* Hybrid encapsulation */
     uint8_t hybrid_ct[2000], hybrid_ss[32];
     size_t hybrid_ct_len = sizeof(hybrid_ct);
-    result = pqc_hybrid_encapsulate(hybrid_pk, hybrid_pk_len,
+    result = pqc_hybrid_encapsulate(PQC_KYBER768, hybrid_pk, hybrid_pk_len,
                                    hybrid_ct, &hybrid_ct_len,
                                    hybrid_ss, sizeof(hybrid_ss));
     TEST_ASSERT("Hybrid encapsulation succeeds", result == PQC_SUCCESS);
 
     /* Hybrid decapsulation */
     uint8_t hybrid_ss2[32];
-    result = pqc_hybrid_decapsulate(hybrid_sk, hybrid_sk_len,
+    result = pqc_hybrid_decapsulate(PQC_KYBER768, hybrid_sk, hybrid_sk_len,
                                    hybrid_ct, hybrid_ct_len,
                                    hybrid_ss2, sizeof(hybrid_ss2));
     TEST_ASSERT("Hybrid decapsulation succeeds", result == PQC_SUCCESS);

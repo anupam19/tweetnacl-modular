@@ -32,6 +32,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/* Deprecation attribute */
+#if defined(__clang__) || defined(__GNUC__)
+#  define NACL_DEPRECATED __attribute__((deprecated("Use randombytes_safe() instead")))
+#elif defined(_MSC_VER)
+#  define NACL_DEPRECATED __declspec(deprecated("Use randombytes_safe() instead"))
+#else
+#  define NACL_DEPRECATED
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -41,6 +50,7 @@ extern "C" {
  * @return NACL_SUCCESS on success, error code on failure
  *
  * @note This function is optional - randombytes() will auto-initialize if needed
+ * @note Thread-safe: can be called concurrently from multiple threads
  * @see randombytes_safe() for non-exiting variant
  */
 int randombytes_init(void);
@@ -52,8 +62,9 @@ int randombytes_init(void);
  * @return NACL_SUCCESS on success, error code on failure
  *
  * @note Uses hardware DRNG if available, falls back to OS RNG
+ * @note Thread-safe: can be called concurrently from multiple threads
  * @warning Unlike legacy randombytes(), this function returns error codes
- *          instead of calling exit() on failure
+ *          instead of exiting on failure
  */
 int randombytes_safe(uint8_t *buf, size_t len);
 
@@ -62,10 +73,11 @@ int randombytes_safe(uint8_t *buf, size_t len);
  * @param[out] buf Output buffer
  * @param[in] len Number of bytes to generate
  *
- * @deprecated Use randombytes_safe() for proper error handling
- * @note This function maintains backward compatibility but calls abort() on failure
+ * @deprecated Use randombytes_safe() for proper error handling.
+ *             This function no longer aborts; it returns on failure.
+ *             It will be removed in a future major release.
  */
-void randombytes(uint8_t *buf, size_t len);
+NACL_DEPRECATED void randombytes(uint8_t *buf, size_t len);
 
 /**
  * @brief Check if hardware DRNG (Digital Random Number Generator) is available

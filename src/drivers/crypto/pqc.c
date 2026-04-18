@@ -82,6 +82,18 @@ static const char *oqs_alg_name(pqc_algorithm_t algo) {
         return OQS_SIG_alg_dilithium_3;
     case PQC_DILITHIUM5:
         return OQS_SIG_alg_dilithium_5;
+    case PQC_FALCON512:
+        return OQS_SIG_alg_falcon_512;
+    case PQC_FALCON1024:
+        return OQS_SIG_alg_falcon_1024;
+    case PQC_SPHINCS_SHA2_128F:
+        return OQS_SIG_alg_sphincs_sha2_128f;
+    case PQC_SPHINCS_SHA2_128S:
+        return OQS_SIG_alg_sphincs_sha2_128s;
+    case PQC_SPHINCS_SHAKE_128F:
+        return OQS_SIG_alg_sphincs_shake_128f;
+    case PQC_SPHINCS_SHAKE_128S:
+        return OQS_SIG_alg_sphincs_shake_128s;
     default:
         return NULL;
     }
@@ -304,7 +316,7 @@ pqc_result_t pqc_sign(pqc_algorithm_t algo, const uint8_t *secret_key, size_t se
     return PQC_SUCCESS;
 }
 
-/* Stub verification */
+/* Stub verification - NEVER用于生产环境 */
 pqc_result_t pqc_verify(pqc_algorithm_t algo, const uint8_t *public_key, size_t public_key_len,
                         const uint8_t *message, size_t message_len, const uint8_t *signature,
                         size_t signature_len) {
@@ -325,11 +337,12 @@ pqc_result_t pqc_verify(pqc_algorithm_t algo, const uint8_t *public_key, size_t 
     }
 
     /*
-     * STUB: Always return success for demonstration
-     * In production, perform actual signature verification
+     * STUB MODE: Always return verification failure.
+     * Stub implementation must never succeed in production.
+     * Compile with -DWITH_PQC_LIBOQS=ON to enable real PQC.
      */
     (void)message_len; /* Suppress unused warning */
-    return PQC_SUCCESS;
+    return PQC_ERROR_VERIFICATION_FAILED;
 }
 
 /* Hybrid mode: Combine Curve25519 with PQC */
@@ -367,23 +380,44 @@ pqc_result_t pqc_hybrid_keygen(pqc_algorithm_t pqc_algo, uint8_t *hybrid_public_
     return result;
 }
 
-pqc_result_t pqc_hybrid_encapsulate(const uint8_t *hybrid_public_key, size_t hybrid_public_key_len,
+pqc_result_t pqc_hybrid_encapsulate(pqc_algorithm_t pqc_algo,
+                                    const uint8_t *hybrid_public_key, size_t hybrid_public_key_len,
                                     uint8_t *hybrid_ciphertext, size_t *hybrid_ciphertext_len,
-                                    uint8_t *hybrid_shared_secret,
-                                    size_t hybrid_shared_secret_len) {
+                                    uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len) {
+    pqc_params_t params;
+    pqc_result_t result;
+
     if (hybrid_public_key == NULL || hybrid_ciphertext == NULL || hybrid_shared_secret == NULL ||
         hybrid_ciphertext_len == NULL) {
         return PQC_ERROR_INVALID_PARAM;
     }
 
-    /* Minimum: Curve25519 (32 bytes) + some PQC ciphertext */
-    if (hybrid_public_key_len < 32 + 100) {
+    /* Get PQC algorithm parameters */
+    result = pqc_get_params(pqc_algo, &params);
+    if (result != PQC_SUCCESS) {
+        return result;
+    }
+
+    /* Hybrid public key format: [Curve25519 (32 bytes)] [PQC Public Key] */
+    size_t curve25519_pk_size = 32;
+    if (hybrid_public_key_len < curve25519_pk_size) {
         return PQC_ERROR_INVALID_PARAM;
+    }
+    const uint8_t *pqc_pubkey = hybrid_public_key + curve25519_pk_size;
+    size_t pqc_pubkey_len = hybrid_public_key_len - curve25519_pk_size;
+
+    if (pqc_pubkey_len < params.public_key_size) {
+        return PQC_ERROR_BUFFER_TOO_SMALL;
     }
 
     /* Hybrid ciphertext format: [Curve25519 ephemeral (32 bytes)] [PQC Ciphertext] */
     size_t curve25519_ct_size = 32;
-    size_t pqc_ct_size = hybrid_public_key_len - 32; /* Simplified assumption */
+    size_t pqc_ct_size = params.ciphertext_size;
+
+    /* Check for integer overflow before addition (CERT INT30-C) */
+    if (curve25519_ct_size > SIZE_MAX - pqc_ct_size) {
+        return PQC_ERROR_MEMORY_ALLOCATION;
+    }
     size_t required_ct_size = curve25519_ct_size + pqc_ct_size;
 
     /* Check caller's buffer is large enough */
@@ -399,22 +433,38 @@ pqc_result_t pqc_hybrid_encapsulate(const uint8_t *hybrid_public_key, size_t hyb
         return PQC_ERROR_BUFFER_TOO_SMALL;
     }
 
-    /* STUB: Generate hybrid shared secret */
-    memset(hybrid_ciphertext, 0x11, *hybrid_ciphertext_len);
+    /* STUB: Generate hybrid shared secret (zero-filled for demo) */
+    memset(hybrid_ciphertext, 0x11, required_ct_size);
     memset(hybrid_shared_secret, 0x22, hybrid_ss_size);
 
     return PQC_SUCCESS;
 }
 
-pqc_result_t pqc_hybrid_decapsulate(const uint8_t *hybrid_secret_key, size_t hybrid_secret_key_len,
+pqc_result_t pqc_hybrid_decapsulate(pqc_algorithm_t pqc_algo,
+                                    const uint8_t *hybrid_secret_key, size_t hybrid_secret_key_len,
                                     const uint8_t *hybrid_ciphertext, size_t hybrid_ciphertext_len,
-                                    uint8_t *hybrid_shared_secret,
-                                    size_t hybrid_shared_secret_len) {
+                                    uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len) {
+    pqc_params_t params;
+    pqc_result_t result;
+
     if (hybrid_secret_key == NULL || hybrid_ciphertext == NULL || hybrid_shared_secret == NULL) {
         return PQC_ERROR_INVALID_PARAM;
     }
 
-    if (hybrid_secret_key_len < 64 || hybrid_ciphertext_len < 64) {
+    /* Get PQC algorithm parameters */
+    result = pqc_get_params(pqc_algo, &params);
+    if (result != PQC_SUCCESS) {
+        return result;
+    }
+
+    /* Hybrid secret key format: [Curve25519 (32 bytes)] [PQC Secret Key] */
+    size_t curve25519_sk_size = 32;
+    if (hybrid_secret_key_len < curve25519_sk_size) {
+        return PQC_ERROR_INVALID_PARAM;
+    }
+
+    /* Hybrid ciphertext: [Curve25519 ephemeral (32 bytes)] [PQC Ciphertext] */
+    if (hybrid_ciphertext_len < 32 + params.ciphertext_size) {
         return PQC_ERROR_INVALID_PARAM;
     }
 
