@@ -189,14 +189,7 @@ static int rdseed64_retry(uint64_t *val) {
 #endif /* __x86_64__ || __i386__ */
 
 /* ─── ARM RNDR ──────────────────────────────────────────────────────────── */
-#if defined(HAS_ARM_RNG) && !defined(__APPLE__)
-    if (rng_impl == RNG_NONE) {
-        uint64_t t;
-        if (arm_rndr(&t)) {
-            rng_impl = RNG_ARM_RNDR;
-        }
-    }
-#endif
+/* (Disabled on macOS due to illegal instruction) */
 
 /* ─── drng_fill: Fill buffer with hardware RNG ─────────────────────────── */
 static int drng_fill(uint8_t *buf, size_t len) {
@@ -229,7 +222,7 @@ static int drng_fill(uint8_t *buf, size_t len) {
         }
         memcpy(buf + offset, &val, len - offset);
     }
-#elif defined(HAS_ARM_RNG)
+#elif defined(HAS_ARM_RNG) && !defined(__APPLE__)
     while (offset + 8 <= len) {
         uint64_t val;
         if (!arm_rndr(&val)) {
