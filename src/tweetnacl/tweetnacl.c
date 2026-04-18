@@ -15,6 +15,7 @@
 #include "core/utils.h"
 #include "drivers/rng/randombytes.h"
 #include "internal/safety.h"
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -701,8 +702,8 @@ static const u64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 
                           0xa2, 0xde, 0xf9, 0xde, 0x14, 0,    0,    0,    0,    0,    0,
                           0,    0,    0,    0,    0,    0,    0,    0,    0,    0x10};
 
-sv modL(u8 *r, u64 x[64]) {
-    u64 carry, i, j;
+sv modL(u8 *r, i64 x[64]) {
+    i64 carry, i, j;
     for (i = 63; i >= 32; --i) {
         carry = 0;
         for (j = i - 32; j < i - 12; ++j) {
@@ -727,8 +728,8 @@ sv modL(u8 *r, u64 x[64]) {
 }
 
 sv reduce(u8 *r) {
-    u64 x[64], i;
-    FOR(i, 64) x[i] = (u64)r[i];
+    i64 x[64], i;
+    FOR(i, 64) x[i] = (u64) r[i];
     FOR(i, 64) r[i] = 0;
     modL(r, x);
 }
@@ -738,7 +739,7 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     unsigned int i;
     u8 t[32], h[64];
     gf p[4], q[4];
-    gf zero = {0};
+
 
     /* V002: Validate pointer parameters */
     if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
@@ -759,10 +760,7 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     /* p = hA */
     scalarmult(p, q, h);
 
-    /* Negate p to get -hA (Edwards negation: (-X, -Y, Z, T)) */
-    Z(p[0], zero, p[0]);  /* p[0] = -X */
-    Z(p[1], zero, p[1]);  /* p[1] = -Y */
-    /* p[2] (Z) and p[3] (T) remain unchanged */
+
 
     /* q = sB (signature scalar times base point) */
     scalarbase(q, sm + 32);
@@ -770,6 +768,13 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     /* p = sB - hA */
     add(p, q);
     pack(t, p);
+
+    /* Debug: print computed R and signature R */
+    fprintf(stderr, "Computed R: ");
+    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", t[i]);
+    fprintf(stderr, "\nSignature R: ");
+    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", sm[i]);
+    fprintf(stderr, "\n");
 
     n -= 64;
     if (crypto_verify_32(sm, t)) {
@@ -783,16 +788,21 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
 }
 
 __attribute__((no_sanitize("undefined")))
-int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, const u8 *sk) {
+int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, const u8 *sk)
+{
     u8 d[64], h[64], r[64];
-    u64 x[64];
+    i64 x[64];
     gf p[4];
     int i, j;
-
     crypto_hash(d, sk, 32);
     d[0] &= 248;
     d[31] &= 127;
     d[31] |= 64;
+
+    /* Debug: print a = d[0..31] */
+    fprintf(stderr, "a = ");
+    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", d[i]);
+    fprintf(stderr, "\n");
 
     *mlen = n + 64;
     FOR(i, n) sm[64 + i] = m[i];
@@ -800,17 +810,29 @@ int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, const u8 *sk) {
 
     crypto_hash(r, sm + 32, n + 32);
     reduce(r);
+    /* Debug: print r after reduction */
+    fprintf(stderr, "r = ");
+    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", r[i]);
+    fprintf(stderr, "\n");
     scalarbase(p, r);
     pack(sm, p);
 
     FOR(i, 32) sm[i + 32] = sk[i + 32];
     crypto_hash(h, sm, n + 64);
     reduce(h);
+    /* Debug: print h after reduction */
+    fprintf(stderr, "h = ");
+    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", h[i]);
+    fprintf(stderr, "\n");
 
     FOR(i, 64) x[i] = 0;
     FOR(i, 32) x[i] = (u64)r[i];
     FOR(i, 32) FOR(j, 32) x[i + j] += h[i] * (u64)d[j];
     modL(sm + 32, x);
+    /* Debug: print s */
+    fprintf(stderr, "s = ");
+    for (int i = 0; i < 32; ++i) fprintf(stderr, "%02x", sm[32+i]);
+    fprintf(stderr, "\n");
 
     return 0;
 }
