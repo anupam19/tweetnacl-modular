@@ -21,8 +21,13 @@
  * @date 2024
  */
 
-/* Ensure C11 atomics are enabled on MSVC before any standard headers */
-#if !defined(_HAS_C11_ATOMICS)
+/* Force C11 atomics on MSVC: override any existing definition (including 0) */
+#if defined(_HAS_C11_ATOMICS)
+#  if _HAS_C11_ATOMICS != 1
+#    undef _HAS_C11_ATOMICS
+#    define _HAS_C11_ATOMICS 1
+#  endif
+#else
 #  define _HAS_C11_ATOMICS 1
 #endif
 
