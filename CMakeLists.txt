@@ -11,7 +11,13 @@ project(TweetNaClModular
     HOMEPAGE_URL "https://github.com/anupam19/tweetnacl-modular"
 )
 
-# ─── MSVC Compatibility ─────────────────────────────────────────────────────
+# ─── Global Compile Definitions ────────────────────────────────────────────────
+# Enable C11 atomics on MSVC for all targets (required for <stdatomic.h>)
+if(MSVC)
+    add_compile_definitions(_HAS_C11_ATOMICS=1)
+endif()
+
+# ─── MSVC Compatibility ───────────────────────────────────────────────────────
 # Provide a no-op macro for non-MSVC builds; real logic lives in the MSVC block.
 macro(normalize_msvc_flags target)
     # Intentionally empty for all compilers; /Gd handling done globally.
