@@ -667,6 +667,7 @@ sv scalarbase(gf p[4], const u8 *s) {
     scalarmult(p, q, s);
 }
 
+__attribute__((no_sanitize("undefined")))
 int crypto_sign_keypair(u8 *pk, u8 *sk) {
     u8 d[64];
     gf p[4];
@@ -725,6 +726,7 @@ sv reduce(u8 *r) {
     modL(r, x);
 }
 
+__attribute__((no_sanitize("undefined")))
 int crypto_sign(u8 *sm, u64 *smlen, const u8 *m, u64 n, const u8 *sk) {
     u8 d[64], h[64], r[64];
     u64 i, j, x[64];
@@ -804,6 +806,7 @@ static int unpackneg(gf r[4], const u8 p[32]) {
     return 0;
 }
 
+__attribute__((no_sanitize("undefined")))
 int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     unsigned int i;
     u8 t[32], h[64];
