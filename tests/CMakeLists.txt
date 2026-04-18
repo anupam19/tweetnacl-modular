@@ -22,9 +22,14 @@ target_include_directories(test_original PRIVATE
     ${CMAKE_SOURCE_DIR}/src
 )
 target_link_libraries(test_original PRIVATE ${TWEETNACL_LIB})
-target_compile_options(test_original PRIVATE
-    -Wextra -Wformat-security -Wmissing-declarations -Wmissing-prototypes
-    -Wnested-externs -Wpointer-arith -Wshadow -Wstrict-prototypes
-)
+# Only apply GCC/Clang specific compiler flags to non-MSVC compilers
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(test_original PRIVATE
+        -Wextra -Wformat-security -Wmissing-declarations -Wmissing-prototypes
+        -Wnested-externs -Wpointer-arith -Wshadow -Wstrict-prototypes
+    )
+elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    target_compile_options(test_original PRIVATE /W3)
+endif()
 
 add_test(NAME OriginalTests COMMAND test_original)
