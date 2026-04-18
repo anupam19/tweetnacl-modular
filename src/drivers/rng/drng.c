@@ -53,36 +53,35 @@ static enum {
 
 /* Internal cache for RNG state (FIPS 140-3 compliant) */
 typedef struct {
-    int initialized;                /* Initialization state */
-    int power_up_selftest_passed;   /* FIPS 140-3 power-up test result */
-    uint64_t health_test_count;     /* NIST 800-90B continuous test counter */
-    int last_health_test_result;    /* Last health test result */
-    uint64_t total_bytes_generated; /* Total bytes generated since init */
-    int catastrophic_failure;       /* Catastrophic failure flag */
+    atomic_int initialized;                /* Initialization state */
+    atomic_int power_up_selftest_passed;   /* FIPS 140-3 power-up test result */
+    atomic_uint_fast64_t health_test_count;/* NIST 800-90B continuous test counter */
+    atomic_int last_health_test_result;    /* Last health test result */
+    atomic_uint_fast64_t total_bytes_generated; /* Total bytes generated since init */
+    atomic_int catastrophic_failure;       /* Catastrophic failure flag */
 } drng_state_t;
 
-static volatile drng_state_t drng_state = {.initialized = 0,
-                                           .power_up_selftest_passed = 0,
-                                           .health_test_count = 0,
-                                           .last_health_test_result = 0,
-                                           .total_bytes_generated = 0,
-                                           .catastrophic_failure = 0};
+static drng_state_t drng_state = {0};
 
-/* Lock-free state management */
-static void drng_set_initialized(void) { drng_state.initialized = 1; }
+/* Lock-free state management using C11 atomics */
+static void drng_set_initialized(void) {
+    atomic_store_explicit(&drng_state.initialized, 1, memory_order_release);
+}
 
-static int drng_is_initialized(void) { return drng_state.initialized; }
+static int drng_is_initialized(void) {
+    return atomic_load_explicit(&drng_state.initialized, memory_order_acquire);
+}
 
 static void drng_mark_failure(void) {
-    drng_state.catastrophic_failure = 1;
-    drng_state.power_up_selftest_passed = 0;
+    atomic_store_explicit(&drng_state.catastrophic_failure, 1, memory_order_relaxed);
+    atomic_store_explicit(&drng_state.power_up_selftest_passed, 0, memory_order_relaxed);
 }
 
 static void drng_reset_state(void) {
-    drng_state.initialized = 0;
-    drng_state.power_up_selftest_passed = 0;
-    drng_state.health_test_count = 0;
-    drng_state.total_bytes_generated = 0;
+    atomic_store_explicit(&drng_state.initialized, 0, memory_order_relaxed);
+    atomic_store_explicit(&drng_state.power_up_selftest_passed, 0, memory_order_relaxed);
+    atomic_store_explicit(&drng_state.health_test_count, 0, memory_order_relaxed);
+    atomic_store_explicit(&drng_state.total_bytes_generated, 0, memory_order_relaxed);
 }
 
 /* ─── x86 CPUID detection ──────────────────────────────────────────────── */
@@ -261,9 +260,9 @@ static int drng_fill(uint8_t *buf, size_t len) {
     return -1;
 #endif
 
-    /* Update statistics (NIST 800-90B tracking) */
-    drng_state.total_bytes_generated += len;
-    drng_state.health_test_count++;
+    /* Update statistics (NIST 800-90B tracking) using atomic fetch_add */
+    atomic_fetch_add_explicit(&drng_state.total_bytes_generated, len, memory_order_relaxed);
+    atomic_fetch_add_explicit(&drng_state.health_test_count, 1, memory_order_relaxed);
 
     return 0;
 }
@@ -483,8 +482,8 @@ const char *randombytes_implementation_name(void) {
  * @return 0 on success, -1 on failure
  */
 int _randombytes_drng_fill(uint8_t *buf, size_t len) {
-    /* Check for catastrophic failure state */
-    if (drng_state.catastrophic_failure) {
+    /* Check catastrophic failure using atomic load */
+    if (atomic_load_explicit(&drng_state.catastrophic_failure, memory_order_relaxed)) {
         return -1;
     }
 
@@ -494,7 +493,8 @@ int _randombytes_drng_fill(uint8_t *buf, size_t len) {
         return -1;
 
     /* Run continuous health test periodically (every 100 calls) */
-    if ((drng_state.health_test_count % 100) == 0 && drng_state.health_test_count > 0) {
+    uint64_t health_count = atomic_load_explicit(&drng_state.health_test_count, memory_order_relaxed);
+    if (health_count % 100 == 0 && health_count > 0) {
         uint8_t test_sample[32];
         if (drng_fill(test_sample, sizeof(test_sample)) == 0) {
             int health_result = drng_continuous_health_test(test_sample, sizeof(test_sample));
@@ -518,13 +518,17 @@ int drng_is_initialized_public(void) { return drng_is_initialized(); }
  * @brief Get power-up self-test status (FIPS 140-3)
  * @return 1 if passed, 0 if not passed or not tested
  */
-int drng_get_power_up_selftest_status(void) { return drng_state.power_up_selftest_passed; }
+int drng_get_power_up_selftest_status(void) {
+    return atomic_load_explicit(&drng_state.power_up_selftest_passed, memory_order_relaxed);
+}
 
 /**
  * @brief Get total bytes generated since initialization
  * @return Total byte count
  */
-uint64_t drng_get_total_bytes_generated(void) { return drng_state.total_bytes_generated; }
+uint64_t drng_get_total_bytes_generated(void) {
+    return atomic_load_explicit(&drng_state.total_bytes_generated, memory_order_relaxed);
+}
 
 /**
  * @brief Reset DRNG state (for testing only)
