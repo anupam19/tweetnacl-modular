@@ -821,8 +821,8 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
         return -1;
 
     FOR(i, n) m[i] = sm[i];
-    FOR(i, 32) m[i + 32] = pk[i];
-    crypto_hash(h, m, n);
+    FOR(i, 32) m[i + n] = pk[i];
+    crypto_hash(h, m, n + 32);
     reduce(h);
     scalarmult(p, q, h);
 
