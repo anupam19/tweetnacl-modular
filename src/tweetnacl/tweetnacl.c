@@ -483,11 +483,14 @@ int crypto_box_keypair(u8 *y, u8 *x) {
 
 int crypto_box_beforenm(u8 *k, const u8 *y, const u8 *x) {
     u8 s[32];
+    int ret;
     /* V002: Validate pointer parameters */
     if (k == NULL || y == NULL || x == NULL)
         return -1;
     crypto_scalarmult(s, x, y);
-    return crypto_core_hsalsa20(k, _0, s, sigma);
+    ret = crypto_core_hsalsa20(k, _0, s, sigma);
+    secure_zero(s, 32);
+    return ret;
 }
 
 int crypto_box_afternm(u8 *c, const u8 *m, u64 d, const u8 *n, const u8 *k) {
@@ -500,20 +503,28 @@ int crypto_box_open_afternm(u8 *m, const u8 *c, u64 d, const u8 *n, const u8 *k)
 
 int crypto_box(u8 *c, const u8 *m, u64 d, const u8 *n, const u8 *y, const u8 *x) {
     u8 k[32];
+    int ret;
     /* V002: Validate pointer parameters */
     if (c == NULL || m == NULL || n == NULL || y == NULL || x == NULL)
         return -1;
-    crypto_box_beforenm(k, y, x);
-    return crypto_box_afternm(c, m, d, n, k);
+    if (crypto_box_beforenm(k, y, x) != 0)
+        return -1;
+    ret = crypto_box_afternm(c, m, d, n, k);
+    secure_zero(k, 32);
+    return ret;
 }
 
 int crypto_box_open(u8 *m, const u8 *c, u64 d, const u8 *n, const u8 *y, const u8 *x) {
     u8 k[32];
+    int ret;
     /* V002: Validate pointer parameters */
     if (m == NULL || c == NULL || n == NULL || y == NULL || x == NULL)
         return -1;
-    crypto_box_beforenm(k, y, x);
-    return crypto_box_open_afternm(m, c, d, n, k);
+    if (crypto_box_beforenm(k, y, x) != 0)
+        return -1;
+    ret = crypto_box_open_afternm(m, c, d, n, k);
+    secure_zero(k, 32);
+    return ret;
 }
 
 static u64 R(u64 x, int c) { return (x >> c) | (x << (64 - c)); }
@@ -688,13 +699,16 @@ NO_SANITIZE_UNDEFINED int crypto_sign_keypair(u8 *pk, u8 *sk) {
     u8 d[64];
     gf p[4];
     int i;
+    int ret = 0;
 
     /* V002: Validate pointer parameters */
     if (pk == NULL || sk == NULL)
         return -1;
 
-    if (randombytes_safe(sk, 32) != NACL_SUCCESS)
-        return -1;
+    if (randombytes_safe(sk, 32) != NACL_SUCCESS) {
+        ret = -1;
+        goto out;
+    }
     crypto_hash(d, sk, 32);
     d[0] &= 248;
     d[31] &= 127;
@@ -702,9 +716,13 @@ NO_SANITIZE_UNDEFINED int crypto_sign_keypair(u8 *pk, u8 *sk) {
 
     scalarbase(p, d);
     pack(pk, p);
+    /* p contains derived point, zero after packing */
+    secure_zero(p, sizeof(p));
 
     FOR(i, 32) sk[32 + i] = pk[i];
-    return 0;
+out:
+    secure_zero(d, 64);
+    return ret;
 }
 
 static const u64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7,
@@ -744,31 +762,32 @@ sv reduce(u8 *r) {
 }
 
 NO_SANITIZE_UNDEFINED int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
-    unsigned int i;
+    size_t i;
     u8 t[32], h[64];
     gf p[4], q[4];
-
+    int ret = -1;
+    uint8_t failed = 1;
+    size_t msg_len;
 
     /* V002: Validate pointer parameters */
     if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
-        return -1;
+        goto out;
 
-    *mlen = -1;
     if (n < 64)
-        return -1;
+        goto out;
 
     if (unpackneg(q, pk))
-        return -1;
+        goto out;
 
-    FOR(i, n) m[i] = sm[i];
-    FOR(i, 32) m[i + 32] = pk[i];
+    /* Reconstruct m = sm[0..n-1] with pk overwritten at offset 32 */
+    for (i = 0; i < (size_t)n; i++) m[i] = sm[i];
+    for (i = 0; i < 32; i++) m[i + 32] = pk[i];
+
     crypto_hash(h, m, n);
     reduce(h);
 
     /* p = hA */
     scalarmult(p, q, h);
-
-
 
     /* q = sB (signature scalar times base point) */
     scalarbase(q, sm + 32);
@@ -777,11 +796,50 @@ NO_SANITIZE_UNDEFINED int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n
     add(p, q);
     pack(t, p);
 
-    n -= 64;
-    if (crypto_verify_32(sm, t)) {
-        FOR(i, n) m[i] = 0;
-        return -1;
+    msg_len = (size_t)(n - 64);
+    failed = (crypto_verify_32(sm, t) != 0);
+
+    /* Constant-time message recovery: on failure, zeroize output */
+    {
+        uint8_t mask = (uint8_t)(-(int)failed);
+        for (i = 0; i < msg_len; i++) {
+            uint8_t src = sm[i + 64];
+            m[i] = src & ~mask;
+        }
     }
+
+    if (!failed) {
+        *mlen = msg_len;
+        ret = 0;
+    } else {
+        *mlen = 0;
+    }
+
+out:
+    /* Secure zeroization of all sensitive intermediates */
+    secure_zero(t, 32);
+    secure_zero(h, 64);
+    secure_zero(p, sizeof(p));
+    secure_zero(q, sizeof(q));
+    return ret;
+}
+    }
+
+    if (!failed) {
+        *mlen = msg_len;
+        ret = 0;
+    } else {
+        *mlen = 0;
+    }
+
+out:
+    /* Secure zeroization of all sensitive intermediates */
+    secure_zero(t, 32);
+    secure_zero(h, 64);
+    secure_zero(p, sizeof(p));
+    secure_zero(q, sizeof(q));
+    return ret;
+}
 
     FOR(i, n) m[i] = sm[i + 64];
     *mlen = n;
@@ -793,29 +851,46 @@ NO_SANITIZE_UNDEFINED int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, con
     u8 d[64], h[64], r[64];
     i64 x[64];
     gf p[4];
-    int i, j;
+    size_t i, j;
+    int ret = 0;
+
+    /* V002: Validate pointer parameters */
+    if (sm == NULL || mlen == NULL || m == NULL || sk == NULL)
+        return -1;
+
+    /* Check for integer overflow: n + 64 must not wrap */
+    if (n > SIZE_MAX - 64)
+        return -1;
+
     crypto_hash(d, sk, 32);
     d[0] &= 248;
     d[31] &= 127;
     d[31] |= 64;
 
     *mlen = n + 64;
-    FOR(i, n) sm[64 + i] = m[i];
-    FOR(i, 32) sm[32 + i] = d[32 + i];
+    for (i = 0; i < (size_t)n; i++) sm[64 + i] = m[i];
+    for (i = 0; i < 32; i++) sm[32 + i] = d[32 + i];
 
     crypto_hash(r, sm + 32, n + 32);
     reduce(r);
     scalarbase(p, r);
     pack(sm, p);
 
-    FOR(i, 32) sm[i + 32] = sk[i + 32];
+    for (i = 0; i < 32; i++) sm[i + 32] = sk[i + 32];
     crypto_hash(h, sm, n + 64);
     reduce(h);
 
-    FOR(i, 64) x[i] = 0;
-    FOR(i, 32) x[i] = (u64)r[i];
-    FOR(i, 32) FOR(j, 32) x[i + j] += h[i] * (u64)d[j];
+    for (i = 0; i < 64; i++) x[i] = 0;
+    for (i = 0; i < 32; i++) x[i] = (u64)r[i];
+    for (i = 0; i < 32; i++) for (j = 0; j < 32; j++) x[i + j] += h[i] * (u64)d[j];
     modL(sm + 32, x);
+
+    /* Secure zeroization of sensitive intermediates */
+    secure_zero(d, 64);
+    secure_zero(h, 64);
+    secure_zero(r, 64);
+    secure_zero(x, sizeof(x));
+    secure_zero(p, sizeof(p));
 
     return 0;
 }
