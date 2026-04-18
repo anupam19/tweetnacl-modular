@@ -36,20 +36,24 @@ jobs:
 
       - name: Package (Unix)
         if: runner.os != 'Windows'
+        env:
+          TARGET: ${{ matrix.target }}
         run: |
           mkdir -p dist/include dist/lib
           cp -r include/* dist/include/
           cp build/libtweetnacl.* dist/lib/ 2>/dev/null || true
-          tar czf tweetnacl-${{ matrix.target }}.tar.gz -C dist .
+          tar czf "tweetnacl-${TARGET}.tar.gz" -C dist .
 
       - name: Package (Windows)
         if: runner.os == 'Windows'
+        env:
+          TARGET: ${{ matrix.target }}
         run: |
           mkdir -p dist/include dist/lib
           Copy-Item -Recurse include/* dist/include/
           Copy-Item build/*.lib dist/lib/
           Copy-Item build/*.dll dist/lib/
-          Compress-Archive -Path dist/* -DestinationPath tweetnacl-${{ matrix.target }}.zip
+          Compress-Archive -Path dist/* -DestinationPath "tweetnacl-${env:TARGET}.zip"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -58,6 +62,7 @@ jobs:
           path: |
             tweetnacl-*.tar.gz
             tweetnacl-*.zip
+          if-no-files-found: error
 
   create-release:
     needs: build-release-artifacts

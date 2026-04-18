@@ -32,10 +32,12 @@ jobs:
           fetch-depth: 0
 
       - name: Test last 5 commits
+        env:
+          COMMITS: ${{ toJson(github.event.commits) }}
         run: |
-          for commit in $(git log --format="%H" -5); do
+          git log --format="%H" -5 | while IFS= read -r commit; do
             echo "Testing commit: $commit"
-            git checkout $commit
+            git checkout "$commit"
             cmake -B build -DBUILD_TESTS=ON
             cmake --build build
             cd build && ctest --output-on-failure || exit 1
