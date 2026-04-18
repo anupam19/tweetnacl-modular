@@ -785,7 +785,8 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
 }
 
 int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, const u8 *sk) {
-    u8 d[64], h[64], r[32], x[64];
+    u8 d[64], h[64], r[32];
+    u64 x[64];
     gf p[4];
     int i, j;
 
