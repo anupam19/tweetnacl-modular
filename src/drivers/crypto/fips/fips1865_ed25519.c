@@ -58,6 +58,7 @@ int crypto_sign_ed25519ctx(uint8_t *sm, uint64_t *smlen, const uint8_t *m, uint6
         *smlen = out_sig_len;
     }
 
+    /* Out: centralized cleanup — zeroize all sensitive intermediates */
 out:
     secure_zero(ctx_hash, 64);
     if (combined) {
@@ -130,27 +131,23 @@ int crypto_sign_ed25519ph(uint8_t *sm, uint64_t *smlen, const uint8_t *m, uint64
 /* FIPS 186-5 Ed25519ph verification */
 int crypto_sign_ed25519ph_open(uint8_t *m, uint64_t *mlen, const uint8_t *sm, uint64_t smlen,
                                const uint8_t *pk) {
-    uint8_t ph[64];
-    uint8_t tmp[128]; /* space for recovered message: signature part size up to? */
+    uint8_t tmp[64];  /* recovered prehash */
     uint64_t tmp_len;
     int ret;
 
     if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
         return -1;
 
-    /* The recovered message from crypto_sign_open is the original 64-byte hash */
+    /* Verify signature and recover the 64-byte prehash */
     ret = crypto_sign_open(tmp, &tmp_len, sm, smlen, pk);
     if (ret != 0) return -1;
     if (tmp_len != 64) return -1;
 
-    crypto_hash(ph, tmp, 64);
-    /* Constant-time verification that ph == tmp to avoid timing leak */
-    if (secure_memcmp(ph, tmp, 64) != 0) {
-        secure_zero(ph, 64);
-        return -1;
-    }
-    memcpy(m, ph, 64);
+    /* Return the recovered hash (preimage) to caller */
+    memcpy(m, tmp, 64);
     *mlen = 64;
-    secure_zero(ph, 64);
+
+    /* Zeroize temporary prehash */
+    secure_zero(tmp, 64);
     return 0;
 }
