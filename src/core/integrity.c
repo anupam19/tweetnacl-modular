@@ -7,14 +7,14 @@
  * On unsupported platforms, returns 0 (success) gracefully.
  */
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 /* Forward declaration */
 int nacl_integrity_check(void);
 
 #ifndef NACL_INTEGRITY_HASH
-#define NACL_INTEGRITY_HASH { 0 }
+#define NACL_INTEGRITY_HASH {0}
 #endif
 
 static const uint8_t nacl_expected_hash[64] = NACL_INTEGRITY_HASH;

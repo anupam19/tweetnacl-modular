@@ -21,7 +21,8 @@ static void seeded_randombytes(uint8_t *buf, size_t len, const uint8_t *seed, si
 }
 
 extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-    if (size < 128) return 0; /* Need minimum data */
+    if (size < 128)
+        return 0; /* Need minimum data */
 
     const uint8_t *pk = data;
     const uint8_t *sk = data + 32;

@@ -1,7 +1,7 @@
 /*
  * TweetNaCl HMAC-SHA512-256 Module Header
  * Internal header for HMAC-SHA512-256 authentication
- * 
+ *
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header

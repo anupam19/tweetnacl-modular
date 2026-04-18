@@ -1,36 +1,36 @@
 /*
  * TweetNaCl Public API Header
- * 
+ *
  * A minimal, auditable cryptographic library refactored for:
  * - CERT C secure coding compliance
  * - Modular design with no forward declarations
  * - Multi-architecture support (x86, ARM, RISC-V)
  * - Post-Quantum Cryptography integration
- * 
+ *
  * Usage: Include this single header for all crypto operations.
  */
 
 #ifndef TWEETNACL_H
 #define TWEETNACL_H
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 /* Import internal module headers */
+#include "box/box.h"
 #include "core/types.h"
-#include "drivers/crypto/verify.h"
-#include "drivers/crypto/salsa20/salsa20.h"
-#include "drivers/crypto/salsa20/salsa20_impl.h"
-#include "drivers/crypto/poly1305/poly1305.h"
-#include "drivers/crypto/poly1305/poly1305_impl.h"
-#include "drivers/crypto/sha512/sha512.h"
-#include "drivers/crypto/sha512/sha512_impl.h"
 #include "drivers/crypto/curve25519/curve25519.h"
 #include "drivers/crypto/curve25519/curve25519_impl.h"
 #include "drivers/crypto/ed25519/ed25519.h"
 #include "drivers/crypto/hmacsha512256.h"
+#include "drivers/crypto/poly1305/poly1305.h"
+#include "drivers/crypto/poly1305/poly1305_impl.h"
+#include "drivers/crypto/salsa20/salsa20.h"
+#include "drivers/crypto/salsa20/salsa20_impl.h"
+#include "drivers/crypto/sha512/sha512.h"
+#include "drivers/crypto/sha512/sha512_impl.h"
+#include "drivers/crypto/verify.h"
 #include "secretbox/secretbox.h"
-#include "box/box.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -126,25 +126,16 @@ extern "C" {
 
 /* ============================================================
  * PUBLIC FUNCTION DECLARATIONS
- * ============================================================ */
-
-/**
- * SHA-512 cryptographic hash function
- * @param out Output buffer (64 bytes)
- * @param m Input message
- * @param n Message length
- * @return 0 on success
+ * ============================================================
+ *
+ * Note: The following functions are declared in included headers:
+ * - crypto_hash, crypto_hashblocks: drivers/crypto/sha512/sha512.h
+ * - crypto_sign_keypair, crypto_sign, crypto_sign_open: drivers/crypto/ed25519/ed25519.h
+ * - crypto_scalarmult, crypto_scalarmult_base: drivers/crypto/curve25519/curve25519.h
+ * - crypto_box*, crypto_box_keypair, crypto_box_open*: box/box.h
+ * - crypto_secretbox*, crypto_secretbox_open*: secretbox/secretbox.h
+ * - crypto_verify_16, crypto_verify_32: drivers/crypto/verify.h
  */
-int crypto_hash(u8 *out, const u8 *m, u64 n);
-
-/**
- * SHA-512 hash blocks compression function (internal, exposed for advanced use)
- * @param x State buffer (64 bytes)
- * @param m Message blocks
- * @param n Number of bytes to process
- * @return Remaining bytes not processed
- */
-int crypto_hashblocks(u8 *x, const u8 *m, u64 n);
 
 /* ============================================================
  * SELF-TEST AND INTEGRITY (NIST SP 800-193)

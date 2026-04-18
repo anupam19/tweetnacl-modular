@@ -11,6 +11,12 @@ project(TweetNaClModular
     HOMEPAGE_URL "https://github.com/anupam19/tweetnacl-modular"
 )
 
+# ─── MSVC Compatibility ─────────────────────────────────────────────────────
+# Provide a no-op macro for non-MSVC builds; real logic lives in the MSVC block.
+macro(normalize_msvc_flags target)
+    # Intentionally empty for all compilers; /Gd handling done globally.
+endmacro()
+
 # ─── Options ─────────────────────────────────────────────────────────────────
 option(BUILD_SHARED_LIBS "Build shared library" ON)
 option(BUILD_STATIC_LIBS "Build static library" ON)
@@ -116,28 +122,39 @@ endif()
 message(STATUS "Target architecture: ${ARCH_NAME}")
 
 # ─── Security Compiler Flags ────────────────────────────────────────────────
-add_compile_options(
-    -Wextra
-    -Wformat-security
-    -Wmissing-declarations
-    -Wmissing-prototypes
-    -Wnested-externs
-    -Wpointer-arith
-    -Wshadow
-    -Wstrict-prototypes
-    -Wswitch-default
-    -Wswitch-enum
-    -Wunused
-    -Wunused-result
-    -fstack-protector-strong
-    -fstack-clash-protection
-    -D_FORTIFY_SOURCE=2
-    -fPIC
-)
+# Only apply GCC/Clang specific flags to non-MSVC compilers
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(
+        -Wextra
+        -Wformat-security
+        -Wmissing-declarations
+        -Wmissing-prototypes
+        -Wnested-externs
+        -Wpointer-arith
+        -Wshadow
+        -Wstrict-prototypes
+        -Wswitch-default
+        -Wswitch-enum
+        -Wunused
+        -Wunused-result
+        -fstack-protector-strong
+        -fstack-clash-protection
+        -D_FORTIFY_SOURCE=2
+        -fPIC
+    )
 
-# GCC-only warnings
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wlogical-op)
+    # GCC-only warnings
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        add_compile_options(-Wlogical-op)
+    endif()
+elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    # MSVC security flags (use correct MSVC syntax)
+    add_compile_options(
+        /W3
+        /guard:cf
+        /GS
+    )
+    add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
 endif()
 
 # Linker security flags
@@ -293,7 +310,6 @@ if(NACL_RUNTIME_DISPATCH AND NOT NACL_STATIC_IMPL)
 endif()
 
 # ─── Library Targets ────────────────────────────────────────────────────────
-# Shared library
 if(BUILD_SHARED_LIBS)
     add_library(tweetnacl SHARED ${NACL_SOURCES})
     target_include_directories(tweetnacl PUBLIC
@@ -307,6 +323,9 @@ if(BUILD_SHARED_LIBS)
         SOVERSION ${PROJECT_VERSION_MAJOR}
         POSITION_INDEPENDENT_CODE ON
     )
+    if(WIN32)
+        target_link_libraries(tweetnacl PRIVATE bcrypt)
+    endif()
 endif()
 
 # Static library
@@ -320,16 +339,20 @@ if(BUILD_STATIC_LIBS)
         OUTPUT_NAME tweetnacl
         POSITION_INDEPENDENT_CODE ON
     )
+    if(WIN32)
+        target_link_libraries(tweetnacl_static PRIVATE bcrypt)
+    endif()
 endif()
 
 # Alias for internal use
 if(BUILD_SHARED_LIBS)
     add_library(TweetNaClModular::tweetnacl ALIAS tweetnacl)
-elseif(BUILD_STATIC_LIBS)
-    add_library(TweetNaClModular::tweetnacl ALIAS tweetnacl_static)
-endif()
-
-# ─── Installation ───────────────────────────────────────────────────────────
+    elseif(BUILD_STATIC_LIBS)
+        add_library(tweetnacl_static ALIAS tweetnacl)
+        normalize_msvc_flags(tweetnacl_static)
+    endif()
+    
+    # ─── Installation ───────────────────────────────────────────────────────────
 include(GNUInstallDirs)
 
 if(BUILD_SHARED_LIBS)
@@ -531,11 +554,17 @@ if(BUILD_APP)
         ${CMAKE_CURRENT_SOURCE_DIR}/samples
     )
     target_link_libraries(tweetnacl_app PRIVATE tweetnacl_static)
-    target_compile_options(tweetnacl_app PRIVATE
-        -Wextra -Wformat-security -Wmissing-declarations -Wmissing-prototypes
-        -Wnested-externs -Wpointer-arith -Wshadow -Wstrict-prototypes
-        -g -O0
-    )
+    # Only apply GCC/Clang specific flags to non-MSVC compilers
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+        target_compile_options(tweetnacl_app PRIVATE
+            -Wextra -Wformat-security -Wmissing-declarations -Wmissing-prototypes
+            -Wnested-externs -Wpointer-arith -Wshadow -Wstrict-prototypes
+            -g -O0
+        )
+    elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+        target_compile_options(tweetnacl_app PRIVATE /W3)
+    endif()
+    normalize_msvc_flags(tweetnacl_app)
 endif()
 
 # ─── Summary ────────────────────────────────────────────────────────────────

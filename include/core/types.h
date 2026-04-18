@@ -1,7 +1,7 @@
 /*
  * TweetNaCl Core Types and Constants Header
  * Internal types used across cryptographic primitives
- * 
+ *
  * CERT C Compliance:
  * - Uses explicit-width integer types
  * - No forward declarations
@@ -11,18 +11,18 @@
 #ifndef TWEETNACL_TYPES_H
 #define TWEETNACL_TYPES_H
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Explicit-width integer types for portability */
-typedef uint8_t  u8;
+typedef uint8_t u8;
 typedef uint32_t u32;
 typedef uint64_t u64;
-typedef int64_t  i64;
+typedef int64_t i64;
 
 /* Galois Field element for Curve25519 (16 limbs) */
 typedef i64 gf[16];

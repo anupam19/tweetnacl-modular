@@ -1,0 +1,47 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          find src include tests -name "*.c" -o -name "*.h" | \
+          xargs -r clang-format --dry-run --Werror 2>&1 || {
+            echo "::warning::Code formatting issues found. Run 'find src include tests -name "*.c" -o -name "*.h" | xargs clang-format -i' to fix."
+            exit 0
+          }
+
+  cmake-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cmake-lint
+        run: pip install cmakelint
+
+      - name: Lint CMake files
+        run: |
+          find . -name "CMakeLists.txt" -o -name "*.cmake" | \
+          xargs cmakelint --linelength=120 || true

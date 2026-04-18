@@ -1,7 +1,7 @@
 /*
  * TweetNaCl SHA-512 Hash Module Header
  * Internal header for SHA-512 hash function
- * 
+ *
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header

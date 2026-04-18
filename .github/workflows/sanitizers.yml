@@ -1,0 +1,65 @@
+name: Sanitizer Testing
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  address-sanitizer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake
+
+      - name: Configure with ASan
+        run: |
+          cmake -B build \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTS=ON
+        env:
+          CFLAGS: "-fsanitize=address -fno-omit-frame-pointer"
+          LDFLAGS: "-fsanitize=address"
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test with ASan
+        run: |
+          export ASAN_OPTIONS=detect_leaks=1:detect_stack_use_after_return=1
+          cd build && ctest --output-on-failure
+
+  undefined-behavior:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure with UBSan
+        run: |
+          cmake -B build \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTS=ON
+        env:
+          CFLAGS: "-fsanitize=undefined -fno-omit-frame-pointer"
+          LDFLAGS: "-fsanitize=undefined"
+
+      - name: Build and Test
+        run: |
+          cmake --build build --parallel
+          cd build && UBSAN_OPTIONS=print_stacktrace=1 ctest --output-on-failure

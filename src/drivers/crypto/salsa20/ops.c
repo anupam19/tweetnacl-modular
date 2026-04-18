@@ -1,6 +1,6 @@
 /*
  * Salsa20 Driver - Operations Interface
- * 
+ *
  * This driver provides the struct salsa20_ops interface.
  * Actual implementations are in:
  *   - src/arch/x86_64/lib/salsa20_sse2.c (SSE2)

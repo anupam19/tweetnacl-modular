@@ -1,7 +1,7 @@
 /*
  * TweetNaCl Box Module Header
  * Internal header for Curve25519-XSalsa20-Poly1305 public-key encryption
- * 
+ *
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header
@@ -43,7 +43,8 @@ int crypto_box_curve25519xsalsa20poly1305_beforenm(u8 *k, const u8 *pk, const u8
  * @param k Precomputed shared key (32 bytes)
  * @return 0 on success
  */
-int crypto_box_curve25519xsalsa20poly1305_afternm(u8 *c, const u8 *m, u64 d, const u8 *n, const u8 *k);
+int crypto_box_curve25519xsalsa20poly1305_afternm(u8 *c, const u8 *m, u64 d, const u8 *n,
+                                                  const u8 *k);
 
 /**
  * Curve25519-XSalsa20-Poly1305 decryption with precomputed key
@@ -54,7 +55,8 @@ int crypto_box_curve25519xsalsa20poly1305_afternm(u8 *c, const u8 *m, u64 d, con
  * @param k Precomputed shared key (32 bytes)
  * @return 0 on success, -1 if verification fails
  */
-int crypto_box_curve25519xsalsa20poly1305_open_afternm(u8 *m, const u8 *c, u64 d, const u8 *n, const u8 *k);
+int crypto_box_curve25519xsalsa20poly1305_open_afternm(u8 *m, const u8 *c, u64 d, const u8 *n,
+                                                       const u8 *k);
 
 /**
  * Curve25519-XSalsa20-Poly1305 encryption (full)
@@ -66,7 +68,8 @@ int crypto_box_curve25519xsalsa20poly1305_open_afternm(u8 *m, const u8 *c, u64 d
  * @param sk Sender's secret key (32 bytes)
  * @return 0 on success
  */
-int crypto_box_curve25519xsalsa20poly1305(u8 *c, const u8 *m, u64 d, const u8 *n, const u8 *pk, const u8 *sk);
+int crypto_box_curve25519xsalsa20poly1305(u8 *c, const u8 *m, u64 d, const u8 *n, const u8 *pk,
+                                          const u8 *sk);
 
 /**
  * Curve25519-XSalsa20-Poly1305 decryption (full)
@@ -78,7 +81,8 @@ int crypto_box_curve25519xsalsa20poly1305(u8 *c, const u8 *m, u64 d, const u8 *n
  * @param sk Recipient's secret key (32 bytes)
  * @return 0 on success, -1 if verification fails
  */
-int crypto_box_curve25519xsalsa20poly1305_open(u8 *m, const u8 *c, u64 d, const u8 *n, const u8 *pk, const u8 *sk);
+int crypto_box_curve25519xsalsa20poly1305_open(u8 *m, const u8 *c, u64 d, const u8 *n, const u8 *pk,
+                                               const u8 *sk);
 
 /**
  * Generic box interface (maps to Curve25519-XSalsa20-Poly1305)

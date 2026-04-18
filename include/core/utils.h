@@ -1,7 +1,7 @@
 /*
  * Secure Coding Utilities Header
  * Provides CERT C compliant utility functions
- * 
+ *
  * CERT C Rules Applied:
  * - INT30-C: Ensure that unsigned integer operations do not wrap
  * - INT32-C: Ensure that operations on signed integers do not result in overflow
@@ -11,9 +11,9 @@
 #ifndef SECURE_UTILS_H
 #define SECURE_UTILS_H
 
-#include <stdint.h>
-#include <stddef.h>
 #include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +26,7 @@ extern "C" {
  * @param result Output (if successful)
  * @return 0 on success, -1 on overflow
  */
-int safe_add_int(int a, int b, int* result);
+int safe_add_int(int a, int b, int *result);
 
 /**
  * Safe subtraction with underflow checking
@@ -35,7 +35,7 @@ int safe_add_int(int a, int b, int* result);
  * @param result Output (if successful)
  * @return 0 on success, -1 on underflow
  */
-int safe_sub_int(int a, int b, int* result);
+int safe_sub_int(int a, int b, int *result);
 
 /**
  * Safe multiplication with overflow checking
@@ -44,7 +44,7 @@ int safe_sub_int(int a, int b, int* result);
  * @param result Output (if successful)
  * @return 0 on success, -1 on overflow
  */
-int safe_mul_int(int a, int b, int* result);
+int safe_mul_int(int a, int b, int *result);
 
 /**
  * Safe size_t addition
@@ -53,7 +53,7 @@ int safe_mul_int(int a, int b, int* result);
  * @param result Output (if successful)
  * @return 0 on success, -1 on overflow
  */
-int safe_add_size(size_t a, size_t b, size_t* result);
+int safe_add_size(size_t a, size_t b, size_t *result);
 
 /**
  * Constant-time conditional select
@@ -97,7 +97,7 @@ int safe_range_check(int value, int min_val, int max_val);
  * @param result Output (if successful)
  * @return 0 on success, -1 on overflow
  */
-int safe_mul_size(size_t a, size_t b, size_t* result);
+int safe_mul_size(size_t a, size_t b, size_t *result);
 
 /**
  * Validate array index bounds

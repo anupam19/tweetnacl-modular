@@ -31,20 +31,23 @@ static int check_equal(const uint8_t *actual, const uint8_t *expected, size_t le
 /* ─── SHA-512 Self-Test ────────────────────────────────────────────────── */
 int nacl_selftest_sha512(void) {
     /* Hardcoded expected prefix to avoid static const array issues */
-    static const uint8_t exp_abc[8] = {0xdd,0xaf,0x35,0xa1,0x93,0x61,0x7a,0xba};
-    static const uint8_t exp_empty[8] = {0xcf,0x83,0xe1,0x35,0x7e,0xef,0xb8,0xbd};
-    static const uint8_t exp_56[8] = {0x20,0x4a,0x8f,0xc6,0xdd,0xa8,0x2f,0x0a};
+    static const uint8_t exp_abc[8] = {0xdd, 0xaf, 0x35, 0xa1, 0x93, 0x61, 0x7a, 0xba};
+    static const uint8_t exp_empty[8] = {0xcf, 0x83, 0xe1, 0x35, 0x7e, 0xef, 0xb8, 0xbd};
+    static const uint8_t exp_56[8] = {0x20, 0x4a, 0x8f, 0xc6, 0xdd, 0xa8, 0x2f, 0x0a};
 
     uint8_t hash[64];
 
     crypto_hash(hash, kat_sha512_msg_0, kat_sha512_len_0);
-    if (memcmp(hash, exp_abc, 8) != 0) return -1;
+    if (memcmp(hash, exp_abc, 8) != 0)
+        return -1;
 
     crypto_hash(hash, kat_sha512_msg_1, kat_sha512_len_1);
-    if (memcmp(hash, exp_empty, 8) != 0) return -1;
+    if (memcmp(hash, exp_empty, 8) != 0)
+        return -1;
 
     crypto_hash(hash, kat_sha512_msg_2, kat_sha512_len_2);
-    if (memcmp(hash, exp_56, 8) != 0) return -1;
+    if (memcmp(hash, exp_56, 8) != 0)
+        return -1;
 
     return 0;
 }
@@ -63,13 +66,15 @@ int nacl_selftest_poly1305(void) {
 
     crypto_onetimeauth(mac1, msg, sizeof(msg) - 1, key);
     crypto_onetimeauth(mac2, msg, sizeof(msg) - 1, key);
-    if (memcmp(mac1, mac2, 16) != 0) return -1;
+    if (memcmp(mac1, mac2, 16) != 0)
+        return -1;
 
     /* Different message produces different MAC */
     static const uint8_t msg2[] = "testX";
     uint8_t mac3[16];
     crypto_onetimeauth(mac3, msg2, sizeof(msg2) - 1, key);
-    if (memcmp(mac1, mac3, 16) == 0) return -1;
+    if (memcmp(mac1, mac3, 16) == 0)
+        return -1;
 
     return 0;
 }
@@ -79,19 +84,21 @@ int nacl_selftest_curve25519(void) {
     uint8_t result[32];
 
     /* Base point test: scalar = 9 */
-    static const uint8_t exp_base[8] = {0x42,0x2c,0x8e,0x7a,0x62,0x27,0xd7,0xbc};
+    static const uint8_t exp_base[8] = {0x42, 0x2c, 0x8e, 0x7a, 0x62, 0x27, 0xd7, 0xbc};
     crypto_scalarmult_base(result, kat_curve25519_base_scalar);
-    if (memcmp(result, exp_base, 8) != 0) return -1;
+    if (memcmp(result, exp_base, 8) != 0)
+        return -1;
 
     /* X25519 shared secret test: Alice's scalar * Bob's public */
-    static const uint8_t exp_shared[8] = {0x63,0x81,0x40,0x1e,0x6c,0xdb,0x0d,0x7f};
+    static const uint8_t exp_shared[8] = {0x63, 0x81, 0x40, 0x1e, 0x6c, 0xdb, 0x0d, 0x7f};
     crypto_scalarmult(result, kat_x25519_scalar_a, kat_x25519_public_b);
-    if (memcmp(result, exp_shared, 8) != 0) return -1;
+    if (memcmp(result, exp_shared, 8) != 0)
+        return -1;
 
     return 0;
 }
 
-/* ─── Ed25519 Self-Test ────────────────────────────────────────────────── */
+/* ─── Ed25519 Self-Test ───────────────────────────────────────────────── */
 int nacl_selftest_ed25519(void) {
     /* Verify scalarmult base with known seed */
     uint8_t pk[32];
@@ -101,9 +108,10 @@ int nacl_selftest_ed25519(void) {
         0x2e, 0xee, 0x04, 0x3c, 0x3d, 0x6e, 0x0c, 0xb3,
         0x1b, 0x0a, 0x9e, 0x3c, 0x55, 0x4a, 0x0b, 0xf3
     };
-    static const uint8_t exp_pk[8] = {0xd5,0xb0,0x2a,0xc4,0x86,0xcb,0xa5,0xaa};
+    static const uint8_t exp_pk[8] = {0xd5, 0xb0, 0x2a, 0xc4, 0x86, 0xcb, 0xa5, 0xaa};
     crypto_scalarmult_base(pk, seed);
-    if (memcmp(pk, exp_pk, 8) != 0) return -1;
+    if (memcmp(pk, exp_pk, 8) != 0)
+        return -1;
     return 0;
 }
 
@@ -132,18 +140,21 @@ int nacl_selftest_secretbox(void) {
         0x0c, 0x9b, 0x4a, 0x2f, 0x8d, 0x1e, 0x6c, 0x3b,
         0x7a, 0x0f, 0x5d, 0x9e, 0x2c, 0x8b, 0x1a, 0x6f
     };
-    static const size_t pt_len = sizeof(plaintext) - 1;
-    static const size_t buf_len = pt_len + 32; /* TweetNaCl requires 32-byte padding */
+    size_t pt_len = sizeof(plaintext) - 1;
+    size_t buf_len = pt_len + 32; /* TweetNaCl requires 32-byte padding */
 
     uint8_t msg[256], ct[256], pt[256];
     memset(msg, 0, 32);
     memcpy(msg + 32, plaintext, pt_len);
 
-    if (crypto_secretbox(ct, msg, buf_len, nonce, key) != 0) return -1;
+    if (crypto_secretbox(ct, msg, buf_len, nonce, key) != 0)
+        return -1;
 
     /* Decrypt and verify */
-    if (crypto_secretbox_open(pt, ct, buf_len, nonce, key) != 0) return -1;
-    if (check_equal(pt + 32, msg + 32, pt_len) != 0) return -1;
+    if (crypto_secretbox_open(pt, ct, buf_len, nonce, key) != 0)
+        return -1;
+    if (check_equal(pt + 32, msg + 32, pt_len) != 0)
+        return -1;
 
     (void)expected_ct; /* Note: full comparison disabled for brevity */
     return 0;
@@ -167,9 +178,12 @@ int nacl_selftest_box(void) {
     memset(msg, 0, 32);
     memcpy(msg + 32, "box test", 9);
 
-    if (crypto_box(ct, msg, 100, nonce, pk_bob, sk_alice) != 0) return -1;
-    if (crypto_box_open(pt, ct, 100, nonce, pk_alice, sk_bob) != 0) return -1;
-    if (check_equal(pt + 32, msg + 32, 9) != 0) return -1;
+    if (crypto_box(ct, msg, 100, nonce, pk_bob, sk_alice) != 0)
+        return -1;
+    if (crypto_box_open(pt, ct, 100, nonce, pk_alice, sk_bob) != 0)
+        return -1;
+    if (check_equal(pt + 32, msg + 32, 9) != 0)
+        return -1;
 
     return 0;
 }
@@ -186,12 +200,18 @@ int nacl_selftest_sign(void) {
 
 /* ─── Power-On Self-Test: Run All KATs ─────────────────────────────────── */
 int nacl_selftest_all(void) {
-    if (nacl_selftest_sha512() != 0) return -1;
-    if (nacl_selftest_poly1305() != 0) return -1;
-    if (nacl_selftest_curve25519() != 0) return -1;
-    if (nacl_selftest_ed25519() != 0) return -1;
-    if (nacl_selftest_secretbox() != 0) return -1;
-    if (nacl_selftest_box() != 0) return -1;
+    if (nacl_selftest_sha512() != 0)
+        return -1;
+    if (nacl_selftest_poly1305() != 0)
+        return -1;
+    if (nacl_selftest_curve25519() != 0)
+        return -1;
+    if (nacl_selftest_ed25519() != 0)
+        return -1;
+    if (nacl_selftest_secretbox() != 0)
+        return -1;
+    if (nacl_selftest_box() != 0)
+        return -1;
     return 0;
 }
 

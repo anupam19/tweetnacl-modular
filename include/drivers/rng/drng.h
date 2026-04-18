@@ -12,6 +12,7 @@
 #ifndef DRNG_H
 #define DRNG_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -19,9 +20,9 @@ extern "C" {
 #endif
 
 /* DRNG support flags — OR'd together */
-#define DRNG_NO_SUPPORT  0x0
-#define DRNG_HAS_RDRAND  0x1
-#define DRNG_HAS_RDSEED  0x2
+#define DRNG_NO_SUPPORT 0x0
+#define DRNG_HAS_RDRAND 0x1
+#define DRNG_HAS_RDSEED 0x2
 
 /**
  * @brief Check if hardware DRNG is available

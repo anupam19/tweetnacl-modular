@@ -1,7 +1,7 @@
 /*
  * TweetNaCl Ed25519 Module Header
  * Internal header for Ed25519 digital signatures
- * 
+ *
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header

@@ -59,7 +59,8 @@ static void test_sign_tampered_message(void) {
 
 int init_sign_tests(void) {
     CU_pSuite suite = CU_add_suite("SignSuite", NULL, NULL);
-    if (!suite) return CU_get_error();
+    if (!suite)
+        return CU_get_error();
     CU_ADD_TEST(suite, test_sign_keypair);
     CU_ADD_TEST(suite, test_sign_roundtrip);
     CU_ADD_TEST(suite, test_sign_tampered_signature);

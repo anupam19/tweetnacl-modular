@@ -1,7 +1,7 @@
 /*
  * TweetNaCl Verify Module Header
  * Internal header for constant-time memory comparison
- * 
+ *
  * CERT C Compliance:
  * - No forward declarations
  * - Self-contained header

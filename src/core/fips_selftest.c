@@ -14,8 +14,8 @@
 #include "core/error.h"
 #include "drivers/rng/randombytes.h"
 #include "tweetnacl/tweetnacl.h"
-#include <string.h>
 #include <stdint.h>
+#include <string.h>
 
 /* FIPS 140-3 State Management */
 typedef struct {
@@ -25,12 +25,10 @@ typedef struct {
     int last_test_result;
 } fips_state_t;
 
-static volatile fips_state_t fips_state = {
-    .power_up_tests_passed = 0,
-    .conditional_tests_enabled = 1,
-    .keygen_counter = 0,
-    .last_test_result = 0
-};
+static volatile fips_state_t fips_state = {.power_up_tests_passed = 0,
+                                           .conditional_tests_enabled = 1,
+                                           .keygen_counter = 0,
+                                           .last_test_result = 0};
 
 /* Helper: Zeroize sensitive data (NIST SP 800-88) */
 static void secure_zeroize(void *buf, size_t len) {
@@ -97,15 +95,11 @@ static int fips_selftest_rng(void) {
 static int fips_selftest_sha512(void) {
     static const uint8_t empty_msg[1] = {0};
     static const uint8_t expected_hash[64] = {
-        0xcf, 0x83, 0xe1, 0x35, 0x7e, 0xef, 0xb8, 0xbd,
-        0xf1, 0x54, 0x28, 0x50, 0xd6, 0x6d, 0x80, 0x07,
-        0xd6, 0x20, 0xe4, 0x05, 0x0b, 0x57, 0x15, 0xdc,
-        0x83, 0xf4, 0xa9, 0x21, 0xd3, 0x6c, 0xe9, 0xce,
-        0x47, 0xd0, 0xd1, 0x3c, 0x5d, 0x85, 0xf2, 0xb0,
-        0xff, 0x83, 0x18, 0xd2, 0x87, 0x7e, 0xec, 0x2f,
-        0x63, 0xb9, 0x31, 0xbd, 0x47, 0x41, 0x7a, 0x81,
-        0xa5, 0x38, 0x32, 0x7a, 0xf9, 0x27, 0xda, 0x3e
-    };
+        0xcf, 0x83, 0xe1, 0x35, 0x7e, 0xef, 0xb8, 0xbd, 0xf1, 0x54, 0x28, 0x50, 0xd6,
+        0x6d, 0x80, 0x07, 0xd6, 0x20, 0xe4, 0x05, 0x0b, 0x57, 0x15, 0xdc, 0x83, 0xf4,
+        0xa9, 0x21, 0xd3, 0x6c, 0xe9, 0xce, 0x47, 0xd0, 0xd1, 0x3c, 0x5d, 0x85, 0xf2,
+        0xb0, 0xff, 0x83, 0x18, 0xd2, 0x87, 0x7e, 0xec, 0x2f, 0x63, 0xb9, 0x31, 0xbd,
+        0x47, 0x41, 0x7a, 0x81, 0xa5, 0x38, 0x32, 0x7a, 0xf9, 0x27, 0xda, 0x3e};
 
     uint8_t hash[64];
     int ret = crypto_hash(hash, empty_msg, 0);
@@ -309,22 +303,12 @@ int fips_conditional_selftest_keygen(void) {
 }
 
 /* Public API */
-int fips_get_power_up_status(void) {
-    return fips_state.power_up_tests_passed;
-}
+int fips_get_power_up_status(void) { return fips_state.power_up_tests_passed; }
 
-int fips_get_last_test_result(void) {
-    return fips_state.last_test_result;
-}
+int fips_get_last_test_result(void) { return fips_state.last_test_result; }
 
-uint64_t fips_get_keygen_counter(void) {
-    return fips_state.keygen_counter;
-}
+uint64_t fips_get_keygen_counter(void) { return fips_state.keygen_counter; }
 
-void fips_enable_conditional_tests(int enable) {
-    fips_state.conditional_tests_enabled = enable;
-}
+void fips_enable_conditional_tests(int enable) { fips_state.conditional_tests_enabled = enable; }
 
-int fips_are_self_tests_passed(void) {
-    return fips_state.power_up_tests_passed;
-}
+int fips_are_self_tests_passed(void) { return fips_state.power_up_tests_passed; }

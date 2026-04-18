@@ -3,15 +3,16 @@
  * Performs power-on self-tests and sets up dispatch layer
  */
 
-#include "tweetnacl/tweetnacl.h"
 #include "core/dispatch.h"
 #include "core/fips_selftest.h"
+#include "tweetnacl/tweetnacl.h"
 
 /* Library initialization state */
 static volatile int nacl_initialized = 0;
 
 int nacl_init(void) {
-    if (nacl_initialized) return 0;
+    if (nacl_initialized)
+        return 0;
 
     /* Run power-on self-tests */
     if (fips_power_up_self_tests() != 0) {
@@ -25,6 +26,4 @@ int nacl_init(void) {
     return 0;
 }
 
-int nacl_is_initialized(void) {
-    return nacl_initialized;
-}
+int nacl_is_initialized(void) { return nacl_initialized; }
