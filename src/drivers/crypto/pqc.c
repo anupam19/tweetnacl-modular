@@ -403,7 +403,6 @@ pqc_result_t pqc_hybrid_encapsulate(pqc_algorithm_t pqc_algo,
     if (hybrid_public_key_len < curve25519_pk_size) {
         return PQC_ERROR_INVALID_PARAM;
     }
-    const uint8_t *pqc_pubkey = hybrid_public_key + curve25519_pk_size;
     size_t pqc_pubkey_len = hybrid_public_key_len - curve25519_pk_size;
 
     if (pqc_pubkey_len < params.public_key_size) {
