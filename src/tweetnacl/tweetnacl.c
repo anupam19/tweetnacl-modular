@@ -21,9 +21,16 @@
 #define FOR(i, n) for (i = 0; i < (n); ++i)
 #define sv static void
 
-/* Forward declarations for internal hash functions */
-int crypto_hashblocks(u8 *x, const u8 *m, u64 n);
+/* UBSan suppression for functions with expected signed overflow */
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 4)
+#  define NO_SANITIZE_UNDEFINED __attribute__((no_sanitize("undefined")))
+#else
+#  define NO_SANITIZE_UNDEFINED
+#endif
+
+/* Forward declarations for internal functions */
 int crypto_hash(u8 *out, const u8 *m, u64 n);
+static int unpackneg(gf r[4], const u8 p[32]);
 
 static const u8 _0[16], _9[32] = {9};
 static const gf gf0, gf1 = {1}, _121665 = {0xDB41, 1},
@@ -731,7 +738,7 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     unsigned int i;
     u8 t[32], h[64];
     gf p[4], q[4];
-    gf zero = {{0}};
+    gf zero = {0};
     gf neg_y, neg_t;
 
     /* V002: Validate pointer parameters */
@@ -777,12 +784,17 @@ int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
     return 0;
 }
 
+int crypto_sign(u8 *sm, u64 *mlen, const u8 *m, u64 n, const u8 *sk) {
+    u8 d[64], h[64], r[32], x[64];
+    gf p[4];
+    int i, j;
+
     crypto_hash(d, sk, 32);
     d[0] &= 248;
     d[31] &= 127;
     d[31] |= 64;
 
-    *smlen = n + 64;
+    *mlen = n + 64;
     FOR(i, n) sm[64 + i] = m[i];
     FOR(i, 32) sm[32 + i] = d[32 + i];
 
@@ -841,50 +853,4 @@ static int unpackneg(gf r[4], const u8 p[32]) {
     return 0;
 }
 
-__attribute__((no_sanitize("undefined")))
-int crypto_sign_open(u8 *m, u64 *mlen, const u8 *sm, u64 n, const u8 *pk) {
-    unsigned int i;
-    u8 t[32], h[64];
-    gf p[4], q[4];
-    gf zero = {{0}};
-
-    /* V002: Validate pointer parameters */
-    if (m == NULL || mlen == NULL || sm == NULL || pk == NULL)
-        return -1;
-
-    *mlen = -1;
-    if (n < 64)
-        return -1;
-
-    if (unpackneg(q, pk))
-        return -1;
-
-    FOR(i, n) m[i] = sm[i];
-    FOR(i, 32) m[i + 32] = pk[i];
-    crypto_hash(h, m, n);
-    reduce(h);
-
-    /* p = h * pk */
-    scalarmult(p, q, h);
-
-    /* Negate p to get -h*pk */
-    Z(p[1], zero, p[1]);  /* -Y */
-    Z(p[3], zero, p[3]);  /* -T */
-
-    /* q = s * B (where s is signature scalar from sm) */
-    scalarbase(q, sm + 32);
-
-    /* p = sB + (-hA) = sB - hA */
-    add(p, q);
-    pack(t, p);
-
-    n -= 64;
-    if (crypto_verify_32(sm, t)) {
-        FOR(i, n) m[i] = 0;
-        return -1;
-    }
-
-    FOR(i, n) m[i] = sm[i + 64];
-    *mlen = n;
-    return 0;
-}
+/* End of file */
