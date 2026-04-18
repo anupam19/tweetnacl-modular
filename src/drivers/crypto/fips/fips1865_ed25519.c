@@ -10,6 +10,8 @@
 #include "tweetnacl/tweetnacl.h"
 #include "core/secure_mem.h"
 #include "core/utils.h"
+#include <limits.h>
+#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <stdlib.h>
