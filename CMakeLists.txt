@@ -133,25 +133,26 @@ message(STATUS "Target architecture: ${ARCH_NAME}")
 
 # ─── Security Compiler Flags ────────────────────────────────────────────────
 # Only apply GCC/Clang specific flags to non-MSVC compilers
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(
-        -Wextra
-        -Wformat-security
-        -Wmissing-declarations
-        -Wmissing-prototypes
-        -Wnested-externs
-        -Wpointer-arith
-        -Wshadow
-        -Wstrict-prototypes
-        -Wswitch-default
-        -Wswitch-enum
-        -Wunused
-        -Wunused-result
-        -fstack-protector-strong
-        -fstack-clash-protection
-        -D_FORTIFY_SOURCE=2
-        -fPIC
-    )
+ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+     add_compile_options(
+         -Wextra
+         -Wformat
+         -Wformat-security
+         -Wmissing-declarations
+         -Wmissing-prototypes
+         -Wnested-externs
+         -Wpointer-arith
+         -Wshadow
+         -Wstrict-prototypes
+         -Wswitch-default
+         -Wswitch-enum
+         -Wunused
+         -Wunused-result
+         -fstack-protector-strong
+         -fstack-clash-protection
+         -D_FORTIFY_SOURCE=2
+         -fPIC
+     )
 
     # GCC-only warnings
     if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
