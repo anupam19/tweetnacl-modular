@@ -238,13 +238,10 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
 pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public_key_len,
                         uint8_t *secret_key, size_t secret_key_len, const uint8_t *seed,
                         size_t seed_len) {
-    /* Guard: stub implementation must not be used in production */
-    if (s_pqc_stub_active) {
-        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
+    result = pqc_get_params(algo, &params);
+    if (result != PQC_SUCCESS) {
+        return result;
     }
-
-    pqc_params_t params;
-    pqc_result_t result;
 
     if (public_key == NULL || secret_key == NULL) {
         return PQC_ERROR_INVALID_PARAM;
@@ -285,11 +282,6 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
 pqc_result_t pqc_encapsulate(pqc_algorithm_t algo, const uint8_t *public_key, size_t public_key_len,
                              uint8_t *ciphertext, size_t *ciphertext_len, uint8_t *shared_secret,
                              size_t shared_secret_len, const uint8_t *random, size_t random_len) {
-    /* Guard: stub implementation must not be used in production */
-    if (s_pqc_stub_active) {
-        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
-    }
-
     pqc_params_t params;
     pqc_result_t result;
 
@@ -348,11 +340,6 @@ pqc_result_t pqc_encapsulate(pqc_algorithm_t algo, const uint8_t *public_key, si
 pqc_result_t pqc_decapsulate(pqc_algorithm_t algo, const uint8_t *secret_key, size_t secret_key_len,
                              const uint8_t *ciphertext, size_t ciphertext_len,
                              uint8_t *shared_secret, size_t shared_secret_len) {
-    /* Guard: stub implementation must not be used in production */
-    if (s_pqc_stub_active) {
-        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
-    }
-
     pqc_params_t params;
     pqc_result_t result;
 
@@ -390,11 +377,6 @@ pqc_result_t pqc_decapsulate(pqc_algorithm_t algo, const uint8_t *secret_key, si
 pqc_result_t pqc_sign(pqc_algorithm_t algo, const uint8_t *secret_key, size_t secret_key_len,
                       const uint8_t *message, size_t message_len, uint8_t *signature,
                       size_t *signature_len, const uint8_t *random, size_t random_len) {
-    /* Guard: stub implementation must not be used in production */
-    if (s_pqc_stub_active) {
-        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
-    }
-
     pqc_params_t params;
     pqc_result_t result;
 
@@ -441,11 +423,6 @@ pqc_result_t pqc_sign(pqc_algorithm_t algo, const uint8_t *secret_key, size_t se
 pqc_result_t pqc_verify(pqc_algorithm_t algo, const uint8_t *public_key, size_t public_key_len,
                         const uint8_t *message, size_t message_len, const uint8_t *signature,
                         size_t signature_len) {
-    /* Guard: stub implementation must not be used in production */
-    if (s_pqc_stub_active) {
-        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
-    }
-
     pqc_params_t params;
     pqc_result_t result;
 
@@ -475,11 +452,6 @@ pqc_result_t pqc_verify(pqc_algorithm_t algo, const uint8_t *public_key, size_t 
 pqc_result_t pqc_hybrid_keygen(pqc_algorithm_t pqc_algo, uint8_t *hybrid_public_key,
                                size_t *hybrid_public_key_len, uint8_t *hybrid_secret_key,
                                size_t *hybrid_secret_key_len) {
-    /* Guard: stub implementation must not be used in production */
-    if (s_pqc_stub_active) {
-        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
-    }
-
     pqc_params_t params;
     pqc_result_t result;
 
@@ -515,11 +487,6 @@ pqc_result_t pqc_hybrid_encapsulate(pqc_algorithm_t pqc_algo,
                                      const uint8_t *hybrid_public_key, size_t hybrid_public_key_len,
                                      uint8_t *hybrid_ciphertext, size_t *hybrid_ciphertext_len,
                                      uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len) {
-    /* Guard: stub implementation must not be used in production */
-    if (s_pqc_stub_active) {
-        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
-    }
-
     pqc_params_t params;
     pqc_result_t result;
 
@@ -579,11 +546,6 @@ pqc_result_t pqc_hybrid_decapsulate(pqc_algorithm_t pqc_algo,
                                      const uint8_t *hybrid_secret_key, size_t hybrid_secret_key_len,
                                      const uint8_t *hybrid_ciphertext, size_t hybrid_ciphertext_len,
                                      uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len) {
-    /* Guard: stub implementation must not be used in production */
-    if (s_pqc_stub_active) {
-        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
-    }
-
     pqc_params_t params;
     pqc_result_t result;
 
@@ -674,4 +636,6 @@ const char *pqc_algorithm_to_string(pqc_algorithm_t algo) {
 #ifdef __cplusplus
 }
 #endif
+
+
 
