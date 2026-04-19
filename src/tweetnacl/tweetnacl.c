@@ -305,11 +305,12 @@ sv set25519(gf r, const gf a) {
 
 sv car25519(gf o) {
     int i;
-    i64 c;
+    u64 c;  /* Use unsigned to avoid signed overflow UB */
     FOR(i, 16) {
         o[i] += (1LL << 16);
-        c = o[i] >> 16;
-        o[(i + 1) * (i < 15)] += c - 1 + 37 * (c - 1) * (i == 15);
+        c = (u64)o[i] >> 16;
+        /* Carry propagation: (c-1) + 37*(c-1) for last limb, else just (c-1) */
+        o[(i + 1) * (i < 15)] += (i64)((c - 1) + 37ULL * (c - 1) * (i == 15));
         o[i] -= (uint64_t)c << 16;
     }
 }
