@@ -426,8 +426,15 @@ int main(void) {
     test_crypto_box();
     test_crypto_sign();
     test_crypto_scalarmult();
-    test_pqc_interface();
-    test_hybrid_crypto();
+
+    /* Skip PQC tests if stub implementation is active */
+    if (!pqc_is_stub_active()) {
+        test_pqc_interface();
+        test_hybrid_crypto();
+    } else {
+        printf("[SKIP] PQC tests: stub implementation active (liboqs not linked)\n");
+    }
+
     test_error_handling();
     test_performance_basic();
 

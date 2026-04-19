@@ -107,6 +107,15 @@ int safe_mul_size(size_t a, size_t b, size_t *result);
  */
 int validate_index(size_t index, size_t array_size);
 
+/**
+ * @brief Ensure a pointer is non-null; return -1 if null.
+ * @param ptr Pointer to validate
+ *
+ * Provides consistent NULL checking across the codebase.
+ * Usage: NACL_ENSURE(pointer);
+ */
+#define NACL_ENSURE(ptr) do { if ((ptr) == NULL) return -1; } while(0)
+
 #ifdef __cplusplus
 }
 #endif

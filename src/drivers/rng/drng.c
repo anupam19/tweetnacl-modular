@@ -42,14 +42,16 @@
 #define RDRAND_RETRIES 10
 
 /* ─── Implementation tracking with caching ────────────────────────────── */
-static enum {
+typedef enum {
     RNG_NONE,
     RNG_RDSEED,
     RNG_RDRAND,
     RNG_ARM_RNDR,
     RNG_BCRYPT,
     RNG_URANDOM
-} rng_impl = RNG_NONE;
+} rng_impl_t;
+
+static atomic_int rng_impl = ATOMIC_VAR_INIT(RNG_NONE);
 
 /* Internal cache for RNG state (FIPS 140-3 compliant) */
 typedef struct {
@@ -193,19 +195,36 @@ static int rdseed64_retry(uint64_t *val) {
 #if defined(HAS_ARM_RNG) && !defined(__APPLE__)
 static int arm_rndr(uint64_t *val) {
     uint64_t rnd;
-    __asm__ __volatile__("mrs %0, s3_3_c2_c4_0" : "=r"(rnd));
-    *val = rnd;
-    return 1;
+    int ok;
+    /* Read RNDR register and check validity flag (Z flag) */
+    __asm__ __volatile__(
+        "mrs %x0, s3_3_c2_c4_0\n"   /* Read RNDR (64-bit) */
+        "cset %w1, ne"              /* ok = 1 if Z==0 (success), else 0 */
+        : "=r"(rnd), "=r"(ok)
+        :
+        : "cc"
+    );
+    if (ok) {
+        *val = rnd;
+    }
+    return ok;
 }
 #endif
 
 /* ─── drng_fill: Fill buffer with hardware RNG ─────────────────────────── */
+static void drng_init(void);  /* forward declaration */
+
 static int drng_fill(uint8_t *buf, size_t len) {
     size_t offset = 0;
+    int impl = atomic_load_explicit(&rng_impl, memory_order_acquire);
+    if (impl == RNG_NONE) {
+        drng_init();
+        impl = atomic_load_explicit(&rng_impl, memory_order_acquire);
+    }
 #if defined(__x86_64__) || defined(__i386__)
     while (offset + 8 <= len) {
         uint64_t val;
-        int ok = (rng_impl == RNG_RDSEED) ? rdseed64_retry(&val) : rdrand64_retry(&val);
+        int ok = (impl == RNG_RDSEED) ? rdseed64_retry(&val) : rdrand64_retry(&val);
         if (!ok) {
             drng_mark_failure();
             return -1;
@@ -272,13 +291,13 @@ static int drng_fill(uint8_t *buf, size_t len) {
  * @details Performs Known Answer Tests (KAT) for RNG
  * @return NACL_SUCCESS on pass, NACL_ERROR_SELF_TEST_FAILED on failure
  */
-static int drng_power_up_selftest(void) {
+static int drng_power_up_selftest(rng_impl_t impl) {
     uint8_t test_buf[64];
     uint64_t val1, val2;
 
 #if defined(__x86_64__) || defined(__i386__)
     /* Test 1: Generate two values and ensure they're different */
-    if (rng_impl == RNG_RDSEED) {
+    if (impl == RNG_RDSEED) {
         if (!rdseed64_retry(&val1) || !rdseed64_retry(&val2)) {
             return NACL_ERROR_SELF_TEST_FAILED;
         }
@@ -374,7 +393,7 @@ static int drng_continuous_health_test(const uint8_t *buf, size_t len) {
 }
 
 /* Initialization lock to prevent race conditions */
-static atomic_flag drng_init_lock = ATOMIC_FLAG_INIT;
+static atomic_int drng_init_state = ATOMIC_VAR_INIT(0);
 
 /* ─── drng_init: thread-safe one-time initialization ───────────────────── */
 static void drng_init(void) {
@@ -383,44 +402,56 @@ static void drng_init(void) {
         return;
     }
 
-    /* Acquire initialization lock (spin) */
-    while (atomic_flag_test_and_set_explicit(&drng_init_lock, memory_order_acquire)) {
-        /* Busy-wait; drng_init is fast, so spin is acceptable */
+    int expected = 0;
+    if (!atomic_compare_exchange_strong_explicit(&drng_init_state, &expected, 1,
+                                                 memory_order_acquire, memory_order_relaxed)) {
+        /* Another thread is initializing or done; wait until state becomes 2 */
+        while (1) {
+            int state = atomic_load_explicit(&drng_init_state, memory_order_acquire);
+            if (state == 2) {
+                return;
+            }
+            /* Optionally yield or pause */
+        }
     }
 
-    /* Double-check inside lock */
-    if (!drng_is_initialized()) {
-        /* Original initialization body */
+    /* This thread is responsible for initialization */
+    rng_impl_t chosen = RNG_NONE;
+
 #if defined(__x86_64__) || defined(__i386__)
-        /* Disable hardware RNG in virtualized CI environments - CPUID lies about support */
-        /* GitHub Actions / Azure VMs report RDSEED/RDRAND but SIGSEGV when executed */
-        rng_impl = RNG_NONE;
+    /* Disable hardware RNG in virtualized CI environments - CPUID lies about support */
+    /* GitHub Actions / Azure VMs report RDSEED/RDRAND but SIGSEGV when executed */
+    chosen = RNG_NONE;
 #endif
 #if defined(HAS_ARM_RNG) && !defined(__APPLE__)
-        if (rng_impl == RNG_NONE) {
-            uint64_t t;
-            if (arm_rndr(&t)) {
-                rng_impl = RNG_ARM_RNDR;
-            }
+    if (chosen == RNG_NONE) {
+        uint64_t t;
+        if (arm_rndr(&t)) {
+            chosen = RNG_ARM_RNDR;
         }
+    }
 #endif
 
-        /* If we have a hardware RNG, run power-up self-test */
-        if (rng_impl != RNG_NONE) {
-            int selftest_result = drng_power_up_selftest();
-            if (selftest_result == NACL_SUCCESS) {
-                drng_state.power_up_selftest_passed = 1;
-            } else {
-                /* Hardware RNG failed self-test - fall back to software */
-                rng_impl = RNG_NONE;
-                drng_state.power_up_selftest_passed = 0;
-            }
+    /* If we have a hardware RNG, run power-up self-test */
+    if (chosen != RNG_NONE) {
+        int selftest_result = drng_power_up_selftest(chosen);
+        if (selftest_result == NACL_SUCCESS) {
+            drng_state.power_up_selftest_passed = 1;
+        } else {
+            /* Hardware RNG failed self-test - fall back to software */
+            chosen = RNG_NONE;
+            drng_state.power_up_selftest_passed = 0;
         }
-
-        drng_set_initialized();
     }
 
-    atomic_flag_clear_explicit(&drng_init_lock, memory_order_release);
+    /* Store final rng_impl with release semantics */
+    atomic_store_explicit(&rng_impl, chosen, memory_order_release);
+
+    /* Mark DRNG as initialized */
+    drng_set_initialized();
+
+    /* Mark initialization complete (state = 2) */
+    atomic_store_explicit(&drng_init_state, 2, memory_order_release);
 }
 
 /* ─── Public API ───────────────────────────────────────────────────────── */
@@ -430,9 +461,9 @@ static void drng_init(void) {
  * @return 1 if hardware RNG is available, 0 otherwise
  */
 int randombytes_drng_available(void) {
-    if (rng_impl == RNG_NONE)
+    if (atomic_load_explicit(&rng_impl, memory_order_acquire) == RNG_NONE)
         drng_init();
-    return (rng_impl != RNG_NONE) ? 1 : 0;
+    return (atomic_load_explicit(&rng_impl, memory_order_acquire) != RNG_NONE) ? 1 : 0;
 }
 
 /**
@@ -440,12 +471,14 @@ int randombytes_drng_available(void) {
  * @return Bitmask of DRNG_HAS_RDRAND and/or DRNG_HAS_RDSEED
  */
 int drng_get_drng_support(void) {
-    if (rng_impl == RNG_NONE)
+    int impl = atomic_load_explicit(&rng_impl, memory_order_acquire);
+    if (impl == RNG_NONE)
         drng_init();
+    impl = atomic_load_explicit(&rng_impl, memory_order_acquire);  // reload after init
     int f = DRNG_NO_SUPPORT;
-    if (rng_impl == RNG_RDRAND)
+    if (impl == RNG_RDRAND)
         f |= DRNG_HAS_RDRAND;
-    if (rng_impl == RNG_RDSEED)
+    if (impl == RNG_RDSEED)
         f |= DRNG_HAS_RDSEED;
     return f;
 }
@@ -455,23 +488,17 @@ int drng_get_drng_support(void) {
  * @return String like "RDRAND", "RDSEED", "ARM_RNDR", "/dev/urandom"
  */
 const char *randombytes_implementation_name(void) {
-    if (rng_impl == RNG_NONE)
+    if (atomic_load_explicit(&rng_impl, memory_order_acquire) == RNG_NONE)
         drng_init();
-    switch (rng_impl) {
-    case RNG_NONE:
-        return "none";
-    case RNG_RDSEED:
-        return "RDSEED";
-    case RNG_RDRAND:
-        return "RDRAND";
-    case RNG_ARM_RNDR:
-        return "ARM_RNDR";
-    case RNG_BCRYPT:
-        return "BCryptGenRandom";
-    case RNG_URANDOM:
-        return "/dev/urandom";
-    default:
-        return "unknown";
+    int impl = atomic_load_explicit(&rng_impl, memory_order_acquire);
+    switch (impl) {
+    case RNG_NONE: return "none";
+    case RNG_RDSEED: return "RDSEED";
+    case RNG_RDRAND: return "RDRAND";
+    case RNG_ARM_RNDR: return "ARM_RNDR";
+    case RNG_BCRYPT: return "BCryptGenRandom";
+    case RNG_URANDOM: return "/dev/urandom";
+    default: return "unknown";
     }
 }
 
@@ -487,9 +514,9 @@ int _randombytes_drng_fill(uint8_t *buf, size_t len) {
         return -1;
     }
 
-    if (rng_impl == RNG_NONE)
+    if (atomic_load_explicit(&rng_impl, memory_order_acquire) == RNG_NONE)
         drng_init();
-    if (rng_impl == RNG_NONE)
+    if (atomic_load_explicit(&rng_impl, memory_order_acquire) == RNG_NONE)
         return -1;
 
     /* Run continuous health test periodically (every 100 calls) */
@@ -536,5 +563,5 @@ uint64_t drng_get_total_bytes_generated(void) {
  */
 void drng_reset_for_testing(void) {
     drng_reset_state();
-    rng_impl = RNG_NONE;
+    atomic_store_explicit(&rng_impl, RNG_NONE, memory_order_relaxed);
 }
