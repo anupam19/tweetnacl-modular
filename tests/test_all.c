@@ -395,36 +395,6 @@ void test_error_handling(void) {
                 strcmp(error_str, "Invalid parameter") == 0);
 }
 
-    /* Test error string conversion */
-    const char* error_str = pqc_result_to_string(PQC_SUCCESS);
-    TEST_ASSERT("Error string conversion works", strcmp(error_str, "Success") == 0);
-
-    error_str = pqc_result_to_string(PQC_ERROR_INVALID_PARAM);
-    TEST_ASSERT("Error string for invalid param",
-                strcmp(error_str, "Invalid parameter") == 0);
-}
-<<<<<<< HEAD
-=======
-
-    /* Test error string conversion */
-    const char* error_str = pqc_result_to_string(PQC_SUCCESS);
-    TEST_ASSERT("Error string conversion works", strcmp(error_str, "Success") == 0);
-
-    error_str = pqc_result_to_string(PQC_ERROR_INVALID_PARAM);
-    TEST_ASSERT("Error string for invalid param",
-                strcmp(error_str, "Invalid parameter") == 0);
-}
->>>>>>> dfd008e (Ensure test_error_handling has correct structure: declarations at function top, PQC-specific tests wrapped in stub check)
-
-    /* Test error string conversion */
-    const char* error_str = pqc_result_to_string(PQC_SUCCESS);
-    TEST_ASSERT("Error string conversion works", strcmp(error_str, "Success") == 0);
-
-    error_str = pqc_result_to_string(PQC_ERROR_INVALID_PARAM);
-    TEST_ASSERT("Error string for invalid param",
-                strcmp(error_str, "Invalid parameter") == 0);
-}
-
 /* Test 11: Performance characteristics (basic timing) */
 void test_performance_basic(void) {
     printf("\n=== Testing Basic Performance ===\n");
