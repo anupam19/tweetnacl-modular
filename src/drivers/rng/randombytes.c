@@ -194,7 +194,7 @@ int randombytes_safe(uint8_t *buf, size_t len) {
     }
 
     /* Verify /dev/urandom is a character device (prevent symlink/regular file attacks) */
-    #ifndef __ admittedly_embedded
+    #ifndef __admittedly_embedded
     struct stat st;
     if (fstat(fd, &st) == 0 && !S_ISCHR(st.st_mode)) {
         close(fd);
