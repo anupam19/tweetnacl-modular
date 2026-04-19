@@ -136,8 +136,7 @@ message(STATUS "Target architecture: ${ARCH_NAME}")
  if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
      add_compile_options(
          -Wextra
-         -Wformat
-         -Wformat-security
+         -Wformat=2
          -Wmissing-declarations
          -Wmissing-prototypes
          -Wnested-externs

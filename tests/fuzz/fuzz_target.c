@@ -14,7 +14,7 @@
 #include "../includes/randombytes.h"
 
 /* Deterministic PRNG seeded from fuzz data for reproducible tests */
-static void seeded_randombytes(uint8_t *buf, size_t len, const uint8_t *seed, size_t seed_len) {
+static void seeded_randombytes_safe(uint8_t *buf, size_t len, const uint8_t *seed, size_t seed_len) {
     for (size_t i = 0; i < len; i++) {
         buf[i] = seed[i % seed_len];
     }

@@ -91,7 +91,7 @@ static void test_scalarmult_base_known(void) {
 
 static void test_scalarmult_base_deterministic(void) {
     uint8_t scalar[32], q1[32], q2[32];
-    randombytes(scalar, 32);
+    randombytes_safe(scalar, 32);
     CU_ASSERT_EQUAL(crypto_scalarmult_base(q1, scalar), 0);
     CU_ASSERT_EQUAL(crypto_scalarmult_base(q2, scalar), 0);
     CU_ASSERT_TRUE(memcmp(q1, q2, 32) == 0);

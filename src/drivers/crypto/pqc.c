@@ -11,6 +11,7 @@
  */
 
 #include "drivers/crypto/pqc.h"
+#include "drivers/rng/randombytes.h"
 #include <stdlib.h>
 #include <string.h>
 #include "core/secure_mem.h"
@@ -23,13 +24,11 @@ extern "C" {
 #include <oqs/oqs.h>
 #else
 #if defined(_MSC_VER)
-#pragma message("warning: PQC stub implementation is active - NOT FOR PRODUCTION. Compile with -DWITH_PQC_LIBOQS=ON for real PQC.")
+#pragma message("warning: PQC stub implementation active - NOT FOR PRODUCTION. Define WITH_PQC_LIBOQS=ON.")
 #else
-#warning "PQC stub implementation is active - NOT FOR PRODUCTION. Compile with -DWITH_PQC_LIBOQS=ON for real PQC."
+#warning "PQC stub implementation active - NOT FOR PRODUCTION. Define WITH_PQC_LIBOQS=ON."
 #endif
 #endif
-
-/* Algorithm parameters for supported PQC algorithms */
 static const pqc_params_t pqc_params_table[] = {
     /* KYBER512 */
     {800, 1632, 768, 0, 16, "KYBER512", "NIST Level 1 KEM"},
@@ -190,16 +189,21 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
     }
 
     /*
-     * STUB IMPLEMENTATION: Fill with deterministic pattern for testing
-     * In production, integrate with liboqs or similar PQC library
+     * STUB: Fill with pseudo-random data (avoid trivial patterns if deployed accidentally)
      */
-    memset(public_key, 0xAA, params.public_key_size);
-    memset(secret_key, 0xBB, params.secret_key_size);
+    if (randombytes_safe(public_key, params.public_key_size) != NACL_SUCCESS) {
+        return PQC_ERROR_RNG_FAILURE;
+    }
+    if (randombytes_safe(secret_key, params.secret_key_size) != NACL_SUCCESS) {
+        return PQC_ERROR_RNG_FAILURE;
+    }
 
     if (seed != NULL && seed_len > 0) {
-        /* Use seed to initialize (simplified for stub) */
         for (size_t i = 0; i < params.public_key_size && i < seed_len; i++) {
             public_key[i] ^= seed[i % seed_len];
+        }
+        for (size_t i = 0; i < params.secret_key_size && i < seed_len; i++) {
+            secret_key[i] ^= seed[i % seed_len];
         }
     }
 
@@ -238,9 +242,22 @@ pqc_result_t pqc_encapsulate(pqc_algorithm_t algo, const uint8_t *public_key, si
 
     *ciphertext_len = params.ciphertext_size;
 
-    /* STUB: Generate deterministic ciphertext and shared secret */
-    memset(ciphertext, 0xCC, params.ciphertext_size);
-    memset(shared_secret, 0xDD, params.shared_secret_size);
+    /* STUB: Generate random ciphertext and shared secret */
+    if (randombytes_safe(ciphertext, params.ciphertext_size) != NACL_SUCCESS) {
+        return PQC_ERROR_RNG_FAILURE;
+    }
+    if (randombytes_safe(shared_secret, params.shared_secret_size) != NACL_SUCCESS) {
+        return PQC_ERROR_RNG_FAILURE;
+    }
+
+    if (random != NULL && random_len > 0) {
+        for (size_t i = 0; i < params.shared_secret_size && i < random_len; i++) {
+            shared_secret[i] ^= random[i % random_len];
+        }
+    }
+    if (randombytes_safe(shared_secret, params.shared_secret_size) != NACL_SUCCESS) {
+        return PQC_ERROR_RNG_FAILURE;
+    }
 
     if (random != NULL && random_len > 0) {
         for (size_t i = 0; i < params.shared_secret_size && i < random_len; i++) {
@@ -275,8 +292,11 @@ pqc_result_t pqc_decapsulate(pqc_algorithm_t algo, const uint8_t *secret_key, si
         return PQC_ERROR_BUFFER_TOO_SMALL;
     }
 
-    /* STUB: Generate shared secret from ciphertext and secret key */
-    memset(shared_secret, 0xEE, params.shared_secret_size);
+    /* STUB: Generate random shared secret */
+    if (randombytes_safe(shared_secret, params.shared_secret_size) != NACL_SUCCESS) {
+        return PQC_ERROR_RNG_FAILURE;
+    }
+
     for (size_t i = 0; i < params.shared_secret_size; i++) {
         shared_secret[i] ^= ciphertext[i % ciphertext_len];
         shared_secret[i] ^= secret_key[i % secret_key_len];
@@ -312,10 +332,12 @@ pqc_result_t pqc_sign(pqc_algorithm_t algo, const uint8_t *secret_key, size_t se
 
     *signature_len = params.signature_size;
 
-    /* STUB: Generate deterministic signature */
-    memset(signature, 0xFF, params.signature_size);
+    /* STUB: Generate random signature */
+    if (randombytes_safe(signature, params.signature_size) != NACL_SUCCESS) {
+        return PQC_ERROR_RNG_FAILURE;
+    }
 
-    /* Incorporate message hash (simplified) */
+    /* Incorporate message hash (deterministic mix) */
     for (size_t i = 0; i < params.signature_size && message_len > 0; i++) {
         signature[i] ^= message[i % message_len];
     }
@@ -486,7 +508,9 @@ pqc_result_t pqc_hybrid_decapsulate(pqc_algorithm_t pqc_algo,
     }
 
     /* STUB: Derive hybrid shared secret */
-    memset(hybrid_shared_secret, 0x33, hybrid_ss_size);
+    if (randombytes_safe(hybrid_shared_secret, hybrid_ss_size) != NACL_SUCCESS) {
+        return PQC_ERROR_RNG_FAILURE;
+    }
 
     return PQC_SUCCESS;
 }
