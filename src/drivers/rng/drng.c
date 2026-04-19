@@ -51,7 +51,7 @@ typedef enum {
     RNG_URANDOM
 } rng_impl_t;
 
-static atomic_int rng_impl = ATOMIC_VAR_INIT(RNG_NONE);
+static atomic_int rng_impl = 0;  /* RNG_NONE = 0, zero-initialized */
 
 /* Internal cache for RNG state (FIPS 140-3 compliant) */
 typedef struct {
@@ -393,7 +393,7 @@ static int drng_continuous_health_test(const uint8_t *buf, size_t len) {
 }
 
 /* Initialization lock to prevent race conditions */
-static atomic_int drng_init_state = ATOMIC_VAR_INIT(0);
+static atomic_int drng_init_state = 0;
 
 /* ─── drng_init: thread-safe one-time initialization ───────────────────── */
 static void drng_init(void) {
