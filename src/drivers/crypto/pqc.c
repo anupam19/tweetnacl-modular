@@ -404,9 +404,9 @@ pqc_result_t pqc_hybrid_keygen(pqc_algorithm_t pqc_algo, uint8_t *hybrid_public_
     *hybrid_public_key_len = curve25519_pk_size + params.public_key_size;
     *hybrid_secret_key_len = curve25519_sk_size + params.secret_key_size;
 
-    /* Initialize with zeros (Curve25519 keys would be generated separately) */
-    memset(hybrid_public_key, 0, *hybrid_public_key_len);
-    memset(hybrid_secret_key, 0, *hybrid_secret_key_len);
+    /* Initialize with zeros using secure_zero (Curve25519 keys would be generated separately) */
+    secure_zero(hybrid_public_key, *hybrid_public_key_len);
+    secure_zero(hybrid_secret_key, *hybrid_secret_key_len);
 
     /* Generate PQC key pair in the second part */
     result = pqc_keygen(pqc_algo, hybrid_public_key + curve25519_pk_size, params.public_key_size,

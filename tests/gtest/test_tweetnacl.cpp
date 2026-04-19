@@ -44,7 +44,7 @@ private:
 class TweetNaClTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        randombytes(nonce_.data(), 24);
+        ASSERT_EQ(NACL_SUCCESS, randombytes_safe(nonce_.data(), 24));
     }
     std::array<uint8_t, 24> nonce_{};
 };
@@ -110,7 +110,7 @@ TEST_F(TweetNaClTest, SignRoundTrip) {
     ASSERT_EQ(crypto_sign_keypair(pk, sk), 0);
 
     std::vector<uint8_t> msg(50);
-    randombytes(msg.data(), msg.size());
+    ASSERT_EQ(NACL_SUCCESS, randombytes_safe(msg.data(), msg.size()));
 
     std::vector<uint8_t> sm(msg.size() + 64);
     uint64_t smlen = 0;
@@ -155,14 +155,14 @@ TEST_P(MessageSizeTest, SecretBoxRoundTrip) {
     size_t buf_size = msg_size + 32;  /* Include padding */
 
     uint8_t key[32];
-    randombytes(key, 32);
+    ASSERT_EQ(NACL_SUCCESS, randombytes_safe(key, 32));
 
     std::vector<uint8_t> msg(buf_size, 0);
     std::vector<uint8_t> ct(buf_size), pt(buf_size);
 
     /* Fill actual message after 32-byte zero padding */
     if (msg_size > 0) {
-        randombytes(msg.data() + 32, msg_size);
+        ASSERT_EQ(NACL_SUCCESS, randombytes_safe(msg.data() + 32, msg_size));
     }
 
     EXPECT_EQ(crypto_secretbox(ct.data(), msg.data(), buf_size, nonce_.data(), key), 0);

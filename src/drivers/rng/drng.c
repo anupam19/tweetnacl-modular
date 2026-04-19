@@ -55,7 +55,7 @@ static enum {
 typedef struct {
     atomic_int initialized;                /* Initialization state */
     atomic_int power_up_selftest_passed;   /* FIPS 140-3 power-up test result */
-    atomic_uint_fast64_t health_test_count;/* NIST 800-90B continuous test counter */
+    atomic_uint_fast64_t health_test_count;/* NIST 800-90B continuous test counter (wraps naturally at UINT64_MAX) */
     atomic_int last_health_test_result;    /* Last health test result */
     atomic_uint_fast64_t total_bytes_generated; /* Total bytes generated since init */
     atomic_int catastrophic_failure;       /* Catastrophic failure flag */
