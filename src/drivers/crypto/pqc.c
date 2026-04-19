@@ -238,6 +238,9 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
 pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public_key_len,
                         uint8_t *secret_key, size_t secret_key_len, const uint8_t *seed,
                         size_t seed_len) {
+    pqc_params_t params;
+    pqc_result_t result;
+
     result = pqc_get_params(algo, &params);
     if (result != PQC_SUCCESS) {
         return result;
