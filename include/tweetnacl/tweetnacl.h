@@ -167,9 +167,23 @@ int nacl_keypair_validate(const uint8_t *pk, const uint8_t *sk);
  * Generate a validated Ed25519 keypair with retry logic
  * @param pk Output public key (32 bytes)
  * @param sk Output secret key (64 bytes)
- * @return 0 on success, -1 if validation fails after retries
+ * @return 0 on success, -1 on failure
  */
-int nacl_keypair_generate_validated(uint8_t *pk, uint8_t *sk);
+int nacl_keypair_generate(uint8_t pk[32], uint8_t sk[64]);
+
+/**
+ * @brief Get library version string
+ * @return Version number like "2.0.0"
+ */
+const char* tweetnacl_version(void);
+
+/**
+ * @brief Get library version numbers
+ * @param major Major version output
+ * @param minor Minor version output
+ * @param patch Patch version output
+ */
+void tweetnacl_version_numbers(int *major, int *minor, int *patch);
 
 #ifdef __cplusplus
 }

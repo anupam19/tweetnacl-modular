@@ -506,9 +506,9 @@ int crypto_box_open_afternm(u8 *m, const u8 *c, u64 d, const u8 *n, const u8 *k)
 int crypto_box(u8 *c, const u8 *m, u64 d, const u8 *n, const u8 *y, const u8 *x) {
     u8 k[32];
     int ret;
-    /* V002: Validate pointer parameters */
-    if (c == NULL || m == NULL || n == NULL || y == NULL || x == NULL)
-        return -1;
+    /* V002: Validate pointer parameters consistently */
+    NACL_ENSURE(c); NACL_ENSURE(m); NACL_ENSURE(n);
+    NACL_ENSURE(y); NACL_ENSURE(x);
     if (crypto_box_beforenm(k, y, x) != 0)
         return -1;
     ret = crypto_box_afternm(c, m, d, n, k);
@@ -519,9 +519,9 @@ int crypto_box(u8 *c, const u8 *m, u64 d, const u8 *n, const u8 *y, const u8 *x)
 int crypto_box_open(u8 *m, const u8 *c, u64 d, const u8 *n, const u8 *y, const u8 *x) {
     u8 k[32];
     int ret;
-    /* V002: Validate pointer parameters */
-    if (m == NULL || c == NULL || n == NULL || y == NULL || x == NULL)
-        return -1;
+    /* V002: Validate pointer parameters consistently */
+    NACL_ENSURE(m); NACL_ENSURE(c); NACL_ENSURE(n);
+    NACL_ENSURE(y); NACL_ENSURE(x);
     if (crypto_box_beforenm(k, y, x) != 0)
         return -1;
     ret = crypto_box_open_afternm(m, c, d, n, k);

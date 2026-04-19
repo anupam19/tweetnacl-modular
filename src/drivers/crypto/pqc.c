@@ -22,38 +22,104 @@ extern "C" {
 
 #ifdef WITH_PQC_LIBOQS
 #include <oqs/oqs.h>
+/* Real liboqs implementation is available */
+static const int s_pqc_stub_active = 0;
 #else
 #if defined(_MSC_VER)
 #pragma message("warning: PQC stub implementation active - NOT FOR PRODUCTION. Define WITH_PQC_LIBOQS=ON.")
 #else
 #warning "PQC stub implementation active - NOT FOR PRODUCTION. Define WITH_PQC_LIBOQS=ON."
 #endif
+/* Stub implementation - not production ready */
+static const int s_pqc_stub_active = 1;
 #endif
+
+/* PQC algorithm parameter constants (named for maintainability) */
+#define PQC_KYBER512_PK_SIZE          800
+#define PQC_KYBER512_SK_SIZE         1632
+#define PQC_KYBER512_CT_SIZE          768
+#define PQC_KYBER512_SS_SIZE           16
+
+#define PQC_KYBER768_PK_SIZE         1184
+#define PQC_KYBER768_SK_SIZE         2400
+#define PQC_KYBER768_CT_SIZE         1088
+#define PQC_KYBER768_SS_SIZE           32
+
+#define PQC_KYBER1024_PK_SIZE        1568
+#define PQC_KYBER1024_SK_SIZE        3168
+#define PQC_KYBER1024_CT_SIZE        1568
+#define PQC_KYBER1024_SS_SIZE           32
+
+#define PQC_DILITHIUM2_PK_SIZE       1312
+#define PQC_DILITHIUM2_SK_SIZE       2560
+#define PQC_DILITHIUM2_SIG_SIZE      2420
+#define PQC_DILITHIUM2_SS_SIZE         32
+
+#define PQC_DILITHIUM3_PK_SIZE       1952
+#define PQC_DILITHIUM3_SK_SIZE       4032
+#define PQC_DILITHIUM3_SIG_SIZE      4595
+#define PQC_DILITHIUM3_SS_SIZE         32
+
+#define PQC_DILITHIUM5_PK_SIZE       2592
+#define PQC_DILITHIUM5_SK_SIZE       4896
+#define PQC_DILITHIUM5_SIG_SIZE      4595
+#define PQC_DILITHIUM5_SS_SIZE         32
+
+#define PQC_FALCON512_PK_SIZE          897
+#define PQC_FALCON512_SK_SIZE         1281
+#define PQC_FALCON512_SIG_SIZE         666
+#define PQC_FALCON512_SS_SIZE           32
+
+#define PQC_FALCON1024_PK_SIZE        1793
+#define PQC_FALCON1024_SK_SIZE        2305
+#define PQC_FALCON1024_SIG_SIZE       1026
+#define PQC_FALCON1024_SS_SIZE          32
+
+#define PQC_SPHINCS_SHA2_128F_PK_SIZE   16
+#define PQC_SPHINCS_SHA2_128F_SK_SIZE   16
+#define PQC_SPHINCS_SHA2_128F_SIG_SIZE 17088
+#define PQC_SPHINCS_SHA2_128F_SS_SIZE   16
+
+#define PQC_SPHINCS_SHA2_128S_PK_SIZE   16
+#define PQC_SPHINCS_SHA2_128S_SK_SIZE   16
+#define PQC_SPHINCS_SHA2_128S_SIG_SIZE  8008
+#define PQC_SPHINCS_SHA2_128S_SS_SIZE   16
+
+#define PQC_SPHINCS_SHAKE_128F_PK_SIZE  16
+#define PQC_SPHINCS_SHAKE_128F_SK_SIZE  16
+#define PQC_SPHINCS_SHAKE_128F_SIG_SIZE 17088
+#define PQC_SPHINCS_SHAKE_128F_SS_SIZE   16
+
+#define PQC_SPHINCS_SHAKE_128S_PK_SIZE  16
+#define PQC_SPHINCS_SHAKE_128S_SK_SIZE  16
+#define PQC_SPHINCS_SHAKE_128S_SIG_SIZE 8008
+#define PQC_SPHINCS_SHAKE_128S_SS_SIZE   16
+
 static const pqc_params_t pqc_params_table[] = {
     /* KYBER512 */
-    {800, 1632, 768, 0, 16, "KYBER512", "NIST Level 1 KEM"},
+    {PQC_KYBER512_PK_SIZE, PQC_KYBER512_SK_SIZE, PQC_KYBER512_CT_SIZE, 0, PQC_KYBER512_SS_SIZE, "KYBER512", "NIST Level 1 KEM"},
     /* KYBER768 */
-    {1184, 2400, 1088, 0, 32, "KYBER768", "NIST Level 3 KEM"},
+    {PQC_KYBER768_PK_SIZE, PQC_KYBER768_SK_SIZE, PQC_KYBER768_CT_SIZE, 0, PQC_KYBER768_SS_SIZE, "KYBER768", "NIST Level 3 KEM"},
     /* KYBER1024 */
-    {1568, 3168, 1568, 0, 32, "KYBER1024", "NIST Level 5 KEM"},
+    {PQC_KYBER1024_PK_SIZE, PQC_KYBER1024_SK_SIZE, PQC_KYBER1024_CT_SIZE, 0, PQC_KYBER1024_SS_SIZE, "KYBER1024", "NIST Level 5 KEM"},
     /* DILITHIUM2 */
-    {1312, 2560, 0, 2420, 32, "DILITHIUM2", "NIST Level 2 Signature"},
+    {PQC_DILITHIUM2_PK_SIZE, PQC_DILITHIUM2_SK_SIZE, 0, PQC_DILITHIUM2_SIG_SIZE, PQC_DILITHIUM2_SS_SIZE, "DILITHIUM2", "NIST Level 2 Signature"},
     /* DILITHIUM3 */
-    {1952, 4032, 0, 4595, 32, "DILITHIUM3", "NIST Level 3 Signature"},
+    {PQC_DILITHIUM3_PK_SIZE, PQC_DILITHIUM3_SK_SIZE, 0, PQC_DILITHIUM3_SIG_SIZE, PQC_DILITHIUM3_SS_SIZE, "DILITHIUM3", "NIST Level 3 Signature"},
     /* DILITHIUM5 */
-    {2592, 4896, 0, 4595, 32, "DILITHIUM5", "NIST Level 5 Signature"},
+    {PQC_DILITHIUM5_PK_SIZE, PQC_DILITHIUM5_SK_SIZE, 0, PQC_DILITHIUM5_SIG_SIZE, PQC_DILITHIUM5_SS_SIZE, "DILITHIUM5", "NIST Level 5 Signature"},
     /* FALCON512 */
-    {897, 1281, 0, 666, 32, "FALCON512", "Compact Signature Level 1"},
+    {PQC_FALCON512_PK_SIZE, PQC_FALCON512_SK_SIZE, 0, PQC_FALCON512_SIG_SIZE, PQC_FALCON512_SS_SIZE, "FALCON512", "Compact Signature Level 1"},
     /* FALCON1024 */
-    {1793, 2305, 0, 1026, 32, "FALCON1024", "Compact Signature Level 5"},
+    {PQC_FALCON1024_PK_SIZE, PQC_FALCON1024_SK_SIZE, 0, PQC_FALCON1024_SIG_SIZE, PQC_FALCON1024_SS_SIZE, "FALCON1024", "Compact Signature Level 5"},
     /* SPHINCS-SHA2-128F */
-    {16, 16, 0, 17088, 16, "SPHINCS-SHA2-128F", "Stateless Hash-based Sig Fast"},
+    {PQC_SPHINCS_SHA2_128F_PK_SIZE, PQC_SPHINCS_SHA2_128F_SK_SIZE, 0, PQC_SPHINCS_SHA2_128F_SIG_SIZE, PQC_SPHINCS_SHA2_128F_SS_SIZE, "SPHINCS-SHA2-128F", "Stateless Hash-based Sig Fast"},
     /* SPHINCS-SHA2-128S */
-    {16, 16, 0, 8008, 16, "SPHINCS-SHA2-128S", "Stateless Hash-based Sig Small"},
+    {PQC_SPHINCS_SHA2_128S_PK_SIZE, PQC_SPHINCS_SHA2_128S_SK_SIZE, 0, PQC_SPHINCS_SHA2_128S_SIG_SIZE, PQC_SPHINCS_SHA2_128S_SS_SIZE, "SPHINCS-SHA2-128S", "Stateless Hash-based Sig Small"},
     /* SPHINCS-SHAKE-128F */
-    {16, 16, 0, 17088, 16, "SPHINCS-SHAKE-128F", "Stateless Hash-based Sig Fast (SHAKE)"},
+    {PQC_SPHINCS_SHAKE_128F_PK_SIZE, PQC_SPHINCS_SHAKE_128F_SK_SIZE, 0, PQC_SPHINCS_SHAKE_128F_SIG_SIZE, PQC_SPHINCS_SHAKE_128F_SS_SIZE, "SPHINCS-SHAKE-128F", "Stateless Hash-based Sig Fast (SHAKE)"},
     /* SPHINCS-SHAKE-128S */
-    {16, 16, 0, 8008, 16, "SPHINCS-SHAKE-128S", "Stateless Hash-based Sig Small (SHAKE)"}};
+    {PQC_SPHINCS_SHAKE_128S_PK_SIZE, PQC_SPHINCS_SHAKE_128S_SK_SIZE, 0, PQC_SPHINCS_SHAKE_128S_SIG_SIZE, PQC_SPHINCS_SHAKE_128S_SS_SIZE, "SPHINCS-SHAKE-128S", "Stateless Hash-based Sig Small (SHAKE)"}};
 
 #define NUM_PQC_ALGORITHMS (sizeof(pqc_params_table) / sizeof(pqc_params_t))
 
@@ -174,6 +240,11 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
                         size_t seed_len) {
     pqc_params_t params;
     pqc_result_t result;
+
+    result = pqc_get_params(algo, &params);
+    if (result != PQC_SUCCESS) {
+        return result;
+    }
 
     if (public_key == NULL || secret_key == NULL) {
         return PQC_ERROR_INVALID_PARAM;
@@ -416,9 +487,9 @@ pqc_result_t pqc_hybrid_keygen(pqc_algorithm_t pqc_algo, uint8_t *hybrid_public_
 }
 
 pqc_result_t pqc_hybrid_encapsulate(pqc_algorithm_t pqc_algo,
-                                    const uint8_t *hybrid_public_key, size_t hybrid_public_key_len,
-                                    uint8_t *hybrid_ciphertext, size_t *hybrid_ciphertext_len,
-                                    uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len) {
+                                     const uint8_t *hybrid_public_key, size_t hybrid_public_key_len,
+                                     uint8_t *hybrid_ciphertext, size_t *hybrid_ciphertext_len,
+                                     uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len) {
     pqc_params_t params;
     pqc_result_t result;
 
@@ -475,9 +546,9 @@ pqc_result_t pqc_hybrid_encapsulate(pqc_algorithm_t pqc_algo,
 }
 
 pqc_result_t pqc_hybrid_decapsulate(pqc_algorithm_t pqc_algo,
-                                    const uint8_t *hybrid_secret_key, size_t hybrid_secret_key_len,
-                                    const uint8_t *hybrid_ciphertext, size_t hybrid_ciphertext_len,
-                                    uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len) {
+                                     const uint8_t *hybrid_secret_key, size_t hybrid_secret_key_len,
+                                     const uint8_t *hybrid_ciphertext, size_t hybrid_ciphertext_len,
+                                     uint8_t *hybrid_shared_secret, size_t hybrid_shared_secret_len) {
     pqc_params_t params;
     pqc_result_t result;
 
@@ -518,6 +589,19 @@ pqc_result_t pqc_hybrid_decapsulate(pqc_algorithm_t pqc_algo,
 #endif /* WITH_PQC_LIBOQS */
 
 /* Utility functions - available in both stub and liboqs */
+
+/**
+ * @brief Check if the PQC implementation is the stub (non-production) version.
+ * @return 1 if stub implementation is active, 0 if real liboqs is linked
+ *
+ * @note This function allows applications to detect at runtime whether
+ *       the PQC operations will use real post-quantum algorithms or
+ *       the insecure test stub. The stub should never be used in production.
+ */
+int pqc_is_stub_active(void) {
+    return s_pqc_stub_active;
+}
+
 const char *pqc_result_to_string(pqc_result_t result) {
     switch (result) {
     case PQC_SUCCESS:
@@ -555,3 +639,6 @@ const char *pqc_algorithm_to_string(pqc_algorithm_t algo) {
 #ifdef __cplusplus
 }
 #endif
+
+
+

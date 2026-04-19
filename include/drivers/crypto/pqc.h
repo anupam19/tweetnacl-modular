@@ -44,7 +44,8 @@ typedef enum {
     PQC_ERROR_SIGNATURE_INVALID = -7,
     PQC_ERROR_VERIFICATION_FAILED = -8,
     PQC_ERROR_MEMORY_ALLOCATION = -9,
-    PQC_ERROR_RNG_FAILURE = -10
+    PQC_ERROR_RNG_FAILURE = -10,
+    PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE = -11
 } pqc_result_t;
 
 /* PQC Algorithm Parameters */
@@ -102,6 +103,15 @@ pqc_result_t pqc_hybrid_decapsulate(pqc_algorithm_t pqc_algo,
 /* Utility Functions */
 const char *pqc_result_to_string(pqc_result_t result);
 const char *pqc_algorithm_to_string(pqc_algorithm_t algo);
+
+/**
+ * @brief Check if the PQC implementation is the stub (non-production) version.
+ * @return 1 if stub implementation is active, 0 if real liboqs is linked
+ *
+ * @note Applications should verify this before using PQC operations in production
+ *       environments. The stub implementation is for testing only.
+ */
+int pqc_is_stub_active(void);
 
 #ifdef __cplusplus
 }
