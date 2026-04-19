@@ -234,9 +234,12 @@ void test_crypto_sign(void) {
     /* Verify signature */
     u64 verified_len;
     int verify_result = crypto_sign_open(verified_msg, &verified_len, signed_msg, signed_len, pk);
-    TEST_ASSERT("Verification succeeds", verify_result == 0);
-    TEST_ASSERT("Verified message length correct", verified_len == sizeof(message));
-    TEST_ASSERT("Verified message matches", memcmp(message, verified_msg, sizeof(message)) == 0);
+    if (verify_result == 0) {
+        TEST_ASSERT("Verified message length correct", verified_len == sizeof(message));
+        TEST_ASSERT("Verified message matches", memcmp(message, verified_msg, sizeof(message)) == 0);
+    } else {
+        TEST_ASSERT("Verification succeeds", verify_result == 0);
+    }
 
     /* Tamper with signature */
     signed_msg[10] ^= 0xFF;
