@@ -237,9 +237,8 @@ void test_crypto_sign(void) {
     if (verify_result == 0) {
         TEST_ASSERT("Verified message length correct", verified_len == sizeof(message));
         TEST_ASSERT("Verified message matches", memcmp(message, verified_msg, sizeof(message)) == 0);
-    } else {
-        TEST_ASSERT("Verification succeeds", verify_result == 0);
     }
+    TEST_ASSERT("Verification succeeds", verify_result == 0);
 
     /* Tamper with signature */
     signed_msg[10] ^= 0xFF;
