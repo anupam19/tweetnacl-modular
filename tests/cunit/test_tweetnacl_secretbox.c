@@ -12,8 +12,8 @@ static void test_secretbox_roundtrip(void) {
     uint8_t key[32], nonce[24];
     uint8_t msg[100], ct[100], pt[100];
 
-    randombytes(key, 32);
-    randombytes(nonce, 24);
+    randombytes_safe(key, 32);
+    randombytes_safe(nonce, 24);
     memset(msg, 0, 32);
     memcpy(msg + 32, "secret message", 15);
 
@@ -26,10 +26,10 @@ static void test_secretbox_wrong_key(void) {
     uint8_t key1[32], key2[32], nonce[24];
     uint8_t msg[100], ct[100], pt[100];
 
-    randombytes(key1, 32);
-    randombytes(key2, 32);
+    randombytes_safe(key1, 32);
+    randombytes_safe(key2, 32);
     key2[0] ^= 0x01;
-    randombytes(nonce, 24);
+    randombytes_safe(nonce, 24);
     memset(msg, 0, 32);
 
     CU_ASSERT_EQUAL(crypto_secretbox(ct, msg, 100, nonce, key1), 0);
@@ -40,8 +40,8 @@ static void test_secretbox_tampered(void) {
     uint8_t key[32], nonce[24];
     uint8_t msg[100], ct[100], pt[100];
 
-    randombytes(key, 32);
-    randombytes(nonce, 24);
+    randombytes_safe(key, 32);
+    randombytes_safe(nonce, 24);
     memset(msg, 0, 32);
     CU_ASSERT_EQUAL(crypto_secretbox(ct, msg, 100, nonce, key), 0);
 

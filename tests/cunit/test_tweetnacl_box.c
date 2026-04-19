@@ -27,7 +27,7 @@ static void test_box_encrypt_decrypt(void) {
 
     CU_ASSERT_EQUAL(crypto_box_keypair(pk1, sk1), 0);
     CU_ASSERT_EQUAL(crypto_box_keypair(pk2, sk2), 0);
-    randombytes(nonce, 24);
+    randombytes_safe(nonce, 24);
 
     memset(msg, 0, 32);  /* Zero padding required by TweetNaCl */
     memcpy(msg + 32, "Hello crypto_box!", 17);
@@ -45,7 +45,7 @@ static void test_box_wrong_key_fails(void) {
     CU_ASSERT_EQUAL(crypto_box_keypair(pk1, sk1), 0);
     CU_ASSERT_EQUAL(crypto_box_keypair(pk2, sk2), 0);
     CU_ASSERT_EQUAL(crypto_box_keypair(pk3, sk3), 0);
-    randombytes(nonce, 24);
+    randombytes_safe(nonce, 24);
 
     memset(msg, 0, 32);
     CU_ASSERT_EQUAL(crypto_box(ct, msg, 100, nonce, pk2, sk1), 0);
@@ -60,7 +60,7 @@ static void test_box_tampered_ciphertext(void) {
     uint8_t msg[100], ct[100], pt[100];
 
     CU_ASSERT_EQUAL(crypto_box_keypair(pk, sk), 0);
-    randombytes(nonce, 24);
+    randombytes_safe(nonce, 24);
     memset(msg, 0, 32);
     CU_ASSERT_EQUAL(crypto_box(ct, msg, 100, nonce, pk, sk), 0);
 

@@ -34,17 +34,17 @@ int main(void) {
     /* SHA-512 */
     {
         uint8_t hash[64], msg[1024];
-        randombytes(msg, sizeof(msg));
+        randombytes_safe(msg, sizeof(msg));
         BENCH("SHA-512 (1KB)", 1000, crypto_hash(hash, msg, sizeof(msg)));
     }
 
     /* crypto_secretbox */
     {
         uint8_t key[32], nonce[24], msg[1024], ct[1024];
-        randombytes(key, 32);
-        randombytes(nonce, 24);
+        randombytes_safe(key, 32);
+        randombytes_safe(nonce, 24);
         memset(msg, 0, 32);
-        randombytes(msg + 32, sizeof(msg) - 32);
+        randombytes_safe(msg + 32, sizeof(msg) - 32);
         BENCH("SecretBox (1KB)", 1000,
             crypto_secretbox(ct, msg, sizeof(msg), nonce, key));
     }
@@ -55,7 +55,7 @@ int main(void) {
         uint8_t msg[1024], ct[1024];
         crypto_box_keypair(pk1, sk1);
         crypto_box_keypair(pk2, sk2);
-        randombytes(nonce, 24);
+        randombytes_safe(nonce, 24);
         memset(msg, 0, 32);
         BENCH("Box (1KB)", 100,
             crypto_box(ct, msg, sizeof(msg), nonce, pk2, sk1));
@@ -67,7 +67,7 @@ int main(void) {
         uint8_t msg[512], sm[512 + 64];
         uint64_t smlen;
         crypto_sign_keypair(pk, sk);
-        randombytes(msg, sizeof(msg));
+        randombytes_safe(msg, sizeof(msg));
         BENCH("Ed25519 Sign (512B)", 50,
             crypto_sign(sm, &smlen, msg, sizeof(msg), sk));
     }
@@ -78,7 +78,7 @@ int main(void) {
         uint8_t msg[512], sm[512 + 64], vm[512 + 64];
         uint64_t smlen, vmlen;
         crypto_sign_keypair(pk, sk);
-        randombytes(msg, sizeof(msg));
+        randombytes_safe(msg, sizeof(msg));
         crypto_sign(sm, &smlen, msg, sizeof(msg), sk);
         BENCH("Ed25519 Verify (512B)", 50,
             crypto_sign_open(vm, &vmlen, sm, smlen, pk));
@@ -87,7 +87,7 @@ int main(void) {
     /* crypto_scalarmult_base */
     {
         uint8_t scalar[32], result[32];
-        randombytes(scalar, 32);
+        randombytes_safe(scalar, 32);
         BENCH("ScalarMult Base", 100,
             crypto_scalarmult_base(result, scalar));
     }

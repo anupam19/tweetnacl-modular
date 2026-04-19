@@ -15,7 +15,7 @@
 
 /* Forward declarations to avoid -Wmissing-prototypes warnings */
 void test_architecture_detection(void);
-void test_randombytes(void);
+void test_randombytes_safe(void);
 void test_crypto_hash(void);
 void test_crypto_secretbox(void);
 void test_crypto_box(void);
@@ -84,14 +84,14 @@ void test_architecture_detection(void) {
 }
 
 /* Test 2: Basic Random Generation */
-void test_randombytes(void) {
+void test_randombytes_safe(void) {
     printf("\n=== Testing Random Bytes Generation ===\n");
 
     uint8_t random1[32];
     uint8_t random2[32];
 
-    randombytes(random1, 32);
-    randombytes(random2, 32);
+    randombytes_safe(random1, 32);
+    randombytes_safe(random2, 32);
 
     TEST_ASSERT("Random bytes generated (non-zero)",
                 memcmp(random1, random2, 32) != 0);
@@ -143,8 +143,8 @@ void test_crypto_secretbox(void) {
     uint8_t ciphertext[100];
     uint8_t decrypted[100];
 
-    randombytes(key, 32);
-    randombytes(nonce, 24);
+    randombytes_safe(key, 32);
+    randombytes_safe(nonce, 24);
 
     /* TweetNaCl requires 32-byte zero padding at the beginning */
     memset(message, 0, 32);  /* Zero padding */
@@ -166,7 +166,7 @@ void test_crypto_secretbox(void) {
 
     /* Test with wrong key */
     uint8_t wrong_key[32];
-    randombytes(wrong_key, 32);
+    randombytes_safe(wrong_key, 32);
     int wrong_decrypt = crypto_secretbox_open(decrypted, ciphertext, sizeof(message), nonce, wrong_key);
     TEST_ASSERT("Wrong key fails decryption", wrong_decrypt != 0);
 }
@@ -185,7 +185,7 @@ void test_crypto_box(void) {
     /* Generate key pairs */
     crypto_box_keypair(pk1, sk1);
     crypto_box_keypair(pk2, sk2);
-    randombytes(nonce, 24);
+    randombytes_safe(nonce, 24);
 
     /* TweetNaCl requires 32-byte zero padding at the beginning */
     memset(message, 0, 32);  /* Zero padding */
@@ -224,7 +224,7 @@ void test_crypto_sign(void) {
 
     /* Generate signing key pair */
     crypto_sign_keypair(pk, sk);
-    randombytes(message, sizeof(message));
+    randombytes_safe(message, sizeof(message));
 
     /* Sign message */
     int sign_result = crypto_sign(signed_msg, &signed_len, message, sizeof(message), sk);
@@ -254,7 +254,7 @@ void test_crypto_scalarmult(void) {
     uint8_t result1[32];
     uint8_t result2[32];
 
-    randombytes(scalar, 32);
+    randombytes_safe(scalar, 32);
 
     /* Scalar multiplication with base point */
     int smult_base = crypto_scalarmult_base(result1, scalar);
@@ -398,7 +398,7 @@ void test_performance_basic(void) {
     uint8_t message[1024];
     uint8_t hash[64];
 
-    randombytes(message, sizeof(message));
+    randombytes_safe(message, sizeof(message));
 
     /* Time multiple hash operations */
     clock_t start = clock();
@@ -420,7 +420,7 @@ int main(void) {
     printf("========================================\n");
 
     test_architecture_detection();
-    test_randombytes();
+    test_randombytes_safe();
     test_crypto_hash();
     test_crypto_secretbox();
     test_crypto_box();

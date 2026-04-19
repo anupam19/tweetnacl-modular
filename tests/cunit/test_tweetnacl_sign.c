@@ -22,7 +22,7 @@ static void test_sign_roundtrip(void) {
     u64 smlen, vmlen;
 
     CU_ASSERT_EQUAL(crypto_sign_keypair(pk, sk), 0);
-    randombytes(msg, sizeof(msg));
+    randombytes_safe(msg, sizeof(msg));
     CU_ASSERT_EQUAL(crypto_sign(sm, &smlen, msg, sizeof(msg), sk), 0);
     CU_ASSERT_EQUAL(smlen, sizeof(msg) + 64);
     CU_ASSERT_EQUAL(crypto_sign_open(vm, &vmlen, sm, smlen, pk), 0);
@@ -36,7 +36,7 @@ static void test_sign_tampered_signature(void) {
     u64 smlen, vmlen;
 
     CU_ASSERT_EQUAL(crypto_sign_keypair(pk, sk), 0);
-    randombytes(msg, sizeof(msg));
+    randombytes_safe(msg, sizeof(msg));
     CU_ASSERT_EQUAL(crypto_sign(sm, &smlen, msg, sizeof(msg), sk), 0);
 
     sm[10] ^= 0xFF;
@@ -49,7 +49,7 @@ static void test_sign_tampered_message(void) {
     u64 smlen, vmlen;
 
     CU_ASSERT_EQUAL(crypto_sign_keypair(pk, sk), 0);
-    randombytes(msg, sizeof(msg));
+    randombytes_safe(msg, sizeof(msg));
     CU_ASSERT_EQUAL(crypto_sign(sm, &smlen, msg, sizeof(msg), sk), 0);
 
     /* Tamper with the message part of signed message */
