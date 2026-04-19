@@ -241,11 +241,6 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
     pqc_params_t params;
     pqc_result_t result;
 
-    result = pqc_get_params(algo, &params);
-    if (result != PQC_SUCCESS) {
-        return result;
-    }
-
     if (public_key == NULL || secret_key == NULL) {
         return PQC_ERROR_INVALID_PARAM;
     }
@@ -257,6 +252,10 @@ pqc_result_t pqc_keygen(pqc_algorithm_t algo, uint8_t *public_key, size_t public
 
     if (public_key_len < params.public_key_size || secret_key_len < params.secret_key_size) {
         return PQC_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    if (s_pqc_stub_active) {
+        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
     }
 
     /*
@@ -311,6 +310,10 @@ pqc_result_t pqc_encapsulate(pqc_algorithm_t algo, const uint8_t *public_key, si
         return PQC_ERROR_BUFFER_TOO_SMALL;
     }
 
+    if (s_pqc_stub_active) {
+        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
+    }
+
     *ciphertext_len = params.ciphertext_size;
 
     /* STUB: Generate random ciphertext and shared secret */
@@ -363,6 +366,10 @@ pqc_result_t pqc_decapsulate(pqc_algorithm_t algo, const uint8_t *secret_key, si
         return PQC_ERROR_BUFFER_TOO_SMALL;
     }
 
+    if (s_pqc_stub_active) {
+        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
+    }
+
     /* STUB: Generate random shared secret */
     if (randombytes_safe(shared_secret, params.shared_secret_size) != NACL_SUCCESS) {
         return PQC_ERROR_RNG_FAILURE;
@@ -399,6 +406,10 @@ pqc_result_t pqc_sign(pqc_algorithm_t algo, const uint8_t *secret_key, size_t se
     if (*signature_len < params.signature_size) {
         *signature_len = params.signature_size;
         return PQC_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    if (s_pqc_stub_active) {
+        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
     }
 
     *signature_len = params.signature_size;
@@ -442,6 +453,10 @@ pqc_result_t pqc_verify(pqc_algorithm_t algo, const uint8_t *public_key, size_t 
         return PQC_ERROR_BUFFER_TOO_SMALL;
     }
 
+    if (s_pqc_stub_active) {
+        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
+    }
+
     /*
      * STUB MODE: Always return verification failure.
      * Stub implementation must never succeed in production.
@@ -474,6 +489,10 @@ pqc_result_t pqc_hybrid_keygen(pqc_algorithm_t pqc_algo, uint8_t *hybrid_public_
 
     *hybrid_public_key_len = curve25519_pk_size + params.public_key_size;
     *hybrid_secret_key_len = curve25519_sk_size + params.secret_key_size;
+
+    if (s_pqc_stub_active) {
+        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
+    }
 
     /* Initialize with zeros using secure_zero (Curve25519 keys would be generated separately) */
     secure_zero(hybrid_public_key, *hybrid_public_key_len);
@@ -530,13 +549,18 @@ pqc_result_t pqc_hybrid_encapsulate(pqc_algorithm_t pqc_algo,
         *hybrid_ciphertext_len = required_ct_size;
         return PQC_ERROR_BUFFER_TOO_SMALL;
     }
-    *hybrid_ciphertext_len = required_ct_size;
 
     /* Hybrid shared secret: SHA256(Curve25519_shared || PQC_shared) */
     size_t hybrid_ss_size = 32; /* SHA256 output */
     if (hybrid_shared_secret_len < hybrid_ss_size) {
         return PQC_ERROR_BUFFER_TOO_SMALL;
     }
+
+    if (s_pqc_stub_active) {
+        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
+    }
+
+    *hybrid_ciphertext_len = required_ct_size;
 
     /* STUB: Generate hybrid shared secret (zero-filled for demo) */
     secure_zero(hybrid_ciphertext, required_ct_size);
@@ -576,6 +600,10 @@ pqc_result_t pqc_hybrid_decapsulate(pqc_algorithm_t pqc_algo,
     size_t hybrid_ss_size = 32;
     if (hybrid_shared_secret_len < hybrid_ss_size) {
         return PQC_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    if (s_pqc_stub_active) {
+        return PQC_ERROR_IMPLEMENTATION_NOT_AVAILABLE;
     }
 
     /* STUB: Derive hybrid shared secret */
