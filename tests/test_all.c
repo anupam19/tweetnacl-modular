@@ -363,11 +363,10 @@ void test_error_handling(void) {
     pqc_params_t params;
 
     /* Test invalid algorithm */
-    pqc_params_t params;
-    pqc_result_t result = pqc_get_params((pqc_algorithm_t)999, &params);
+    result = pqc_get_params((pqc_algorithm_t)999, &params);
     TEST_ASSERT("Invalid algorithm returns error", result != PQC_SUCCESS);
 
-    /* Test PQC error handling only when real implementation is available */
+    /* Test PQC-specific error handling only when real implementation is available */
     if (!pqc_is_stub_active()) {
         /* Test NULL parameters */
         uint8_t pk[100], sk[100];
@@ -386,6 +385,36 @@ void test_error_handling(void) {
     } else {
         printf("[SKIP] PQC error handling tests: stub implementation active\n");
     }
+
+    /* Test error string conversion */
+    const char* error_str = pqc_result_to_string(PQC_SUCCESS);
+    TEST_ASSERT("Error string conversion works", strcmp(error_str, "Success") == 0);
+
+    error_str = pqc_result_to_string(PQC_ERROR_INVALID_PARAM);
+    TEST_ASSERT("Error string for invalid param",
+                strcmp(error_str, "Invalid parameter") == 0);
+}
+
+    /* Test error string conversion */
+    const char* error_str = pqc_result_to_string(PQC_SUCCESS);
+    TEST_ASSERT("Error string conversion works", strcmp(error_str, "Success") == 0);
+
+    error_str = pqc_result_to_string(PQC_ERROR_INVALID_PARAM);
+    TEST_ASSERT("Error string for invalid param",
+                strcmp(error_str, "Invalid parameter") == 0);
+}
+<<<<<<< HEAD
+=======
+
+    /* Test error string conversion */
+    const char* error_str = pqc_result_to_string(PQC_SUCCESS);
+    TEST_ASSERT("Error string conversion works", strcmp(error_str, "Success") == 0);
+
+    error_str = pqc_result_to_string(PQC_ERROR_INVALID_PARAM);
+    TEST_ASSERT("Error string for invalid param",
+                strcmp(error_str, "Invalid parameter") == 0);
+}
+>>>>>>> dfd008e (Ensure test_error_handling has correct structure: declarations at function top, PQC-specific tests wrapped in stub check)
 
     /* Test error string conversion */
     const char* error_str = pqc_result_to_string(PQC_SUCCESS);
